@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "fastapi-template-simple2b"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.65.1"
+uvicorn = "^0.14.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+flake8 = "^3.9.2"
+black = "^21.5b2"
+pytest = "^6.2.4"
+requests = "^2.25.1"
+fastapi-pagination = "^0.7.4"
+asynctest = "^0.13.0"
+python-dotenv = "^0.17.1"
+python-multipart = "^0.0.5"
+asyncpg = "^0.23.0"
+aerich = "^0.5.4"
+SQLAlchemy = "^1.4.23"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

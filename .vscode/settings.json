@@ -1,0 +1,22 @@
+{
+  "python.formatting.provider": "black",
+  "editor.formatOnSave": true,
+  "python.linting.enabled": true,
+  "python.terminal.activateEnvironment": true,
+  "cSpell.words": [
+    "aerich",
+    "asyncio",
+    "bcrypt",
+    "finalizer",
+    "noqa",
+    "pydantic",
+    "pytest",
+    "skipif",
+    "starlette",
+    "uvicorn"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "pythonTestExplorer.testFramework": "pytest"
+}
