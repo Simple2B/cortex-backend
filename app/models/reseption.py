@@ -3,9 +3,9 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class Client(Base):
-    __tablename__ = "clients"
+class Reseption(Base):
+    __tablename__ = "reseptions"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(64))
-    phon_num = Column(String(128), unique=True, index=True)
+    date =
+    doctor_id =
