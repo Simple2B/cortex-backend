@@ -26,7 +26,7 @@ class AuthService:
             last_name=doctor_data.last_name,
             hash_password=self.hash_password(doctor_data.password),
         )
-        log(log.INFO, "Doctor %s has been created", doctor_data.username)
+        log(log.INFO, "Doctor %s has been created", doctor_data.first_name)
         return doctor
 
     def authenticate_doctor(self, email: str, password: str) -> Token:
