@@ -12,10 +12,10 @@ class Client(Base):
     email = Column(String(128), unique=True, index=True)
     phone_num = Column(String(128), unique=True, index=True)
 
-    quene_id = Column(Integer, ForeignKey("quenes.id"))
+    queue_id = Column(Integer, ForeignKey("queues.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    quene = relationship("Quene")
+    queue = relationship("Queue")
     doctor = relationship("Doctor")
 
     def __str__(self) -> str:
