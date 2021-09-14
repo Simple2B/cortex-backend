@@ -29,7 +29,7 @@ async def sign_up(doctor_data: DoctorCreate):
     """Register new user"""
     # TODO only admin could create user
     service = AuthService()
-    return await service.register_new_user(doctor_data)
+    return await service.register_new_doctor(doctor_data)
 
 
 @router.post("/sign_in", response_model=Token, tags=["Auth"])
