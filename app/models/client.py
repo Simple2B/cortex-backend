@@ -15,7 +15,7 @@ class Client(Base):
     queue_id = Column(Integer, ForeignKey("queues.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    queue = relationship("Quee")
+    queue = relationship("Queue")
     doctor = relationship("Doctor")
 
     def __str__(self) -> str:
