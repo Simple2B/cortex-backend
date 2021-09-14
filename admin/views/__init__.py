@@ -1,1 +1,1 @@
-from .admin import PollockAdminIndexView
+from .admin import CortexAdminIndexView
