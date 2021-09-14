@@ -27,3 +27,11 @@ class Doctor(Base):
     hash_password = Column(String)
     role = Column(Enum(DoctorRole), default=DoctorRole.DOCTOR.value)
     api_key = Column(String(128), default=gen_uuid)
+
+    clients = relationship("Client", viewonly=True)
+
+    def __repr__(self):
+        return f"<{self.id}: {self.email}>"
+
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name}"

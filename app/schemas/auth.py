@@ -2,7 +2,9 @@ from pydantic import BaseModel
 
 
 class BaseDoctor(BaseModel):
-    username: str
+    first_name: str
+    last_name: str
+    email: str
 
 
 class DoctorCreate(BaseDoctor):
