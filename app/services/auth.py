@@ -24,6 +24,7 @@ class AuthService:
         doctor = DoctorDB(
             first_name=doctor_data.first_name,
             last_name=doctor_data.last_name,
+            email=doctor_data.email,
             hash_password=self.hash_password(doctor_data.password),
         )
         log(log.INFO, "Doctor %s has been created", doctor_data.first_name)
