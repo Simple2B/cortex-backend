@@ -1,9 +1,10 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
+from .utils import ModelMixin
 
 
-class Client(Base):
+class Client(Base, ModelMixin):
     __tablename__ = "clients"
 
     id = Column(Integer, primary_key=True, index=True)

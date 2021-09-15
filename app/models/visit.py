@@ -2,9 +2,10 @@ from datetime import datetime
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
+from .utils import ModelMixin
 
 
-class Visit(Base):
+class Visit(Base, ModelMixin):
     __tablename__ = "visits"
 
     id = Column(Integer, primary_key=True, index=True)
