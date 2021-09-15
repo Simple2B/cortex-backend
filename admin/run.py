@@ -14,7 +14,7 @@ from admin.views import (
 from app.logger import log
 from admin.config import BaseConfig as conf
 
-# from database import add_admin_to_db
+# from .database import add_admin_to_db
 
 log.set_level(conf.LOG_LEVEL)
 

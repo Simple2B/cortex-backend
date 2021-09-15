@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class Queue(Base):
-    __tablename__ = "queues"
+class QueueMember(Base):
+    __tablename__ = "queue_members"
 
     id = Column(Integer, primary_key=True, index=True)
     place_in_queue = Column(Integer)
@@ -14,5 +14,5 @@ class Queue(Base):
     visit_id = Column(Integer, nullable=True)
     reception_id = Column(Integer, ForeignKey("receptions.id"))
 
-    # clients = relationship("Client", viewonly=True)
-    reception = relationship("Reception")
+    client = relationship("Client", viewonly=True)
+    reception = relationship("Reception", viewonly=True)

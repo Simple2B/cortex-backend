@@ -6,7 +6,6 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from app.models import Doctor
 
 from app.logger import log
 
@@ -21,7 +20,7 @@ def create_app(environment="development"):
     from admin.config import config
 
     # from app.views import ()
-    # from app.models import ()
+    from app.models import Doctor
 
     # Instantiate app.
     app = Flask(__name__)

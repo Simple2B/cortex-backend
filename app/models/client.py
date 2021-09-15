@@ -18,11 +18,5 @@ class Client(Base):
     phone_num = Column(String(32), unique=True, index=True)
     email = Column(String(128), unique=True, index=True)
 
-    queue_id = Column(Integer, ForeignKey("queues.id"))
-    doctor_id = Column(Integer, ForeignKey("doctors.id"))
-
-    # queue = relationship("Queue")
-    doctor = relationship("Doctor")
-
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"

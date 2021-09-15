@@ -11,5 +11,5 @@ class Reception(Base):
     date = Column(DateTime, default=datetime.utcnow)
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    doctors = relationship("Doctor", viewonly=True)
-    queue = relationship("Queue")
+    doctor = relationship("Doctor", viewonly=True)
+    queue_members = relationship("QueueMember", viewonly=True)

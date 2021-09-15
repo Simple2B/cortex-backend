@@ -15,8 +15,8 @@ class Visit(Base):
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    client = relationship("Client")
-    doctor = relationship("Doctor")
+    client = relationship("Client", viewonly=True)
+    doctor = relationship("Doctor", viewonly=True)
 
     def __repr__(self):
         return f"<{self.id}: c:{self.client_id}-d:{self.doctor_id}>"
