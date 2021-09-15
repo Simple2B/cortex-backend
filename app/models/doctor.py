@@ -6,13 +6,14 @@ from sqlalchemy import Enum
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.database import Base
+from .utils import ModelMixin
 
 
 def gen_uuid() -> str:
     return str(uuid4())
 
 
-class Doctor(Base):
+class Doctor(Base, ModelMixin):
     __tablename__ = "doctors"
 
     class DoctorRole(enum.Enum):

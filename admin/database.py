@@ -1,6 +1,6 @@
 # from app import db
 
-from config import BaseConfig as conf
+from admin.config import BaseConfig as conf
 from app.models import Doctor
 
 

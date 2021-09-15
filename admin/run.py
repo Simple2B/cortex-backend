@@ -14,7 +14,7 @@ from admin.views import (
 from app.logger import log
 from admin.config import BaseConfig as conf
 
-# from .database import add_admin_to_db
+from admin.database import add_admin_to_db
 
 log.set_level(conf.LOG_LEVEL)
 
@@ -35,7 +35,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
-    # add_admin_to_db()
+    add_admin_to_db()
 
 
 @app.cli.command()
