@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from app.models import Doctor
 
 from app.logger import log
 
@@ -17,7 +18,7 @@ migrate = Migrate()
 
 def create_app(environment="development"):
 
-    from config import config
+    from admin.config import config
 
     # from app.views import ()
     # from app.models import ()
@@ -40,22 +41,22 @@ def create_app(environment="development"):
     # app.register_blueprint()
 
     # Set up flask login.
-    # @login_manager.user_loader
-    # def get_user(id):
-    #     return User.query.get(int(id))
+    @login_manager.user_loader
+    def get_user(id):
+        return Doctor.query.get(int(id))
 
     # login_manager.login_view = "main.index"
-    # login_manager.login_message_category = "info"
+    login_manager.login_message_category = "info"
     # login_manager.anonymous_user = AnonymousUser
 
     # Error handlers.
-    @app.errorhandler(HTTPException)
-    def handle_http_error(exc):
-        if exc.code == 404:
-            return render_template("page-404.html")
-        if exc.code == 500:
-            return render_template("page-500.html")
+    # @app.errorhandler(HTTPException)
+    # def handle_http_error(exc):
+    #     if exc.code == 404:
+    #         return render_template("page-404.html")
+    #     if exc.code == 500:
+    #         return render_template("page-500.html")
 
-        return render_template("error.html", error=exc), exc.code
+    #     return render_template("error.html", error=exc), exc.code
 
     return app

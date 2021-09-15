@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, Union
+import os
+from typing import Any, Dict, List, Union, Optional
 
-from pydantic import AnyHttpUrl, BaseSettings, validator
+from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
@@ -20,13 +21,39 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    POSTGRES_SERVER: str = "127.0.0.1"
+    POSTGRES_SERVER: str = "db"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "secret"
     POSTGRES_DB: str = "test_db"
     POSTGRES_PORT: str = "5432"
+    LOCAL_DB_PORT: str = "11"
+    LOCAL_DB_SERVER: str = "127.0.0.1"
+    FLASK_ENV: str = "production"
+    SQLALCHEMY_DATABASE_URL: str = None
 
-    SQLALCHEMY_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    @validator("SQLALCHEMY_DATABASE_URL", pre=True)
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        if isinstance(v, str):
+            return v
+        env = os.environ.get("FLASK_ENV", "develop")
+        host = (
+            values.get("POSTGRES_SERVER")
+            if env == "production"
+            else values.get("LOCAL_DB_SERVER")
+        )
+        port = (
+            values.get("POSTGRES_PORT")
+            if env == "production"
+            else values.get("LOCAL_DB_PORT")
+        )
+        return PostgresDsn.build(
+            scheme="postgresql",
+            user=values.get("POSTGRES_USER"),
+            password=values.get("POSTGRES_PASSWORD"),
+            host=host,
+            port=port,
+            path=f"/{values.get('POSTGRES_DB') or ''}",
+        )
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")

@@ -1,8 +1,10 @@
 #!/user/bin/env python
 import click
 
-from app import create_app, db, models, forms
 from flask_admin import Admin
+from admin import create_app, db
+from app import models
+
 
 # from app.models import User, PhotoContest
 from admin.views import (
@@ -10,12 +12,14 @@ from admin.views import (
     CortexAdminIndexView,
 )
 from app.logger import log
-from config import BaseConfig as conf
+from admin.config import BaseConfig as conf
+
+# from database import add_admin_to_db
 
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
-admin = Admin(app, index_view=CortexAdminIndexView())
+admin = Admin(app)
 
 # admin.add_view(UserAdminModelView(User, db.session))
 
@@ -31,6 +35,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
+    # add_admin_to_db()
 
 
 @app.cli.command()
@@ -46,9 +51,6 @@ def reset_db():
     """Reset the current database."""
     db.drop_all()
     db.create_all()
-
-
-# flask reset-db --yes --add-test-data
 
 
 if __name__ == "__main__":

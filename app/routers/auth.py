@@ -8,7 +8,7 @@ from app.schemas import DoctorCreate, Doctor, Token
 
 # from sqlalchemy.orm import Session
 # from starlette.responses import RedirectResponse
-from app.database import get_db
+# from app.database import get_db
 
 router = APIRouter(prefix="/auth")
 

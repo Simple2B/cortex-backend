@@ -8,11 +8,11 @@ class Queue(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     place_in_queue = Column(Integer)
+    canceled = Column(Boolean, default=False)
 
     client_id = Column(Integer, ForeignKey("clients.id"))
-    visit_id = Column(Integer, ForeignKey("visit.id"))
-    reception_id = Column(Integer, ForeignKey("reception.id"))
+    visit_id = Column(Integer, nullable=True)
+    reception_id = Column(Integer, ForeignKey("receptions.id"))
 
-    clients = relationship("Client", viewonly=True)
-    visits = relationship("Visit", viewonly=True)
+    # clients = relationship("Client", viewonly=True)
     reception = relationship("Reception")

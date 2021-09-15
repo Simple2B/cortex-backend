@@ -17,7 +17,6 @@ class Visit(Base):
 
     client = relationship("Client")
     doctor = relationship("Doctor")
-    queue = relationship("Queue")
 
     def __repr__(self):
         return f"<{self.id}: c:{self.client_id}-d:{self.doctor_id}>"

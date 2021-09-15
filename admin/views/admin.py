@@ -7,7 +7,7 @@ from app.models import Doctor
 
 
 class CortexAdminIndexView(AdminIndexView):
-    @expose("/")
+    @expose("/admin")
     def index(self):
         doctor: Doctor = current_user
         if not (doctor.is_authenticated and doctor.role == Doctor.UserRole.ADMIN):

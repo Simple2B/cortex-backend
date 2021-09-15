@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
+from app.logger import log
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv(os.path.join(BASE_DIR, "../.env"))
 
 
 class BaseConfig(object):
@@ -16,35 +17,18 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False
 
-    TEST_API_KEY = os.environ.get("TELEGRAM_TEST_API_KEY", "1234567890:UNKNOWN-VALUE")
-    API_KEY = os.environ.get("TELEGRAM_API_KEY")
-
-    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "unknown_user")
-    ADMIN_FIRST_NAME = os.environ.get("ADMIN_FIRST_NAME", "Paul Jackson")
-    ADMIN_LAST_NAME = os.environ.get("ADMIN_LAST_NAME", "Pollock")
-    ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "88888888")
-    TELEGRAM_REDIRECT_URL = os.environ.get("TELEGRAM_REDIRECT_URL")
-    TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME")
-
-    TELEGRAM_DEFAULT_GROUP_NAME = os.environ.get(
-        "TELEGRAM_DEFAULT_GROUP_NAME", "Group_Pollock"
-    )
-    TELEGRAM_DEFAULT_GROUP_ID = int(
-        os.environ.get("TELEGRAM_DEFAULT_GROUP_ID", -592013051)
-    )
-
-    PHOTO_PATH = os.path.join(BASE_DIR, "data/photo")
+    ADMIN_FIRST_NAME = os.environ.get("ADMIN_FIRST_NAME", "Admin")
+    ADMIN_LAST_NAME = os.environ.get("ADMIN_LAST_NAME", "Cortex")
+    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@gmail.com")
 
     FLASK_ADMIN_SWATCH = "cerulean"
 
-    GALLERY_PHOTO_PER_PAGE = int(os.environ.get("GALLERY_PHOTO_PER_PAGE", 15))
-
-    LOG_LEVEL = int(os.environ.get("LOG_LEVEL", 20))
+    LOG_LEVEL = int(os.environ.get("LOG_LEVEL", log.INFO))
 
     @staticmethod
     def configure(app):
         # Implement this method to do further configuration on your app.
-        pass
+        log.set_level(app.config["LOG_LEVEL"])
 
 
 class DevelopmentConfig(BaseConfig):
@@ -66,7 +50,6 @@ class TestingConfig(BaseConfig):
         "TEST_DATABASE_URL",
         "sqlite:///" + os.path.join(BASE_DIR, "database-test.sqlite3"),
     )
-    NUMBER_TEST_PHOTOS = int(os.environ.get("NUMBER_TEST_PHOTOS", 5))
 
 
 class ProductionConfig(BaseConfig):
