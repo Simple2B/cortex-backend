@@ -4,7 +4,6 @@ from uuid import uuid4
 from sqlalchemy import Enum
 
 from sqlalchemy import Boolean, Column, Integer, String
-from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
 

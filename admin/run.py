@@ -7,10 +7,10 @@ from app import models
 
 
 # from app.models import User, PhotoContest
-from admin.views import (
-    # UserAdminModelView,
-    CortexAdminIndexView,
-)
+# from admin.views import (
+#     UserAdminModelView,
+#     CortexAdminIndexView,
+# )
 from app.logger import log
 from admin.config import BaseConfig as conf
 

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from typing import List
+
+# from typing import List
 
 from app.services import AuthService, get_current_doctor
 from app.schemas import DoctorCreate, Doctor, Token
