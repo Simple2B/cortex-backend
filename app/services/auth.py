@@ -15,20 +15,22 @@ from app.logger import log
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sign_in")
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Doctor:
+def get_current_doctor(token: str = Depends(oauth2_scheme)) -> Doctor:
     return AuthService.validate_token(token)
 
 
 class AuthService:
-    def register_new_user(self, user_data: DoctorCreate) -> Doctor:
+    def register_new_doctor(self, doctor_data: DoctorCreate) -> Doctor:
         doctor = DoctorDB(
-            username=user_data.username,
-            hash_password=self.hash_password(user_data.password),
+            first_name=doctor_data.first_name,
+            last_name=doctor_data.last_name,
+            email=doctor_data.email,
+            hash_password=self.hash_password(doctor_data.password),
         )
-        log(log.INFO, "Doctor %s has been created", user_data.username)
+        log(log.INFO, "Doctor %s has been created", doctor_data.first_name)
         return doctor
 
-    def authenticate_user(self, username: str, password: str) -> Token:
+    def authenticate_doctor(self, email: str, password: str) -> Token:
         def exception():
             return HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,10 +38,10 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        doctor = DoctorDB.query.filter(username=username).first()
+        doctor = DoctorDB.query.filter(email=email).first()
 
         if not doctor:
-            log(log.ERROR, "Doctor %s does not exist", username)
+            log(log.ERROR, "Doctor %s does not exist", email)
             raise exception()
 
         if not self.verify_password(password, doctor.hash_password):
@@ -73,10 +75,10 @@ class AuthService:
             log(log.ERROR, "JWT token could not create")
             raise exception from None
 
-        user_data = payload.get("doctor")
+        doctor_data = payload.get("doctor")
 
         try:
-            doctor = Doctor.parse_obj(user_data)
+            doctor = Doctor.parse_obj(doctor_data)
         except ValidationError:
             raise exception from None
 
@@ -84,15 +86,15 @@ class AuthService:
 
     @classmethod
     def create_token(cls, doctor: DoctorDB) -> Token:
-        user_data = Doctor.from_orm(doctor)
+        doctor_data = Doctor.from_orm(doctor)
 
         now = datetime.utcnow()
         payload = {
             "iat": now,
             "nbf": now,
             "exp": now + timedelta(seconds=int(config.JWT_EXP)),
-            "sub": str(user_data.id),
-            "doctor": user_data.dict(),
+            "sub": str(doctor_data.id),
+            "doctor": doctor_data.dict(),
         }
         token = jwt.encode(payload, config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
         return Token(access_token=token)
