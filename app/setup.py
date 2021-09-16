@@ -8,7 +8,9 @@ from app.config import settings
 
 def create_app() -> FastAPI:
     """Create the application instance"""
-    app = FastAPI(title=settings.SERVER_NAME)
+    app = FastAPI(
+        title=settings.SERVER_NAME, docs_url="/api/docs", redoc_url="/api/redoc"
+    )
 
     app.add_middleware(
         CORSMiddleware,
