@@ -18,12 +18,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(router)
-
-    @app.get("/", tags=["Root"])
+    @router.get("/", tags=["Root"])
     async def root():
         """Redirect to documentation"""
         return RedirectResponse(url="/docs")
+
+    app.include_router(router)
 
     add_pagination(app)
     return app
