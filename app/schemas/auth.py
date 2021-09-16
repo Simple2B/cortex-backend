@@ -2,8 +2,8 @@ from pydantic import BaseModel
 
 
 class BaseDoctor(BaseModel):
-    first_name: str
-    last_name: str
+    # first_name: str
+    # last_name: str
     email: str
 
 

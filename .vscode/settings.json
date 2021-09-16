@@ -7,6 +7,7 @@
     "aerich",
     "asyncio",
     "bcrypt",
+    "DEVEL",
     "finalizer",
     "noqa",
     "pydantic",

@@ -12,8 +12,7 @@
       "args": ["app.main:app", "--reload"],
       "jinja": true,
       "env": {
-        "POSTGRES_PORT": "5556",
-        "POSTGRES_SERVER": "127.0.0.1"
+        "FLASK_ENV": "development"
       }
     }
   ]

@@ -2,5 +2,5 @@
 from .doctor import Doctor
 from .client import Client
 from .visit import Visit
-from .queue import Queue
+from .queue_member import QueueMember
 from .reception import Reception

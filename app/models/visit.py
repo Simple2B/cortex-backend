@@ -1,10 +1,11 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
+from .utils import ModelMixin
 
 
-class Visit(Base):
+class Visit(Base, ModelMixin):
     __tablename__ = "visits"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -15,9 +16,8 @@ class Visit(Base):
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    client = relationship("Client")
-    doctor = relationship("Doctor")
-    queue = relationship("Queue")
+    client = relationship("Client", viewonly=True)
+    doctor = relationship("Doctor", viewonly=True)
 
     def __repr__(self):
         return f"<{self.id}: c:{self.client_id}-d:{self.doctor_id}>"

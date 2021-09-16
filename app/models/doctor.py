@@ -4,15 +4,15 @@ from uuid import uuid4
 from sqlalchemy import Enum
 
 from sqlalchemy import Boolean, Column, Integer, String
-from sqlalchemy.orm import relationship
 from app.database import Base
+from .utils import ModelMixin
 
 
 def gen_uuid() -> str:
     return str(uuid4())
 
 
-class Doctor(Base):
+class Doctor(Base, ModelMixin):
     __tablename__ = "doctors"
 
     class DoctorRole(enum.Enum):
@@ -27,8 +27,6 @@ class Doctor(Base):
     hash_password = Column(String)
     role = Column(Enum(DoctorRole), default=DoctorRole.DOCTOR.value)
     api_key = Column(String(128), default=gen_uuid)
-
-    clients = relationship("Client", viewonly=True)
 
     def __repr__(self):
         return f"<{self.id}: {self.email}>"

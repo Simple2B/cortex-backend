@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from typing import List
+
+# from typing import List
 
 from app.services import AuthService, get_current_doctor
 from app.schemas import DoctorCreate, Doctor, Token
@@ -8,7 +9,7 @@ from app.schemas import DoctorCreate, Doctor, Token
 
 # from sqlalchemy.orm import Session
 # from starlette.responses import RedirectResponse
-from app.database import get_db
+# from app.database import get_db
 
 router = APIRouter(prefix="/auth")
 
