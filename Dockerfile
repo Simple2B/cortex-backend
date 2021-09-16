@@ -17,5 +17,4 @@ RUN poetry self update
 COPY poetry.lock .
 COPY pyproject.toml .
 
-
 RUN POETRY_VIRTUALENVS_CREATE=false poetry install --no-dev --no-interaction --no-ansi
