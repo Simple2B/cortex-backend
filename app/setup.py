@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
     @router.get("/", tags=["Root"])
     async def root():
         """Redirect to documentation"""
-        return RedirectResponse(url="/docs")
+        return RedirectResponse(url="/api/docs")
 
     app.include_router(router)
 
