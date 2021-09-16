@@ -22,8 +22,8 @@ def get_current_doctor(token: str = Depends(oauth2_scheme)) -> Doctor:
 class AuthService:
     def register_new_doctor(self, doctor_data: DoctorCreate) -> Doctor:
         doctor = DoctorDB(
-            first_name=doctor_data.first_name,
-            last_name=doctor_data.last_name,
+            # first_name=doctor_data.first_name,
+            # last_name=doctor_data.last_name,
             email=doctor_data.email,
             hash_password=self.hash_password(doctor_data.password),
         )
