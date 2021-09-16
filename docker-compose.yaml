@@ -23,7 +23,16 @@ services:
       - 127.0.0.1:${PGADMIN_PORT}:80
       - 127.0.0.1:${PGADMIN_HTTPS}:443
 
-  # admin: b
+  admin:
+    build: .
+    restart: always
+    command: bash ./start_admin.sh
+    ports:
+      - 127.0.0.1:${LOCAL_ADMIN_PORT}:80
+    volumes:
+      - .:/admin
+    depends_on:
+      - db
 
   api:
     build: .
@@ -31,11 +40,23 @@ services:
     command: bash ./start_server.sh
     #   command: python3 ade.py
     ports:
-      - 127.0.0.1:${LOCAL_WEB_PORT}:80
+      - 127.0.0.1:${LOCAL_API_PORT}:80
     volumes:
       - .:/app
     depends_on:
       - db
+
+  # front:
+  #   build: .
+  #   restart: always
+  #   command: bash ./start_frontend.sh
+  #   #   command: python3 ade.py
+  #   ports:
+  #     - 127.0.0.1:${LOCAL_WEB_PORT}:3000
+  #   volumes:
+  #     - .:/${FRONTEND_PATH}
+  #   depends_on:
+  #     - api
 
 volumes:
   db_data:
