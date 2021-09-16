@@ -8,7 +8,7 @@ from app.config import settings
 
 def create_app() -> FastAPI:
     """Create the application instance"""
-    app = FastAPI(title=settings.SERVER_NAME, root_path="/api")
+    app = FastAPI(title=settings.SERVER_NAME)
 
     app.add_middleware(
         CORSMiddleware,
