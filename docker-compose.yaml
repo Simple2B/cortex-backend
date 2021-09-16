@@ -46,17 +46,17 @@ services:
     depends_on:
       - db
 
-  # front:
-  #   build: .
-  #   restart: always
-  #   command: bash ./start_frontend.sh
-  #   #   command: python3 ade.py
-  #   ports:
-  #     - 127.0.0.1:${LOCAL_WEB_PORT}:3000
-  #   volumes:
-  #     - .:/${FRONTEND_PATH}
-  #   depends_on:
-  #     - api
+  front:
+    build: .
+    restart: always
+    command: bash ./start_frontend.sh
+    #   command: python3 ade.py
+    ports:
+      - 127.0.0.1:${LOCAL_WEB_PORT}:3000
+    volumes:
+      - .:/${FRONTEND_PATH}
+    depends_on:
+      - api
 
 volumes:
   db_data:
