@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Flask",
+      "type": "python",
+      "request": "launch",
+      "module": "flask",
+      "env": { "FLASK_APP": "admin.run:app", "FLASK_ENV": "development" },
+      "args": ["run", "--no-debugger"],
+      "jinja": true
+    },
+    {
       "name": "Debug",
       "type": "python",
       "request": "launch",
