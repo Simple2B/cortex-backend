@@ -9,7 +9,10 @@ from app.config import settings
 def create_app() -> FastAPI:
     """Create the application instance"""
     app = FastAPI(
-        title=settings.SERVER_NAME, docs_url="/api/docs", redoc_url="/api/redoc"
+        title=settings.SERVER_NAME,
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
     )
 
     app.add_middleware(
