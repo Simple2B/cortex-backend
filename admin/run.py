@@ -2,9 +2,11 @@
 import click
 
 from flask_admin import Admin
-from admin import create_app, db
+from flask_admin.contrib.sqla import ModelView
+from admin import create_app
+from admin import db
 from app import models
-from app.models import Doctor
+from app.models import Doctor, Client
 
 
 from .views import CortexAdminIndexView, DoctorAdminModelView
@@ -20,7 +22,9 @@ app = create_app()
 
 admin = Admin(app, index_view=CortexAdminIndexView())
 
-admin.add_view(DoctorAdminModelView(Doctor, db.session))
+# admin.add_view(DoctorAdminModelView(Doctor, db.session))
+admin.add_view(ModelView(Doctor, db.session))
+admin.add_view(ModelView(Client, db.session))
 
 
 # flask cli context setup
