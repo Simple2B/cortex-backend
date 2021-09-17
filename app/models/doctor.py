@@ -24,7 +24,7 @@ class Doctor(Base, ModelMixin):
     last_name = Column(String(64))
     email = Column(String(128), unique=True, index=True)
     email_approved = Column(Boolean, default=True)
-    hash_password = Column(String)
+    hash_password = Column(String(255))
     role = Column(Enum(DoctorRole), default=DoctorRole.DOCTOR.value)
     api_key = Column(String(128), default=gen_uuid)
 

@@ -1,5 +1,6 @@
 #!/user/bin/env python
 import click
+from flask import session, redirect, render_template, request
 
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -20,11 +21,36 @@ log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
 
-admin = Admin(app, index_view=CortexAdminIndexView())
+admin = Admin(
+    app,
+    index_view=CortexAdminIndexView(),
+    name="Cortex",
+    template_mode="bootstrap3",
+)
 
-# admin.add_view(DoctorAdminModelView(Doctor, db.session))
-admin.add_view(ModelView(Doctor, db.session))
+admin.add_view(DoctorAdminModelView(Doctor, db.session))
+# admin.add_view(ModelView(Doctor, db.session))
 admin.add_view(ModelView(Client, db.session))
+
+
+@app.route("/admin/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        if (
+            request.form.get("email") == conf.ADMIN_EMAIL
+            and request.form.get("password") == conf.ADMIN_PASSWORD
+        ):
+            session["logged_in"] = True
+            return redirect("/admin")
+        else:
+            return render_template("login.html", failed=True)
+    return render_template("login.html")
 
 
 # flask cli context setup
