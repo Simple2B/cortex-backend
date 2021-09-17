@@ -47,6 +47,17 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [[package]]
+name = "babel"
+version = "2.9.1"
+description = "Internationalization utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.dependencies]
+pytz = ">=2015.7"
+
+[[package]]
 name = "black"
 version = "21.9b0"
 description = "The uncompromising code formatter."
@@ -74,6 +85,14 @@ python2 = ["typed-ast (>=1.4.2)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "blinker"
+version = "1.4"
+description = "Fast, simple object-to-object and broadcast signaling"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "click"
 version = "8.0.1"
 description = "Composable command line interface toolkit"
@@ -93,6 +112,21 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "dnspython"
+version = "2.1.0"
+description = "DNS toolkit"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+dnssec = ["cryptography (>=2.6)"]
+doh = ["requests", "requests-toolbelt"]
+idna = ["idna (>=2.1)"]
+curio = ["curio (>=1.2)", "sniffio (>=1.1)"]
+trio = ["trio (>=0.14.0)", "sniffio (>=1.1)"]
+
+[[package]]
 name = "ecdsa"
 version = "0.17.0"
 description = "ECDSA cryptographic signature library (pure python)"
@@ -106,6 +140,18 @@ six = ">=1.9.0"
 [package.extras]
 gmpy = ["gmpy"]
 gmpy2 = ["gmpy2"]
+
+[[package]]
+name = "email-validator"
+version = "1.1.3"
+description = "A robust email syntax and deliverability validation library for Python 2.x/3.x."
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[package.dependencies]
+dnspython = ">=1.15.0"
+idna = ">=2.0.0"
 
 [[package]]
 name = "fastapi"
@@ -198,6 +244,20 @@ aws = ["boto"]
 azure = ["azure-storage-blob"]
 
 [[package]]
+name = "flask-babelex"
+version = "0.9.4"
+description = "Adds i18n/l10n support to Flask applications"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Babel = ">=1.0"
+Flask = "*"
+Jinja2 = ">=2.5"
+speaklater = ">=1.2"
+
+[[package]]
 name = "flask-login"
 version = "0.5.0"
 description = "User session management for Flask"
@@ -206,6 +266,18 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
+Flask = "*"
+
+[[package]]
+name = "flask-mail"
+version = "0.9.1"
+description = "Flask extension for sending email"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+blinker = "*"
 Flask = "*"
 
 [[package]]
@@ -222,6 +294,41 @@ Flask = ">=0.9"
 Flask-SQLAlchemy = ">=1.0"
 
 [[package]]
+name = "flask-principal"
+version = "0.4.0"
+description = "Identity management for flask"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+blinker = "*"
+Flask = "*"
+
+[[package]]
+name = "flask-security"
+version = "3.0.0"
+description = "Simple security for Flask apps."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Flask = ">=0.11"
+Flask-BabelEx = ">=0.9.3"
+Flask-Login = ">=0.3.0"
+Flask-Mail = ">=0.7.3"
+Flask-Principal = ">=0.3.3"
+Flask-WTF = ">=0.13.1"
+itsdangerous = ">=0.21"
+passlib = ">=1.7"
+
+[package.extras]
+all = ["Flask-Sphinx-Themes (>=1.0.1)", "Sphinx (>=1.4.2)", "Flask-CLI (>=0.4.0)", "Flask-Mongoengine (>=0.7.0)", "Flask-Peewee (>=0.6.5)", "Flask-SQLAlchemy (>=1.0)", "bcrypt (>=1.0.2)", "check-manifest (>=0.25)", "coverage (>=4.0)", "isort (>=4.2.2)", "mock (>=1.3.0)", "mongoengine (>=0.10.0)", "pony (>=0.7.1)", "pydocstyle (>=1.0.0)", "pytest-cache (>=1.0)", "pytest-cov (>=2.4.0)", "pytest-flakes (>=1.0.1)", "pytest-pep8 (>=1.0.6)", "pytest-translations (>=1.0.4)", "pytest (>=3.0.5)", "sqlalchemy (>=0.8.0)", "Flask-Sphinx-Themes (>=1.0.1)", "Sphinx (>=1.4.2)", "Flask-CLI (>=0.4.0)", "Flask-Mongoengine (>=0.7.0)", "Flask-Peewee (>=0.6.5)", "Flask-SQLAlchemy (>=1.0)", "bcrypt (>=1.0.2)", "check-manifest (>=0.25)", "coverage (>=4.0)", "isort (>=4.2.2)", "mock (>=1.3.0)", "mongoengine (>=0.10.0)", "pony (>=0.7.1)", "pydocstyle (>=1.0.0)", "pytest-cache (>=1.0)", "pytest-cov (>=2.4.0)", "pytest-flakes (>=1.0.1)", "pytest-pep8 (>=1.0.6)", "pytest-translations (>=1.0.4)", "pytest (>=3.0.5)", "sqlalchemy (>=0.8.0)"]
+docs = ["Flask-Sphinx-Themes (>=1.0.1)", "Sphinx (>=1.4.2)"]
+tests = ["Flask-CLI (>=0.4.0)", "Flask-Mongoengine (>=0.7.0)", "Flask-Peewee (>=0.6.5)", "Flask-SQLAlchemy (>=1.0)", "bcrypt (>=1.0.2)", "check-manifest (>=0.25)", "coverage (>=4.0)", "isort (>=4.2.2)", "mock (>=1.3.0)", "mongoengine (>=0.10.0)", "pony (>=0.7.1)", "pydocstyle (>=1.0.0)", "pytest-cache (>=1.0)", "pytest-cov (>=2.4.0)", "pytest-flakes (>=1.0.1)", "pytest-pep8 (>=1.0.6)", "pytest-translations (>=1.0.4)", "pytest (>=3.0.5)", "sqlalchemy (>=0.8.0)"]
+
+[[package]]
 name = "flask-sqlalchemy"
 version = "2.5.1"
 description = "Adds SQLAlchemy support to your Flask application."
@@ -232,6 +339,22 @@ python-versions = ">= 2.7, != 3.0.*, != 3.1.*, != 3.2.*, != 3.3.*"
 [package.dependencies]
 Flask = ">=0.10"
 SQLAlchemy = ">=0.8.0"
+
+[[package]]
+name = "flask-wtf"
+version = "0.15.1"
+description = "Simple integration of Flask and WTForms."
+category = "main"
+optional = false
+python-versions = ">= 3.6"
+
+[package.dependencies]
+Flask = "*"
+itsdangerous = "*"
+WTForms = "*"
+
+[package.extras]
+email = ["email-validator"]
 
 [[package]]
 name = "greenlet"
@@ -251,6 +374,14 @@ description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[[package]]
+name = "idna"
+version = "3.2"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
+optional = false
+python-versions = ">=3.5"
 
 [[package]]
 name = "iniconfig"
@@ -492,6 +623,14 @@ pycrypto = ["pycrypto (>=2.6.0,<2.7.0)", "pyasn1"]
 pycryptodome = ["pycryptodome (>=3.3.1,<4.0.0)", "pyasn1"]
 
 [[package]]
+name = "pytz"
+version = "2021.1"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "regex"
 version = "2021.8.28"
 description = "Alternative regular expression module, to replace re."
@@ -517,6 +656,14 @@ description = "Python 2 and 3 compatibility utilities"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
+name = "speaklater"
+version = "1.3"
+description = "implements a lazy string for python useful for use with gettext"
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "sqlalchemy"
@@ -630,7 +777,7 @@ locale = ["Babel (>=1.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "6584000246d6522b4ce9c26e34f79ca469017b1e061cb1e1ff729adae37b243d"
+content-hash = "d761e812b2aa2b1591f8a206db939252b96b8960f6ea4d9dc6495f14b50ddfb5"
 
 [metadata.files]
 alembic = [
@@ -649,9 +796,16 @@ attrs = [
     {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
 ]
+babel = [
+    {file = "Babel-2.9.1-py2.py3-none-any.whl", hash = "sha256:ab49e12b91d937cd11f0b67cb259a57ab4ad2b59ac7a3b41d6c06c0ac5b0def9"},
+    {file = "Babel-2.9.1.tar.gz", hash = "sha256:bc0c176f9f6a994582230df350aa6e05ba2ebe4b3ac317eab29d9be5d2768da0"},
+]
 black = [
     {file = "black-21.9b0-py3-none-any.whl", hash = "sha256:380f1b5da05e5a1429225676655dddb96f5ae8c75bdf91e53d798871b902a115"},
     {file = "black-21.9b0.tar.gz", hash = "sha256:7de4cfc7eb6b710de325712d40125689101d21d25283eed7e9998722cf10eb91"},
+]
+blinker = [
+    {file = "blinker-1.4.tar.gz", hash = "sha256:471aee25f3992bd325afa3772f1063dbdbbca947a041b8b89466dc00d606f8b6"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},
@@ -661,9 +815,17 @@ colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
+dnspython = [
+    {file = "dnspython-2.1.0-py3-none-any.whl", hash = "sha256:95d12f6ef0317118d2a1a6fc49aac65ffec7eb8087474158f42f26a639135216"},
+    {file = "dnspython-2.1.0.zip", hash = "sha256:e4a87f0b573201a0f3727fa18a516b055fd1107e0e5477cded4a2de497df1dd4"},
+]
 ecdsa = [
     {file = "ecdsa-0.17.0-py2.py3-none-any.whl", hash = "sha256:5cf31d5b33743abe0dfc28999036c849a69d548f994b535e527ee3cb7f3ef676"},
     {file = "ecdsa-0.17.0.tar.gz", hash = "sha256:b9f500bb439e4153d0330610f5d26baaf18d17b8ced1bc54410d189385ea68aa"},
+]
+email-validator = [
+    {file = "email_validator-1.1.3-py2.py3-none-any.whl", hash = "sha256:5675c8ceb7106a37e40e2698a57c056756bf3f272cfa8682a4f87ebd95d8440b"},
+    {file = "email_validator-1.1.3.tar.gz", hash = "sha256:aa237a65f6f4da067119b7df3f13e89c25c051327b2b5b66dc075f33d62480d7"},
 ]
 fastapi = [
     {file = "fastapi-0.68.1-py3-none-any.whl", hash = "sha256:94d2820906c36b9b8303796fb7271337ec89c74223229e3cfcf056b5a7d59e23"},
@@ -684,17 +846,35 @@ flask = [
 flask-admin = [
     {file = "Flask-Admin-1.5.8.tar.gz", hash = "sha256:eb06a1f31b98881dee53a55c64faebd1990d6aac38826364b280df0b2679ff74"},
 ]
+flask-babelex = [
+    {file = "Flask-BabelEx-0.9.4.tar.gz", hash = "sha256:39a59ccee9386a9d52d80b9101224402036aedc2c7873b11deef6e4e21cace27"},
+    {file = "Flask_BabelEx-0.9.4-py3-none-any.whl", hash = "sha256:f744d0557cb04cafed733cfa96e7373b46263d4cf79a2c5988c65085f360d873"},
+]
 flask-login = [
     {file = "Flask-Login-0.5.0.tar.gz", hash = "sha256:6d33aef15b5bcead780acc339464aae8a6e28f13c90d8b1cf9de8b549d1c0b4b"},
     {file = "Flask_Login-0.5.0-py2.py3-none-any.whl", hash = "sha256:7451b5001e17837ba58945aead261ba425fdf7b4f0448777e597ddab39f4fba0"},
+]
+flask-mail = [
+    {file = "Flask-Mail-0.9.1.tar.gz", hash = "sha256:22e5eb9a940bf407bcf30410ecc3708f3c56cc44b29c34e1726fe85006935f41"},
 ]
 flask-migrate = [
     {file = "Flask-Migrate-3.1.0.tar.gz", hash = "sha256:57d6060839e3a7f150eaab6fe4e726d9e3e7cffe2150fb223d73f92421c6d1d9"},
     {file = "Flask_Migrate-3.1.0-py3-none-any.whl", hash = "sha256:a6498706241aba6be7a251078de9cf166d74307bca41a4ca3e403c9d39e2f897"},
 ]
+flask-principal = [
+    {file = "Flask-Principal-0.4.0.tar.gz", hash = "sha256:f5d6134b5caebfdbb86f32d56d18ee44b080876a27269560a96ea35f75c99453"},
+]
+flask-security = [
+    {file = "Flask-Security-3.0.0.tar.gz", hash = "sha256:d61daa5f5a48f89f30f50555872bdf581b2c65804668b0313345cd7beff26432"},
+    {file = "Flask_Security-3.0.0-py2.py3-none-any.whl", hash = "sha256:ef837c03558db41335c8dabd16ae4977af0a5ef0c2cdecf738e33ef5202ce489"},
+]
 flask-sqlalchemy = [
     {file = "Flask-SQLAlchemy-2.5.1.tar.gz", hash = "sha256:2bda44b43e7cacb15d4e05ff3cc1f8bc97936cc464623424102bfc2c35e95912"},
     {file = "Flask_SQLAlchemy-2.5.1-py2.py3-none-any.whl", hash = "sha256:f12c3d4cc5cc7fdcc148b9527ea05671718c3ea45d50c7e732cceb33f574b390"},
+]
+flask-wtf = [
+    {file = "Flask-WTF-0.15.1.tar.gz", hash = "sha256:ff177185f891302dc253437fe63081e7a46a4e99aca61dfe086fb23e54fff2dc"},
+    {file = "Flask_WTF-0.15.1-py2.py3-none-any.whl", hash = "sha256:6ff7af73458f182180906a37a783e290bdc8a3817fe4ad17227563137ca285bf"},
 ]
 greenlet = [
     {file = "greenlet-1.1.1-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:476ba9435afaead4382fbab8f1882f75e3fb2285c35c9285abb3dd30237f9142"},
@@ -751,6 +931,10 @@ greenlet = [
 h11 = [
     {file = "h11-0.12.0-py3-none-any.whl", hash = "sha256:36a3cb8c0a032f56e2da7084577878a035d3b61d104230d4bd49c0c6b555a9c6"},
     {file = "h11-0.12.0.tar.gz", hash = "sha256:47222cb6067e4a307d535814917cd98fd0a57b6788ce715755fa2b6c28b56042"},
+]
+idna = [
+    {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
+    {file = "idna-3.2.tar.gz", hash = "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
@@ -930,6 +1114,10 @@ python-jose = [
     {file = "python-jose-3.3.0.tar.gz", hash = "sha256:55779b5e6ad599c6336191246e95eb2293a9ddebd555f796a65f838f07e5d78a"},
     {file = "python_jose-3.3.0-py2.py3-none-any.whl", hash = "sha256:9b1376b023f8b298536eedd47ae1089bcdb848f1535ab30555cd92002d78923a"},
 ]
+pytz = [
+    {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
+    {file = "pytz-2021.1.tar.gz", hash = "sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da"},
+]
 regex = [
     {file = "regex-2021.8.28-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:9d05ad5367c90814099000442b2125535e9d77581855b9bee8780f1b41f2b1a2"},
     {file = "regex-2021.8.28-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f3bf1bc02bc421047bfec3343729c4bbbea42605bcfd6d6bfe2c07ade8b12d2a"},
@@ -980,6 +1168,9 @@ rsa = [
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+speaklater = [
+    {file = "speaklater-1.3.tar.gz", hash = "sha256:59fea336d0eed38c1f0bf3181ee1222d0ef45f3a9dd34ebe65e6bfffdd6a65a9"},
 ]
 sqlalchemy = [
     {file = "SQLAlchemy-1.4.23-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:25e9b2e5ca088879ce3740d9ccd4d58cb9061d49566a0b5e12166f403d6f4da0"},
