@@ -20,6 +20,7 @@ class BaseConfig(object):
     ADMIN_FIRST_NAME = os.environ.get("ADMIN_FIRST_NAME", "Admin")
     ADMIN_LAST_NAME = os.environ.get("ADMIN_LAST_NAME", "Cortex")
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@gmail.com")
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "123")
 
     FLASK_ADMIN_SWATCH = "cerulean"
 
