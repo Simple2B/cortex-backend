@@ -4,13 +4,11 @@ import click
 from flask_admin import Admin
 from admin import create_app, db
 from app import models
+from app.models import Doctor
 
 
-# from app.models import User, PhotoContest
-# from admin.views import (
-#     UserAdminModelView,
-#     CortexAdminIndexView,
-# )
+from .views import CortexAdminIndexView, DoctorAdminModelView
+
 from app.logger import log
 from admin.config import BaseConfig as conf
 
@@ -19,9 +17,10 @@ from admin.database import add_admin_to_db
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
-admin = Admin(app)
 
-# admin.add_view(UserAdminModelView(User, db.session))
+admin = Admin(app, index_view=CortexAdminIndexView())
+
+admin.add_view(DoctorAdminModelView(Doctor, db.session))
 
 
 # flask cli context setup
