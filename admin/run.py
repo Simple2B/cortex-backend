@@ -33,13 +33,13 @@ admin.add_view(DoctorAdminModelView(Doctor, db.session))
 admin.add_view(ModelView(Client, db.session))
 
 
-@app.route("/logout")
+@app.route("/admin/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect("/admin")
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/admin/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if (

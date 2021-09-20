@@ -9,7 +9,7 @@ from app.models import Doctor
 class CortexAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        # doctor: Doctor = current_user
+        doctor: Doctor = current_user
         # if not (doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN):
         #     return redirect("")
         return super(CortexAdminIndexView, self).index()
@@ -26,8 +26,8 @@ class PanelView(ModelView):
         # return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN
 
     # def inaccessible_callback(self):
-    #     # redirect to login page if user doesn't have access
-    #     return redirect(url_for("run.login", next=request.url))
+    # redirect to login page if user doesn't have access
+    # return redirect(url_for("run.login", next=request.url))
 
 
 class DoctorAdminModelView(PanelView):
