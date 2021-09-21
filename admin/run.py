@@ -1,56 +1,35 @@
 #!/user/bin/env python
 import click
-from flask import session, redirect, render_template, request
 
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
+# from flask_admin import Admin
+# from flask_admin.contrib.sqla import ModelView
 from admin import create_app
 from admin import db
 from app import models
-from app.models import Doctor, Client
+
+# from app.models import Doctor, Client
 
 
-from .views import CortexAdminIndexView, DoctorAdminModelView
+# from .views import CortexAdminIndexView, DoctorAdminModelView
 
 from app.logger import log
 from admin.config import BaseConfig as conf
 
-from admin.database import add_admin_to_db
+from admin.database import add_doctor_to_db
 
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
 
-admin = Admin(
-    app,
-    index_view=CortexAdminIndexView(),
-    name="Cortex",
-    template_mode="bootstrap3",
-)
+# admin = Admin(
+#     app,
+#     index_view=CortexAdminIndexView(),
+#     name="Cortex",
+#     template_mode="bootstrap3",
+# )
 
-admin.add_view(DoctorAdminModelView(Doctor, db.session))
-# admin.add_view(ModelView(Doctor, db.session))
-admin.add_view(ModelView(Client, db.session))
-
-
-@app.route("/admin/logout")
-def logout():
-    session.clear()
-    return redirect("/admin")
-
-
-@app.route("/admin/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        if (
-            request.form.get("email") == conf.ADMIN_EMAIL
-            and request.form.get("password") == conf.ADMIN_PASSWORD
-        ):
-            session["logged_in"] = True
-            return redirect("/admin")
-        else:
-            return render_template("login.html", failed=True)
-    return render_template("login.html")
+# admin.add_view(DoctorAdminModelView(Doctor, db.session))
+# admin.add_view(ModelView(Client, db.session))
 
 
 # flask cli context setup
@@ -64,7 +43,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
-    add_admin_to_db()
+    add_doctor_to_db()
 
 
 @app.cli.command()

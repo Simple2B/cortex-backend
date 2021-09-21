@@ -72,23 +72,39 @@
     <!--===============================================================================================-->
   </head>
   <body>
+    <!-- Flash Messages -->
+    <!--
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismisible">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+      </button>
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    -->
     <div class="limiter">
       <div class="container-login100">
         <div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-50">
-          <form class="login100-form validate-form" method="POST">
+          <form
+            class="login100-form validate-form"
+            role="form"
+            action="{{ url_for('auth.login') }}"
+            method="post"
+          >
+            {{form.hidden_tag()}}
             <span class="login100-form-title p-b-33"> Account Login </span>
 
             <div
               class="wrap-input100 validate-input"
               data-validate="Valid email is required: ex@abc.xyz"
             >
-              <input
-                class="input100"
-                type="text"
-                name="email"
-                placeholder="Email"
-                required
-              />
+              {{form.email.label}} {{form.email(class='input100')}}
               <span class="focus-input100-1"></span>
               <span class="focus-input100-2"></span>
             </div>
@@ -97,23 +113,12 @@
               class="wrap-input100 rs1 validate-input"
               data-validate="Password is required"
             >
-              <input
-                class="input100"
-                type="password"
-                name="password"
-                placeholder="Password"
-                required
-              />
+              {{form.password.label}} {{form.password(class='input100')}}
               <span class="focus-input100-1"></span>
               <span class="focus-input100-2"></span>
             </div>
-            {% if failed %}
-            <center>
-              <small style="color: red">Incorrect Email or Passwword</small>
-            </center>
-            {% endif %}
             <div class="container-login100-form-btn m-t-20">
-              <button type="submit" class="login100-form-btn">Sign in</button>
+              {{form.submit(class='login100-form-btn')}}
             </div>
           </form>
         </div>

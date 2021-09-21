@@ -6,6 +6,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
 
 from app.logger import log
 
@@ -13,14 +16,20 @@ from app.logger import log
 login_manager = LoginManager()
 db = SQLAlchemy()
 migrate = Migrate()
+admin = None
 
 
 def create_app(environment="development"):
-
+    global admin
     from admin.config import config
 
+    from admin.views import (
+        auth_blueprint,
+    )
+
     # from app.views import ()
-    from app.models import Doctor
+    from app.models import Doctor, AnonymousUser, Client
+    from admin.views import CortexAdminIndexView, DoctorAdminModelView
 
     # Instantiate app.
     app = Flask(__name__)
@@ -37,25 +46,25 @@ def create_app(environment="development"):
     login_manager.init_app(app)
 
     # Register blueprints.
-    # app.register_blueprint()
+    app.register_blueprint(auth_blueprint)
 
     # Set up flask login.
     @login_manager.user_loader
     def get_user(id):
         return Doctor.query.get(int(id))
 
-    # login_manager.login_view = "main.index"
+    login_manager.login_view = "auth.login"
     login_manager.login_message_category = "info"
-    # login_manager.anonymous_user = AnonymousUser
+    login_manager.anonymous_user = AnonymousUser
 
-    # Error handlers.
-    # @app.errorhandler(HTTPException)
-    # def handle_http_error(exc):
-    #     if exc.code == 404:
-    #         return render_template("page-404.html")
-    #     if exc.code == 500:
-    #         return render_template("page-500.html")
+    admin = Admin(
+        app,
+        index_view=CortexAdminIndexView(),
+        name="Cortex",
+        template_mode="bootstrap3",
+    )
 
-    #     return render_template("error.html", error=exc), exc.code
+    admin.add_view(DoctorAdminModelView(Doctor, db.session))
+    admin.add_view(ModelView(Client, db.session))
 
     return app
