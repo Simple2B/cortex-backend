@@ -9,7 +9,7 @@ def add_doctor_to_db(
     last_name=conf.ADMIN_LAST_NAME,
     email=conf.ADMIN_EMAIL,
     role=Doctor.DoctorRole.ADMIN,
-    passwd="admin123",
+    passwd=conf.ADMIN_PASSWORD,
 ):
     doctor = Doctor(
         first_name=first_name,
