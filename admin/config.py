@@ -24,6 +24,20 @@ class BaseConfig(object):
 
     FLASK_ADMIN_SWATCH = "cerulean"
 
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.googlemail.com")
+    MAIL_PORT = os.environ.get("MAIL_PORT", 465)
+    # MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", False)
+    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", True)
+    # MAIL_DEBUG=app.debug
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "mail_sender")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "password")
+    # MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", None)
+    # MAIL_MAX_EMAILS = os.environ.get("MAIL_MAX_EMAILS", None)
+    # MAIL_SUPPRESS_SEND=app.testing
+    # MAIL_ASCII_ATTACHMENTS = os.environ.get("MAIL_ASCII_ATTACHMENTS", False)
+
+    MAIL_SENDER = os.environ.get("MAIL_SENDER", "vsabybina7@gmail.com")
+
     LOG_LEVEL = int(os.environ.get("LOG_LEVEL", log.INFO))
 
     @staticmethod

@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_mail import Mail
 
 
 from app.logger import log
@@ -15,6 +16,7 @@ from app.logger import log
 # instantiate extensions
 login_manager = LoginManager()
 db = SQLAlchemy()
+mail = Mail()
 migrate = Migrate()
 admin = None
 
@@ -25,6 +27,7 @@ def create_app(environment="development"):
 
     from admin.views import (
         auth_blueprint,
+        message_blueprint,
     )
 
     # from app.views import ()
@@ -44,9 +47,11 @@ def create_app(environment="development"):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
 
     # Register blueprints.
     app.register_blueprint(auth_blueprint)
+    # app.register_blueprint(message_blueprint)
 
     # Set up flask login.
     @login_manager.user_loader
