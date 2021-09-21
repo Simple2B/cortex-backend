@@ -1,8 +1,5 @@
-import os
 import pytest
 
-# flake8: noqa E402
-os.environ["FLASK_APP"] = "testing"
 
 from admin import db, create_app
 from tests.utils import login, logout
@@ -49,5 +46,9 @@ def test_login_and_logout(client):
     response = logout(client)
     assert b"You were logged out." in response.data
     # Incorrect login credentials should fail.
-    response = login(client, "wrongpassword")
-    assert b"Wrong user ID or password." in response.data
+    response = login(client, email=TEST_EMAIL, password="wrongpassword")
+    assert b"Login V19" in response.data
+    response = login(client, email="wrong@gmai.com", password=TEST_PASS)
+    assert b"Login V19" in response.data
+    response = login(client, email="wrong@gmai.com", password="wrongpassword")
+    assert b"Login V19" in response.data
