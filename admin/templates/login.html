@@ -104,7 +104,17 @@
               class="wrap-input100 validate-input"
               data-validate="Valid email is required: ex@abc.xyz"
             >
-              {{form.email.label}} {{form.email(class='input100')}}
+              <div
+                style="
+                  padding-top: 5px;
+                  padding-left: 10px;
+                  letter-spacing: 1px;
+                  color: #555555;
+                "
+              >
+                {{form.email.label}}
+              </div>
+              {{form.email(class='input100')}}
               <span class="focus-input100-1"></span>
               <span class="focus-input100-2"></span>
             </div>
@@ -113,7 +123,17 @@
               class="wrap-input100 rs1 validate-input"
               data-validate="Password is required"
             >
-              {{form.password.label}} {{form.password(class='input100')}}
+              <div
+                style="
+                  padding-top: 5px;
+                  padding-left: 10px;
+                  letter-spacing: 1px;
+                  color: #555555;
+                "
+              >
+                {{form.password.label}}
+              </div>
+              {{form.password(class='input100')}}
               <span class="focus-input100-1"></span>
               <span class="focus-input100-2"></span>
             </div>
