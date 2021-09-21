@@ -2,7 +2,8 @@ import pytest
 import asyncio
 from typing import Generator
 from fastapi.testclient import TestClient
-from tortoise.contrib.test import finalizer, initializer
+
+# from tortoise.contrib.test import finalizer, initializer
 
 from app.setup import create_app
 from app.models import User
@@ -11,10 +12,10 @@ from app.models import User
 @pytest.fixture()
 def client() -> Generator:
     app = create_app()
-    initializer(["app.models"], "sqlite://:memory:")
+    # initializer(["app.models"], "sqlite://:memory:")
     with TestClient(app) as c:
         yield c
-    finalizer()
+    # finalizer()
 
 
 @pytest.fixture()
