@@ -4,6 +4,10 @@ from uuid import uuid4
 from sqlalchemy import Enum
 
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import func
+from sqlalchemy.ext.hybrid import hybrid_property
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import AnonymousUserMixin, UserMixin
 from app.database import Base
 from .utils import ModelMixin
 
@@ -12,7 +16,7 @@ def gen_uuid() -> str:
     return str(uuid4())
 
 
-class Doctor(Base, ModelMixin):
+class Doctor(Base, ModelMixin, UserMixin):
     __tablename__ = "doctors"
 
     class DoctorRole(enum.Enum):
@@ -33,3 +37,21 @@ class Doctor(Base, ModelMixin):
 
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+    @hybrid_property
+    def password(self):
+        return self.hash_password
+
+    @password.setter
+    def password(self, password):
+        self.hash_password = generate_password_hash(password)
+
+    @classmethod
+    def authenticate(cls, email, password):
+        doctor = cls.query.filter(func.lower(cls.email) == func.lower(email)).first()
+        if doctor is not None and check_password_hash(doctor.password, password):
+            return doctor
+
+
+class AnonymousUser(AnonymousUserMixin):
+    pass
