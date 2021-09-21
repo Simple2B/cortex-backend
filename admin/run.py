@@ -1,16 +1,9 @@
 #!/user/bin/env python
 import click
 
-# from flask_admin import Admin
-# from flask_admin.contrib.sqla import ModelView
 from admin import create_app
 from admin import db
 from app import models
-
-# from app.models import Doctor, Client
-
-
-# from .views import CortexAdminIndexView, DoctorAdminModelView
 
 from app.logger import log
 from admin.config import BaseConfig as conf
@@ -20,16 +13,6 @@ from admin.database import add_doctor_to_db
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
-
-# admin = Admin(
-#     app,
-#     index_view=CortexAdminIndexView(),
-#     name="Cortex",
-#     template_mode="bootstrap3",
-# )
-
-# admin.add_view(DoctorAdminModelView(Doctor, db.session))
-# admin.add_view(ModelView(Client, db.session))
 
 
 # flask cli context setup
