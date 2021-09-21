@@ -13,4 +13,6 @@ __pycache__/
 .env
 .env.*
 
+Pipfile
+
 database-*.sqlite3
