@@ -9,6 +9,7 @@ class BaseDoctor(BaseModel):
 
 class DoctorCreate(BaseDoctor):
     password: str
+    api_key: str
 
 
 class Doctor(BaseDoctor):
