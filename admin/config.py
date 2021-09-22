@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from app.logger import log
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, "../.env"))
+load_dotenv(os.path.join(os.path.dirname(BASE_DIR), ".env"))
 
 
 class BaseConfig(object):
@@ -50,7 +50,8 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DEVEL_DATABASE_URL",
-        "sqlite:///" + os.path.join(BASE_DIR, "database-devel.sqlite3"),
+        "sqlite:///"
+        + os.path.join(os.path.dirname(BASE_DIR), "database-devel.sqlite3"),
     )
 
 
@@ -62,7 +63,7 @@ class TestingConfig(BaseConfig):
     MAIL_DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "TEST_DATABASE_URL",
-        "sqlite:///" + os.path.join(BASE_DIR, "database-test.sqlite3"),
+        "sqlite:///" + os.path.join(os.path.dirname(BASE_DIR), "database-test.sqlite3"),
     )
 
 
@@ -70,7 +71,8 @@ class ProductionConfig(BaseConfig):
     """Production configuration."""
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "database.sqlite3")
+        "DATABASE_URL",
+        "sqlite:///" + os.path.join(os.path.dirname(BASE_DIR), "database.sqlite3"),
     )
     WTF_CSRF_ENABLED = True
 
