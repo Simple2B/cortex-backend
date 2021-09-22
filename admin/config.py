@@ -24,19 +24,17 @@ class BaseConfig(object):
 
     FLASK_ADMIN_SWATCH = "cerulean"
 
-    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.googlemail.com")
-    MAIL_PORT = os.environ.get("MAIL_PORT", 465)
-    # MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", False)
-    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", True)
-    # MAIL_DEBUG=app.debug
-    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "mail_sender")
-    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "password")
-    # MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", None)
-    # MAIL_MAX_EMAILS = os.environ.get("MAIL_MAX_EMAILS", None)
-    # MAIL_SUPPRESS_SEND=app.testing
-    # MAIL_ASCII_ATTACHMENTS = os.environ.get("MAIL_ASCII_ATTACHMENTS", False)
-
-    MAIL_SENDER = os.environ.get("MAIL_SENDER", "vsabybina7@gmail.com")
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "unknown_server")
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_PORT = os.environ.get("MAIL_PORT", 587)
+    MAIL_DEBUG = False
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "unknown_user")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "set_passwd")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "sender@email.com")
+    MAIL_MAX_EMAILS = 15
+    MAIL_SUPPRESS_SEND = False
+    MAIL_ASCII_ATTACHMENTS = False
 
     LOG_LEVEL = int(os.environ.get("LOG_LEVEL", log.INFO))
 
@@ -61,6 +59,7 @@ class TestingConfig(BaseConfig):
 
     TESTING = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
+    MAIL_DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "TEST_DATABASE_URL",
         "sqlite:///" + os.path.join(BASE_DIR, "database-test.sqlite3"),
