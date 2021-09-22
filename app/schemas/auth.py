@@ -1,20 +1,23 @@
 from pydantic import BaseModel
 
 
-class BaseDoctor(BaseModel):
-    # first_name: str
-    # last_name: str
+class Doctor(BaseModel):
+    first_name: str
+    last_name: str
     email: str
 
+    class Config:
+        orm_mode = True
 
-class DoctorCreate(BaseDoctor):
+
+class DoctorLogin(BaseModel):
+    email: str
     password: str
-    api_key: str
 
 
-class Doctor(BaseDoctor):
-    id: int
+class DoctorCreate(BaseModel):
     api_key: str
+    password: str
 
     class Config:
         orm_mode = True

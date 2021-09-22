@@ -10,7 +10,7 @@ class CortexAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
         doctor: Doctor = current_user
-        if not (doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN):
+        if not (doctor.is_authenticated and doctor.role == Doctor.DoctorRole.Admin):
             return redirect(url_for("auth.login"))
         return super(CortexAdminIndexView, self).index()
 
@@ -18,7 +18,7 @@ class CortexAdminIndexView(AdminIndexView):
 class PanelView(ModelView):
     def is_accessible(self):
         doctor: Doctor = current_user
-        return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN
+        return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.Admin
 
 
 class DoctorAdminModelView(PanelView):

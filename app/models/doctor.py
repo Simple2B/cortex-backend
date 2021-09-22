@@ -20,17 +20,17 @@ class Doctor(Base, ModelMixin, UserMixin):
     __tablename__ = "doctors"
 
     class DoctorRole(enum.Enum):
-        ADMIN = "ADMIN"
-        DOCTOR = "DOCTOR"
+        Admin = "Admin"
+        Doctor = "Doctor"
 
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(64))
     last_name = Column(String(64))
     email = Column(String(128), unique=True, index=True)
-    email_approved = Column(Boolean, default=True)
-    hash_password = Column(String(255), nullable=True)
-    role = Column(Enum(DoctorRole), default=DoctorRole.DOCTOR.value)
-    api_key = Column(String(128), default=gen_uuid)
+    email_approved = Column(Boolean, default=False)
+    hash_password = Column(String(128), nullable=True)
+    role = Column(Enum(DoctorRole), default=DoctorRole.Doctor)
+    api_key = Column(String(36), default=gen_uuid)
 
     def __repr__(self):
         return f"<{self.id}: {self.email}>"
