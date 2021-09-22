@@ -1,6 +1,7 @@
 #!/user/bin/env python
 import click
 
+# from flask_mail import Mail
 from admin import create_app
 from admin import db
 from app import models
@@ -13,7 +14,6 @@ from admin.database import add_doctor_to_db
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
-
 
 # flask cli context setup
 @app.shell_context_processor

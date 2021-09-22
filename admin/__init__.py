@@ -1,7 +1,5 @@
 import os
 
-# from werkzeug.exceptions import HTTPException
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -51,7 +49,7 @@ def create_app(environment="development"):
 
     # Register blueprints.
     app.register_blueprint(auth_blueprint)
-    # app.register_blueprint(message_blueprint)
+    app.register_blueprint(message_blueprint)
 
     # Set up flask login.
     @login_manager.user_loader
