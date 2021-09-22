@@ -1,5 +1,4 @@
-import smtplib
-from flask import Blueprint, request, redirect, render_template
+from flask import Blueprint, request, redirect
 from flask.helpers import url_for
 from flask_mail import Message
 from threading import Thread
@@ -8,7 +7,6 @@ from admin.config import BaseConfig as conf
 
 
 from admin import mail
-from app.models import Doctor
 
 from app.logger import log
 

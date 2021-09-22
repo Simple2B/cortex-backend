@@ -4,7 +4,6 @@ import pytest
 from admin import db, create_app
 from tests.utils import login, logout
 from admin.database import add_doctor_to_db
-from app.models.doctor import Doctor
 
 
 TEST_EMAIL = "test@test.com"

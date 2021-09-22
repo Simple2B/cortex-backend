@@ -15,6 +15,7 @@ log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
 
+
 # flask cli context setup
 @app.shell_context_processor
 def get_context():

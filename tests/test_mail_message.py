@@ -2,7 +2,7 @@ import pytest
 
 from admin import db, create_app
 from admin import mail
-from admin.views import send_async_email, send_email
+from admin.views import send_email
 
 TEST_SENDER = "test_sender"
 TEST_EMAIL = "vsabybina7@mail.com"
