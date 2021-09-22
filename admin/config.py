@@ -9,7 +9,7 @@ load_dotenv(os.path.join(os.path.dirname(BASE_DIR), ".env"))
 class BaseConfig(object):
     """Base configuration."""
 
-    APP_NAME = "Cortex_Admin"
+    APP_NAME = "CORTEX"
     DEBUG_TB_ENABLED = False
     SECRET_KEY = os.environ.get(
         "SECRET_KEY", "Ensure you set a secret key, this is important!"
@@ -24,7 +24,7 @@ class BaseConfig(object):
 
     FLASK_ADMIN_SWATCH = "cerulean"
 
-    MAIL_SERVER = os.environ.get("MAIL_SERVER", "unknown_server")
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "google.com")
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     MAIL_PORT = os.environ.get("MAIL_PORT", 587)
@@ -35,6 +35,8 @@ class BaseConfig(object):
     MAIL_MAX_EMAILS = 15
     MAIL_SUPPRESS_SEND = False
     MAIL_ASCII_ATTACHMENTS = False
+
+    URL_REG_DOCTOR = "register/{api_key}"
 
     LOG_LEVEL = int(os.environ.get("LOG_LEVEL", log.INFO))
 
@@ -61,6 +63,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     MAIL_DEBUG = True
+    MAIL_SUPPRESS_SEND = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "TEST_DATABASE_URL",
         "sqlite:///" + os.path.join(os.path.dirname(BASE_DIR), "database-test.sqlite3"),

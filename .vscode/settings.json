@@ -14,7 +14,8 @@
     "pytest",
     "skipif",
     "starlette",
-    "uvicorn"
+    "uvicorn",
+    "wtforms"
   ],
   "python.testing.unittestEnabled": false,
   "python.testing.nosetestsEnabled": false,

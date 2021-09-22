@@ -22,13 +22,11 @@ class PanelView(ModelView):
 
 
 class DoctorAdminModelView(PanelView):
-    column_exclude_list = ["doctors"]
     form_excluded_columns = ["email_approved", "hash_password", "api_key"]
-    column_exclude_list = ["email_approved", "hash_password", "api_key"]
+    column_exclude_list = ["hash_password", "api_key"]
 
     column_searchable_list = ["first_name", "last_name", "email"]
     column_editable_list = ["role"]
     column_filters = ["email"]
-    column_exclude_list = ["email"]
 
     page_size = 15

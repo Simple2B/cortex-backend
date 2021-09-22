@@ -1,11 +1,12 @@
 import pytest
+import tests.setup_flask  # noqa: F401
 
 from admin import db, create_app
 from admin import mail
-from admin.views import send_email
+from app.models import Doctor
 
 TEST_SENDER = "test_sender"
-TEST_EMAIL = "vsabybina7@mail.com"
+TEST_EMAIL = "test@mail.com"
 
 
 @pytest.fixture
@@ -25,20 +26,19 @@ def client():
 
 
 def test_mail_message(client):
-    data = dict(
+    new_doctor = dict(
         first_name="test_first_name",
         last_name="test_last_name",
-        email="test@email.com,",
+        email=TEST_EMAIL,
+        role="Doctor",
     )
-    response = client.post("admin/doctor/new/", data=data)
-    assert response.status_code == 302
+
     with mail.record_messages() as outbox:
-
-        mail.send_message(subject="testing", body="test", recipients=[TEST_EMAIL])
-
-    assert len(outbox) == 1
-    assert outbox[0].subject == "testing"
-    send_email()
-    assert b" " in response.data
-    # send_email()
-    # assert b"Confirmation not sent by mail" in response.data
+        response = client.post("/admin/doctor/new/", data=new_doctor)
+        assert response.status_code == 302
+        doc: Doctor = Doctor.query.filter(Doctor.email == TEST_EMAIL).first()
+        assert doc
+        assert len(outbox) == 1
+        letter = outbox[0]
+        assert doc.api_key in letter.body
+        assert letter.subject
