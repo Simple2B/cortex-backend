@@ -1,5 +1,5 @@
 import pytest
-
+import tests.setup_flask
 
 from admin import db, create_app
 from tests.utils import login, logout

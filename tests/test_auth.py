@@ -4,9 +4,6 @@ import asyncio
 from typing import Generator
 from fastapi.testclient import TestClient
 
-# flake8: noqa E402
-# os.environ["FLASK_APP"] = "testing"
-
 import tests.setup
 from app.database import engine, Base
 
