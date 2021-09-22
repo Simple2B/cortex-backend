@@ -1,5 +1,5 @@
 import pytest
-import tests.setup_flask
+import tests.setup_flask  # noqa: F401
 
 from admin import db, create_app
 from tests.utils import login, logout

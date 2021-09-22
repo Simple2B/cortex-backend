@@ -1,10 +1,8 @@
-import os
 import pytest
-import asyncio
 from typing import Generator
 from fastapi.testclient import TestClient
 
-import tests.setup
+import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
@@ -58,7 +56,7 @@ def test_doctor_register_wrong_api_key(client: TestClient):
     TEST_EMAIL = "test@email.com"
     TEST_PASS = "password"
     # 1. add Doctor into DB (e-mail, name, api_key)
-    doc = Doctor(
+    Doctor(
         first_name="TestFirstName",
         last_name="TestLastName",
         email=TEST_EMAIL,
