@@ -1,5 +1,5 @@
 from flask import redirect, url_for
-from flask_admin import AdminIndexView, BaseView, expose
+from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
 
@@ -10,21 +10,25 @@ class CortexAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
         doctor: Doctor = current_user
-        # if not (doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN):
-        #     return redirect("https://cortex.simple2b.net/login")
+        if not (doctor.is_authenticated and doctor.role == Doctor.DoctorRole.Admin):
+            return redirect(url_for("auth.login"))
         return super(CortexAdminIndexView, self).index()
 
 
 class PanelView(ModelView):
     def is_accessible(self):
         doctor: Doctor = current_user
-        return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.ADMIN
+        return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.Admin
 
 
 class DoctorAdminModelView(PanelView):
-    column_exclude_list = ["doctors", "clients", "visits"]
-    form_excluded_columns = ["doctors", "clients", "visits", "created_at"]
+    column_exclude_list = ["doctors"]
+    form_excluded_columns = ["email_approved", "hash_password", "api_key"]
+    column_exclude_list = ["email_approved", "hash_password", "api_key"]
+
     column_searchable_list = ["first_name", "last_name", "email"]
     column_editable_list = ["role"]
-    can_create = False
-    can_edit = False
+    column_filters = ["email"]
+    column_exclude_list = ["email"]
+
+    page_size = 15

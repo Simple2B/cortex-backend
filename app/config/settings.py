@@ -33,6 +33,10 @@ class Settings(BaseSettings):
 
     @validator("SQLALCHEMY_DATABASE_URL", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        if os.environ.get("TESTING", None):
+            from admin.config import TestingConfig
+
+            return TestingConfig.SQLALCHEMY_DATABASE_URI
         if isinstance(v, str):
             return v
         env = os.environ.get("FLASK_ENV", "develop")

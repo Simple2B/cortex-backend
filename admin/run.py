@@ -1,26 +1,19 @@
 #!/user/bin/env python
 import click
 
-from flask_admin import Admin
-from admin import create_app, db
+# from flask_mail import Mail
+from admin import create_app
+from admin import db
 from app import models
-from app.models import Doctor
-
-
-from .views import CortexAdminIndexView, DoctorAdminModelView
 
 from app.logger import log
 from admin.config import BaseConfig as conf
 
-from admin.database import add_admin_to_db
+from admin.database import add_doctor_to_db
 
 log.set_level(conf.LOG_LEVEL)
 
 app = create_app()
-
-admin = Admin(app, index_view=CortexAdminIndexView())
-
-admin.add_view(DoctorAdminModelView(Doctor, db.session))
 
 
 # flask cli context setup
@@ -34,7 +27,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
-    add_admin_to_db()
+    add_doctor_to_db()
 
 
 @app.cli.command()
@@ -50,7 +43,3 @@ def reset_db():
     """Reset the current database."""
     db.drop_all()
     db.create_all()
-
-
-if __name__ == "__main__":
-    app.run()
