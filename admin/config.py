@@ -36,7 +36,7 @@ class BaseConfig(object):
     MAIL_SUPPRESS_SEND = False
     MAIL_ASCII_ATTACHMENTS = False
 
-    URL_REG_DOCTOR = "register/{api_key}"
+    URL_REG_DOCTOR = "password-choose/{api_key}"
 
     LOG_LEVEL = int(os.environ.get("LOG_LEVEL", log.INFO))
 
