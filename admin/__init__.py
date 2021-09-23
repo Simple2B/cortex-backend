@@ -33,7 +33,7 @@ def create_app(environment="development"):
     from admin.views import CortexAdminIndexView, DoctorAdminModelView
 
     # Instantiate app.
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path="/flask/static")
 
     # Set app config.
     env = os.environ.get("FLASK_ENV", environment)
