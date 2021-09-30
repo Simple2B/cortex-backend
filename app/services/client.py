@@ -39,85 +39,107 @@ class ClientService:
             func.lower(ClientDB.email) == func.lower(client_data.email)
         ).first()
         if not client:
-            client = self.register(**args)
+            client = self.register(**client_data)
             log(log.INFO, "Added client [%s]", client)
         else:
             updated = False
-            first_name = (args["first_name"] if "first_name" in args else "",)
+            first_name = (
+                client_data["first_name"] if "first_name" in client_data else "",
+            )
             if first_name != client.first_name:
                 client.first_name = first_name
                 updated = True
-            last_name = (args["last_name"] if "last_name" in args else "",)
+            last_name = (
+                client_data["last_name"] if "last_name" in client_data else "",
+            )
             if last_name != client.last_name:
                 client.last_name = last_name
                 updated = True
             # dateBirth = args["dateBirth"] if "dateBirth" in args else "",
-            address = (args["address"] if "address" in args else "",)
+            address = (client_data["address"] if "address" in client_data else "",)
             if address != client.address:
                 client.address = address
                 updated = True
-            city = (args["city"] if "city" in args else "",)
+            city = (client_data["city"] if "city" in client_data else "",)
             if city != client.city:
                 client.city = city
                 updated = True
-            state = (args["state"] if "state" in args else "",)
+            state = (client_data["state"] if "state" in client_data else "",)
             if state != client.state:
                 client.state = state
                 updated = True
-            zip = (args["zip"] if "zip" in args else "",)
+            zip = (client_data["zip"] if "zip" in client_data else "",)
             if zip != client.zip:
                 client.zip = zip
                 updated = True
-            phone = (args["phone"] if "phone" in args else "",)
+            phone = (client_data["phone"] if "phone" in client_data else "",)
             if phone != client.phone:
                 client.phone = phone
                 updated = True
-            email = (args["email"] if "email" in args else "",)
+            email = (client_data["email"] if "email" in client_data else "",)
             if email != client.email:
                 client.email = email
                 updated = True
-            conditions = (args["conditions"] if "conditions" in args else "",)
+            conditions = (
+                client_data["conditions"] if "conditions" in client_data else "",
+            )
             if conditions != client.conditions:
                 client.conditions = conditions
                 updated = True
-            otherLabel = (args["otherLabel"] if "otherLabel" in args else "",)
+            otherLabel = (
+                client_data["otherLabel"] if "otherLabel" in client_data else "",
+            )
             if otherLabel != client.otherLabel:
                 client.otherLabel = otherLabel
                 updated = True
             checkboxesFollowing = (
-                args["checkboxesFollowing"] if "checkboxesFollowing" in args else "",
+                client_data["checkboxesFollowing"]
+                if "checkboxesFollowing" in client_data
+                else "",
             )
             if checkboxesFollowing != client.checkboxesFollowing:
                 client.checkboxesFollowing = checkboxesFollowing
                 updated = True
-            medications = (args["medications"] if "medications" in args else "",)
+            medications = (
+                client_data["medications"] if "medications" in client_data else "",
+            )
             if medications != client.medications:
                 client.medications = medications
                 updated = True
             testedPositive = (
-                args["testedPositive"] if "testedPositive" in args else "",
+                client_data["testedPositive"]
+                if "testedPositive" in client_data
+                else "",
             )
             if testedPositive != client.testedPositive:
                 client.testedPositive = testedPositive
                 updated = True
-            covidVaccine = (args["covidVaccine"] if "covidVaccine" in args else "",)
+            covidVaccine = (
+                client_data["covidVaccine"] if "covidVaccine" in client_data else "",
+            )
             if covidVaccine != client.covidVaccine:
                 client.covidVaccine = covidVaccine
                 updated = True
             stressfulLevel = (
-                args["stressfulLevel"] if "stressfulLevel" in args else "",
+                client_data["stressfulLevel"]
+                if "stressfulLevel" in client_data
+                else "",
             )
             if stressfulLevel != client.stressfulLevel:
                 client.stressfulLevel = stressfulLevel
                 updated = True
             consentMinorChild = (
-                args["consentMinorChild"] if "consentMinorChild" in args else "",
+                client_data["consentMinorChild"]
+                if "consentMinorChild" in client_data
+                else "",
             )
             if consentMinorChild != client.consentMinorChild:
                 client.consentMinorChild = consentMinorChild
                 updated = True
             relationshipChild = (
-                args["relationshipChild"] if "relationshipChild" in args else "",
+                client_data["relationshipChild"]
+                if "relationshipChild" in client_data
+                else "",
             )
             if relationshipChild != client.relationshipChild:
                 client.relationshipChild = relationshipChild
