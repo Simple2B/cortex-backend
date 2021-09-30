@@ -1,13 +1,7 @@
-from datetime import datetime, timedelta
-
-from fastapi import HTTPException, status, Depends
-from jose import JWTError, jwt
-from pydantic import ValidationError
 from sqlalchemy import func
 
 from app.schemas import Client, ClientCreate
 from app.models import Client as ClientDB
-from app.config import settings as config
 from app.logger import log
 
 

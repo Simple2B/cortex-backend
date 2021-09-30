@@ -6,7 +6,6 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import Client
 
 
 @pytest.fixture()
@@ -52,3 +51,6 @@ def test_client(client: TestClient):
         "relationshipChild": "",
     }
     # 1. add Client into DB (client_data)
+    response = client.post("/client/registration", client_data=client_data)
+    assert response
+    assert response.ok

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.services import AuthService, get_current_doctor
+from app.services import AuthService
 from app.schemas import ClientCreate, Client
 
 
