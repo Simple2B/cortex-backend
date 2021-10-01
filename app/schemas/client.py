@@ -1,35 +1,34 @@
 import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from sqlalchemy.sql.sqltypes import Integer
 
 
-class Client(BaseModel):
+class ClientInfo(BaseModel):
     first_name: str
     last_name: str
-    dateBirth: datetime.datetime
+    birthday: datetime.date
     address: str
     city: str
     state: str
     zip: int
-    phone: int
-    email: str
-    conditions: str
-    otherLabel: str
-    checkboxesFollowing: str
+    phone: str
+    email: EmailStr
+    conditions: list[str]
+    other_condition: str or None
+    diseases: list[str]
     medications: str
-    testedPositive: str
-    covidVaccine: str
-    stressfulLevel: str
-    consentMinorChild: str
-    relationshipChild: str
-
-    class Config:
-        orm_mode = True
+    covid_tested_positive: bool or None
+    covid_vaccine: bool or None
+    stressful_level: int
+    consent_minor_child: bool
+    relationship_child: str or None
 
 
-class ClientCreate(BaseModel):
+class Client(BaseModel):
+    api_key: str
     first_name: str
     last_name: str
-    phone: int
+    phone: str
     email: str
 
     class Config:

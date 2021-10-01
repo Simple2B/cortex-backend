@@ -1,6 +1,12 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from uuid import uuid4
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy.sql.sqltypes import Boolean
 from app.database import Base
 from .utils import ModelMixin
+
+def gen_uuid() -> str:
+    return str(uuid4())
 
 
 class Client(Base, ModelMixin):
@@ -9,7 +15,7 @@ class Client(Base, ModelMixin):
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(64), nullable=False)
     last_name = Column(String(64), nullable=False)
-    dateBirth = Column(DateTime(timezone=True), nullable=True)
+    birthday = Column(Date, nullable=True)
     address = Column(String(128), nullable=True)
     city = Column(String(64), nullable=True)
     state = Column(String(64), nullable=True)
@@ -18,19 +24,14 @@ class Client(Base, ModelMixin):
     phone = Column(String(32), unique=True, index=True)
     email = Column(String(128), unique=True, index=True)
 
-    # checkBoxesСonditions:
-    conditions = Column(String, nullable=False)
-    otherLabel = Column(String, nullable=True)
+    medications = Column(String(128), nullable=True)
+    covid_tested_positive = Column(Boolean, nullable=True, default=None)
+    covid_vaccine = Column(Boolean, nullable=True, default=None)
+    stressful_level = Column(Integer)
+    consent_minor_child = Column(Boolean, default=False)
+    relationship_child = Column(String, nullable=True, default=None)
 
-    # following
-    checkboxesFollowing = Column(String, nullable=True)
-
-    medications = Column(String, nullable=True)
-    testedPositive = Column(String, nullable=True)
-    covidVaccine = Column(String, nullable=True)
-    stressfulLevel = Column(String, nullable=False)
-    consentMinorChild = Column(String, nullable=True)
-    relationshipChild = Column(String, nullable=True)
+    api_key = Column(String(36), default=gen_uuid)
 
     def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.id}: {self.first_name} {self.last_name}"

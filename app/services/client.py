@@ -1,151 +1,92 @@
 from sqlalchemy import func
 
-from app.schemas import Client, ClientCreate
-from app.models import Client as ClientDB
+from app.schemas import Client, ClientInfo
+from app.models import Client as ClientDB, Condition, ClientCondition, Disease, ClientDisease
 from app.logger import log
 
 
 class ClientService:
-    def register(self, **args) -> ClientDB:
-        return ClientDB(
-            first_name=args["first_name"] if "first_name" in args else None,
-            last_name=args["last_name"] if "last_name" in args else None,
-            dateBirth=args["dateBirth"] if "dateBirth" in args else None,
-            address=args["address"] if "address" in args else None,
-            city=args["city"] if "city" in args else None,
-            state=args["state"] if "state" in args else None,
-            zip=args["zip"] if "zip" in args else None,
-            phone=args["phone"] if "phone" in args else None,
-            email=args["email"] if "email" in args else None,
-            conditions=args["conditions"] if "conditions" in args else None,
-            otherLabel=args["otherLabel"] if "otherLabel" in args else None,
-            checkboxesFollowing=args["checkboxesFollowing"]
-            if "checkboxesFollowing" in args
-            else None,
-            medications=args["medications"] if "medications" in args else None,
-            testedPositive=args["testedPositive"] if "testedPositive" in args else None,
-            covidVaccine=args["covidVaccine"] if "covidVaccine" in args else None,
-            stressfulLevel=args["stressfulLevel"] if "stressfulLevel" in args else None,
-            consentMinorChild=args["consentMinorChild"]
-            if "consentMinorChild" in args
-            else None,
-            relationshipChild=args["relationshipChild"]
-            if "relationshipChild" in args
-            else None,
+    @staticmethod
+    def link_client_condition(client_id: int, condition_name: str):
+        condition = Condition.query.filter(Condition.name == condition_name).first()
+        if not condition:
+            condition = Condition(name=condition_name).save()
+        ClientCondition(client_id=client_id, condition_id=condition.id).save()
+        return condition
+
+    @staticmethod
+    def link_client_disease(client_id: int, disease_name: str):
+        disease = Disease.query.filter(Disease.name == disease_name).first()
+        if not disease:
+            disease = Disease(name=disease_name).save()
+        ClientDisease(client_id=client_id, disease_id=disease.id).save()
+        return disease
+
+    @staticmethod
+    def register(client_data: ClientInfo) -> ClientDB:
+        client = ClientDB(
+            first_name=client_data.first_name,
+            last_name=client_data.last_name,
+            birthday=client_data.birthday,
+            address=client_data.address,
+            city=client_data.city,
+            state=client_data.state,
+            zip=client_data.zip,
+            phone=client_data.phone,
+            email=client_data.email,
+            medications=client_data.medications,
+            covid_tested_positive=client_data.covid_tested_positive,
+            covid_vaccine=client_data.covid_vaccine,
+            stressful_level=client_data.stressful_level,
+            consent_minor_child=client_data.consent_minor_child,
+            relationship_child=client_data.relationship_child,
         ).save()
 
-    def register_new_client(self, client_data: ClientCreate) -> Client:
-        client = ClientDB.query.filter(
-            func.lower(ClientDB.email) == func.lower(client_data.email)
-        ).first()
+        for condition_name in client_data.conditions:
+            ClientService.link_client_condition(client.id, condition_name)
+
+        if client_data.other_condition:
+            ClientService.link_client_condition(client.id, client_data.other_condition)
+
+        for disease_name in client_data.diseases:
+            ClientService.link_client_disease(client.id, disease_name)
+
+        return client
+
+
+    def register_new_client(self, client_data: ClientInfo) -> Client:
+        client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
-            client = self.register(**client_data)
+            client = self.register(client_data)
             log(log.INFO, "Added client [%s]", client)
         else:
-            updated = False
-            first_name = (
-                client_data["first_name"] if "first_name" in client_data else "",
-            )
-            if first_name != client.first_name:
-                client.first_name = first_name
-                updated = True
-            last_name = (
-                client_data["last_name"] if "last_name" in client_data else "",
-            )
-            if last_name != client.last_name:
-                client.last_name = last_name
-                updated = True
-            # dateBirth = args["dateBirth"] if "dateBirth" in args else "",
-            address = (client_data["address"] if "address" in client_data else "",)
-            if address != client.address:
-                client.address = address
-                updated = True
-            city = (client_data["city"] if "city" in client_data else "",)
-            if city != client.city:
-                client.city = city
-                updated = True
-            state = (client_data["state"] if "state" in client_data else "",)
-            if state != client.state:
-                client.state = state
-                updated = True
-            zip = (client_data["zip"] if "zip" in client_data else "",)
-            if zip != client.zip:
-                client.zip = zip
-                updated = True
-            phone = (client_data["phone"] if "phone" in client_data else "",)
-            if phone != client.phone:
-                client.phone = phone
-                updated = True
-            email = (client_data["email"] if "email" in client_data else "",)
-            if email != client.email:
-                client.email = email
-                updated = True
-            conditions = (
-                client_data["conditions"] if "conditions" in client_data else "",
-            )
-            if conditions != client.conditions:
-                client.conditions = conditions
-                updated = True
-            otherLabel = (
-                client_data["otherLabel"] if "otherLabel" in client_data else "",
-            )
-            if otherLabel != client.otherLabel:
-                client.otherLabel = otherLabel
-                updated = True
-            checkboxesFollowing = (
-                client_data["checkboxesFollowing"]
-                if "checkboxesFollowing" in client_data
-                else "",
-            )
-            if checkboxesFollowing != client.checkboxesFollowing:
-                client.checkboxesFollowing = checkboxesFollowing
-                updated = True
-            medications = (
-                client_data["medications"] if "medications" in client_data else "",
-            )
-            if medications != client.medications:
-                client.medications = medications
-                updated = True
-            testedPositive = (
-                client_data["testedPositive"]
-                if "testedPositive" in client_data
-                else "",
-            )
-            if testedPositive != client.testedPositive:
-                client.testedPositive = testedPositive
-                updated = True
-            covidVaccine = (
-                client_data["covidVaccine"] if "covidVaccine" in client_data else "",
-            )
-            if covidVaccine != client.covidVaccine:
-                client.covidVaccine = covidVaccine
-                updated = True
-            stressfulLevel = (
-                client_data["stressfulLevel"]
-                if "stressfulLevel" in client_data
-                else "",
-            )
-            if stressfulLevel != client.stressfulLevel:
-                client.stressfulLevel = stressfulLevel
-                updated = True
-            consentMinorChild = (
-                client_data["consentMinorChild"]
-                if "consentMinorChild" in client_data
-                else "",
-            )
-            if consentMinorChild != client.consentMinorChild:
-                client.consentMinorChild = consentMinorChild
-                updated = True
-            relationshipChild = (
-                client_data["relationshipChild"]
-                if "relationshipChild" in client_data
-                else "",
-            )
-            if relationshipChild != client.relationshipChild:
-                client.relationshipChild = relationshipChild
-                updated = True
+            client.first_name = client_data.first_name
+            client.last_name = client_data.last_name
+            client.birthday = client_data.birthday,
+            client.address = client_data.address,
+            client.city = client_data.city,
+            client.state = client_data.state,
+            client.zip = client_data.zip,
+            client.phone = client_data.phone,
+            client.email = client_data.email,
+            client.medications = client_data.medications,
+            client.covid_tested_positive = client_data.covid_tested_positive,
+            client.covid_vaccine = client_data.covid_vaccine,
+            client.stressful_level = client_data.stressful_level,
+            client.consent_minor_child = client_data.consent_minor_child,
+            client.relationship_child = client_data.relationship_child,
 
-            if updated:
-                client.save()
+            ClientCondition.query.filter(ClientCondition.client_id == client.id).delete()
+            for condition_name in client_data.conditions:
+                ClientService.link_client_condition(client.id, condition_name)
+
+            if client_data.other_condition:
+                ClientService.link_client_condition(client.id, client_data.other_condition)
+
+            ClientDisease.query.filter(ClientDisease.client_id == client.id).delete()
+            for disease_name in client_data.diseases:
+                ClientService.link_client_disease(client.id, disease_name)
+
+            return client.save()
 
         return client
