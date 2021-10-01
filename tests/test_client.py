@@ -21,36 +21,28 @@ def client() -> Generator:
 
 def test_client(client: TestClient):
 
-    client_data = {
+    data = {
         "firstName": "Alex",
         "lastName": "Brown",
-        "dateBirth": "2021-09-16",
+        "birthday": "2000-09-16",
         "address": "Street",
         "city": "New York",
         "state": "US",
         "zip": "02232",
         "phone": "19077653340",
         "email": "client@gmail.com",
-        "checkBoxesСonditions": {
-            "conditions": {
-                "1": "Dizziness",
-                "2": "Asthma",
-                "3": "Obesity",
-            },
-            "otherLabel": "",
-        },
-        "checkboxesFollowing": {
-            "1": "Concussion",
-            "2": "Diabetes",
-        },
-        "medications": "",
-        "testedPositive": "Rather not say",
-        "covidVaccine": "",
-        "stressfulLevel": "5",
-        "consentMinorChild": "",
+        "conditions": ["Dizziness", "Asthma", "Obesity"],
+        "otherCondition": "hvoroba",
+        "diseases": ["Concussion", "Diabetes"],
+        "medications": "aspirin",
+        "covidTestedPositive": True,
+        "covidVaccine": False,
+        "stressfulLevel": 5,
+        "consentMinorChild": False,
         "relationshipChild": "",
     }
+
     # 1. add Client into DB (client_data)
-    response = client.post("/client/registration", client_data=client_data)
+    response = client.post("/client/registration", client_data=data)
     assert response
     assert response.ok
