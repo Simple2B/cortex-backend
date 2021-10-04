@@ -20,6 +20,10 @@ class PanelView(ModelView):
         doctor: Doctor = current_user
         return doctor.is_authenticated and doctor.role == Doctor.DoctorRole.Admin
 
+    def inaccessible_callback(self, name, **kwargs):
+        # redirect to login page if user doesn't have access
+        return redirect(url_for("auth.login"))
+
 
 class DoctorAdminModelView(PanelView):
     form_excluded_columns = ["email_approved", "hash_password", "api_key"]

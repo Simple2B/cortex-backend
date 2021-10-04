@@ -1,14 +1,34 @@
 import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
-class Client(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
-    phone_num: int
-    date_of_birthday: datetime.datetime
+class ClientInfo(BaseModel):
+    firstName: str
+    lastName: str
+    birthday: datetime.date
     address: str
     city: str
     state: str
     zip: int
+    phone: str
+    email: EmailStr
+    conditions: list[str]
+    otherCondition: str or None
+    diseases: list[str]
+    medications: str
+    covidTestedPositive: bool or None
+    covidVaccine: bool or None
+    stressfulLevel: int
+    consentMinorChild: bool
+    relationshipChild: str or None
+
+
+class Client(BaseModel):
+    api_key: str
+    first_name: str
+    last_name: str
+    phone: str
+    email: str
+
+    class Config:
+        orm_mode = True
