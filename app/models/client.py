@@ -1,9 +1,9 @@
 from uuid import uuid4
-from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.sql.sqltypes import Boolean
 from app.database import Base
 from .utils import ModelMixin
+
 
 def gen_uuid() -> str:
     return str(uuid4())

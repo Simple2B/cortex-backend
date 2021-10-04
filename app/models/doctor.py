@@ -15,6 +15,7 @@ from .utils import ModelMixin
 def gen_uuid() -> str:
     return str(uuid4())
 
+
 class Doctor(Base, ModelMixin, UserMixin):
     __tablename__ = "doctors"
 

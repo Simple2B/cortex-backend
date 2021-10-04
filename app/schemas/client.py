@@ -1,6 +1,5 @@
 import datetime
 from pydantic import BaseModel, EmailStr
-from sqlalchemy.sql.sqltypes import Integer
 
 
 class ClientInfo(BaseModel):

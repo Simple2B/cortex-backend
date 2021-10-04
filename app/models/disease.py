@@ -1,4 +1,3 @@
-from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 from app.database import Base
 from .utils import ModelMixin

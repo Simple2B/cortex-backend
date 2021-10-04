@@ -1,5 +1,3 @@
-from sqlalchemy import func
-
 from app.schemas import Client, ClientInfo
 from app.models import Client as ClientDB, Condition, ClientCondition, Disease, ClientDisease
 from app.logger import log
@@ -50,7 +48,6 @@ class ClientService:
             ClientService.link_client_disease(client.id, disease_name)
 
         return client
-
 
     def register_new_client(self, client_data: ClientInfo) -> Client:
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
