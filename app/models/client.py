@@ -35,3 +35,6 @@ class Client(Base, ModelMixin):
 
     def __str__(self) -> str:
         return f"{self.id}: {self.first_name} {self.last_name}"
+
+    def __repr__(self) -> str:
+        return self.__str__()

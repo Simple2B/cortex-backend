@@ -4,8 +4,8 @@ from sqlalchemy.sql.sqltypes import Integer
 
 
 class ClientInfo(BaseModel):
-    first_name: str
-    last_name: str
+    firstName: str
+    lastName: str
     birthday: datetime.date
     address: str
     city: str
@@ -14,14 +14,14 @@ class ClientInfo(BaseModel):
     phone: str
     email: EmailStr
     conditions: list[str]
-    other_condition: str or None
+    otherCondition: str or None
     diseases: list[str]
     medications: str
-    covid_tested_positive: bool or None
-    covid_vaccine: bool or None
-    stressful_level: int
-    consent_minor_child: bool
-    relationship_child: str or None
+    covidTestedPositive: bool or None
+    covidVaccine: bool or None
+    stressfulLevel: int
+    consentMinorChild: bool
+    relationshipChild: str or None
 
 
 class Client(BaseModel):

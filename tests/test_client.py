@@ -6,6 +6,7 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
+from app.models import Client, ClientCondition, ClientDisease, Condition, Disease
 
 
 @pytest.fixture()
@@ -21,6 +22,9 @@ def client() -> Generator:
 
 def test_client(client: TestClient):
 
+    TEST_CONDITIONS = ["Dizziness", "Asthma", "Obesity"]
+    TEST_DISEASES = ["Concussion", "Diabetes"]
+
     data = {
         "firstName": "Alex",
         "lastName": "Brown",
@@ -31,9 +35,9 @@ def test_client(client: TestClient):
         "zip": "02232",
         "phone": "19077653340",
         "email": "client@gmail.com",
-        "conditions": ["Dizziness", "Asthma", "Obesity"],
+        "conditions": TEST_CONDITIONS,
         "otherCondition": "hvoroba",
-        "diseases": ["Concussion", "Diabetes"],
+        "diseases": TEST_DISEASES,
         "medications": "aspirin",
         "covidTestedPositive": True,
         "covidVaccine": False,
@@ -43,6 +47,21 @@ def test_client(client: TestClient):
     }
 
     # 1. add Client into DB (client_data)
-    response = client.post("/client/registration", client_data=data)
+    response = client.post("/api/client/registration", json=data)
     assert response
     assert response.ok
+
+    client = Client.query.first()
+    assert client
+    condition_names_in_db = [c.name for c in Condition.query.all()]
+    for condition_name in TEST_CONDITIONS:
+        assert condition_name in condition_names_in_db
+
+    disease_names_in_db = [d.name for d in Disease.query.all()]
+    for disease_name in TEST_DISEASES:
+        assert disease_name in disease_names_in_db
+
+    conditions = ClientCondition.query.filter(ClientCondition.client_id == client.id).all()
+    assert len(conditions) == 4
+    desesses = ClientDisease.query.filter(ClientDisease.client_id == client.id).all()
+    assert len(desesses) == 2

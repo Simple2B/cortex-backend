@@ -12,7 +12,6 @@ class ClientService:
         if not condition:
             condition = Condition(name=condition_name).save()
         ClientCondition(client_id=client_id, condition_id=condition.id).save()
-        return condition
 
     @staticmethod
     def link_client_disease(client_id: int, disease_name: str):
@@ -20,13 +19,12 @@ class ClientService:
         if not disease:
             disease = Disease(name=disease_name).save()
         ClientDisease(client_id=client_id, disease_id=disease.id).save()
-        return disease
 
     @staticmethod
     def register(client_data: ClientInfo) -> ClientDB:
         client = ClientDB(
-            first_name=client_data.first_name,
-            last_name=client_data.last_name,
+            first_name=client_data.firstName,
+            last_name=client_data.lastName,
             birthday=client_data.birthday,
             address=client_data.address,
             city=client_data.city,
@@ -35,18 +33,18 @@ class ClientService:
             phone=client_data.phone,
             email=client_data.email,
             medications=client_data.medications,
-            covid_tested_positive=client_data.covid_tested_positive,
-            covid_vaccine=client_data.covid_vaccine,
-            stressful_level=client_data.stressful_level,
-            consent_minor_child=client_data.consent_minor_child,
-            relationship_child=client_data.relationship_child,
+            covid_tested_positive=client_data.covidTestedPositive,
+            covid_vaccine=client_data.covidVaccine,
+            stressful_level=client_data.stressfulLevel,
+            consent_minor_child=client_data.consentMinorChild,
+            relationship_child=client_data.relationshipChild,
         ).save()
 
         for condition_name in client_data.conditions:
             ClientService.link_client_condition(client.id, condition_name)
 
-        if client_data.other_condition:
-            ClientService.link_client_condition(client.id, client_data.other_condition)
+        if client_data.otherCondition:
+            ClientService.link_client_condition(client.id, client_data.otherCondition)
 
         for disease_name in client_data.diseases:
             ClientService.link_client_disease(client.id, disease_name)

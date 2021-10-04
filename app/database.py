@@ -6,6 +6,8 @@ from app.logger import log
 engine = create_engine(settings.SQLALCHEMY_DATABASE_URL)
 
 Base = None
+db_session = None
+
 if os.environ.get("FLASK_APP", None):
     log(log.INFO, "Use Flask")
     from admin import db
@@ -20,5 +22,6 @@ else:
     db_session = scoped_session(
         sessionmaker(autocommit=False, autoflush=False, bind=engine)
     )
+
     Base = declarative_base()
     Base.query = db_session.query_property()
