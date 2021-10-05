@@ -22,7 +22,7 @@ class ClientInfo(BaseModel):
     covidVaccine: Optional[bool]
     stressfulLevel: int
     consentMinorChild: bool
-    relationshipChild: str or None
+    relationshipChild: Optional[str]
 
 
 class Client(BaseModel):
