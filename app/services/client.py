@@ -1,5 +1,11 @@
 from app.schemas import Client, ClientInfo
-from app.models import Client as ClientDB, Condition, ClientCondition, Disease, ClientDisease
+from app.models import (
+    Client as ClientDB,
+    Condition,
+    ClientCondition,
+    Disease,
+    ClientDisease,
+)
 from app.logger import log
 
 
@@ -30,6 +36,7 @@ class ClientService:
             zip=client_data.zip,
             phone=client_data.phone,
             email=client_data.email,
+            referring=client_data.referring,
             medications=client_data.medications,
             covid_tested_positive=client_data.covidTestedPositive,
             covid_vaccine=client_data.covidVaccine,
@@ -55,28 +62,33 @@ class ClientService:
             client = self.register(client_data)
             log(log.INFO, "Added client [%s]", client)
         else:
-            client.first_name = client_data.first_name
-            client.last_name = client_data.last_name
-            client.birthday = client_data.birthday,
-            client.address = client_data.address,
-            client.city = client_data.city,
-            client.state = client_data.state,
-            client.zip = client_data.zip,
-            client.phone = client_data.phone,
-            client.email = client_data.email,
-            client.medications = client_data.medications,
-            client.covid_tested_positive = client_data.covid_tested_positive,
-            client.covid_vaccine = client_data.covid_vaccine,
-            client.stressful_level = client_data.stressful_level,
-            client.consent_minor_child = client_data.consent_minor_child,
-            client.relationship_child = client_data.relationship_child,
+            client.first_name = client_data.firstName
+            client.last_name = client_data.lastName
+            client.birthday = client_data.birthday
+            client.address = client_data.address
+            client.city = client_data.city
+            client.state = client_data.state
+            client.zip = client_data.zip
+            client.phone = client_data.phone
+            client.email = client_data.email
+            client.referring = client_data.referring
+            client.medications = client_data.medications
+            client.covid_tested_positive = client_data.covidTestedPositive
+            client.covid_vaccine = client_data.covidVaccine
+            client.stressful_level = client_data.stressfulLevel
+            client.consent_minor_child = client_data.consentMinorChild
+            client.relationship_child = client_data.relationshipChild
 
-            ClientCondition.query.filter(ClientCondition.client_id == client.id).delete()
+            ClientCondition.query.filter(
+                ClientCondition.client_id == client.id
+            ).delete()
             for condition_name in client_data.conditions:
                 ClientService.link_client_condition(client.id, condition_name)
 
             if client_data.other_condition:
-                ClientService.link_client_condition(client.id, client_data.other_condition)
+                ClientService.link_client_condition(
+                    client.id, client_data.other_condition
+                )
 
             ClientDisease.query.filter(ClientDisease.client_id == client.id).delete()
             for disease_name in client_data.diseases:
