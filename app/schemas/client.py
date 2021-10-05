@@ -1,5 +1,6 @@
 import datetime
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class ClientInfo(BaseModel):
@@ -14,11 +15,11 @@ class ClientInfo(BaseModel):
     email: EmailStr
     referring: str
     conditions: list[str]
-    otherCondition: str or None
+    otherCondition: Optional[str]
     diseases: list[str]
     medications: str
-    covidTestedPositive: bool or None
-    covidVaccine: bool or None
+    covidTestedPositive: Optional[bool]
+    covidVaccine: Optional[bool]
     stressfulLevel: int
     consentMinorChild: bool
     relationshipChild: str or None
