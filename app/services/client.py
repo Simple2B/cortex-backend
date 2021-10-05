@@ -85,9 +85,9 @@ class ClientService:
             for condition_name in client_data.conditions:
                 ClientService.link_client_condition(client.id, condition_name)
 
-            if client_data.other_condition:
+            if client_data.otherCondition:
                 ClientService.link_client_condition(
-                    client.id, client_data.other_condition
+                    client.id, client_data.otherCondition
                 )
 
             ClientDisease.query.filter(ClientDisease.client_id == client.id).delete()
