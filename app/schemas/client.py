@@ -12,6 +12,7 @@ class ClientInfo(BaseModel):
     zip: int
     phone: str
     email: EmailStr
+    referring: str
     conditions: list[str]
     otherCondition: str or None
     diseases: list[str]

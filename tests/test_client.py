@@ -35,6 +35,7 @@ def test_client(client: TestClient):
         "zip": "02232",
         "phone": "19077653340",
         "email": "client@gmail.com",
+        "referring": "referring",
         "conditions": TEST_CONDITIONS,
         "otherCondition": "hvoroba",
         "diseases": TEST_DISEASES,
@@ -61,7 +62,9 @@ def test_client(client: TestClient):
     for disease_name in TEST_DISEASES:
         assert disease_name in disease_names_in_db
 
-    conditions = ClientCondition.query.filter(ClientCondition.client_id == client.id).all()
+    conditions = ClientCondition.query.filter(
+        ClientCondition.client_id == client.id
+    ).all()
     assert len(conditions) == 4
     desesses = ClientDisease.query.filter(ClientDisease.client_id == client.id).all()
     assert len(desesses) == 2

@@ -23,6 +23,7 @@ class Client(Base, ModelMixin):
 
     phone = Column(String(32), unique=True, index=True)
     email = Column(String(128), unique=True, index=True)
+    referring = Column(String(128), nullable=True)
 
     medications = Column(String(128), nullable=True)
     covid_tested_positive = Column(Boolean, nullable=True, default=None)
