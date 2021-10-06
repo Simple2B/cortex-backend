@@ -14,6 +14,7 @@ from app.models import (
     Disease,
     Doctor,
     Visit,
+    Reception,
     QueueMember,
 )
 from .database import generate_test_data
@@ -86,4 +87,8 @@ def test_generate_data(client: TestClient):
     assert len(Client.query.all()) == 10
     assert len(Doctor.query.all()) == 1
     assert len(Visit.query.all()) > 0
-    assert len(QueueMember.query.all()) > 0
+    reception = Reception.query.first()
+    assert reception
+    queues = QueueMember.query.all()
+    assert queues
+    assert len(reception.queue_members) == len(queues)

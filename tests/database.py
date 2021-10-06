@@ -1,6 +1,6 @@
 import datetime
 import random
-from app.models import Client, Doctor, QueueMember, Visit
+from app.models import Client, Doctor, Visit, Reception, QueueMember
 from admin.database import add_doctor_to_db
 
 CLIENT_NUMBER = 10
@@ -64,6 +64,13 @@ def generate_test_data():
     if not doctor:
         doctor = add_doctor_to_db()
 
+    reception = Reception(
+        date=datetime.datetime.now(),
+        doctor_id=doctor.id,
+    )
+
+    reception.save()
+
     for i in range(CLIENT_NUMBER):
         client = Client(
             first_name=CLIENT_FIRST_NAME[random.randint(0, len(CLIENT_FIRST_NAME) - 1)],
@@ -85,3 +92,22 @@ def generate_test_data():
         )
 
         client.save()
+
+        visit = Visit(
+            data_time=datetime.datetime.now(),
+            # ? duration => may be end of visit
+            rougue_mode=[True, False][random.randint(0, 1)],
+            client_id=client.id,
+            doctor_id=doctor.id,
+        )
+        visit.save()
+
+        queue_member = QueueMember(
+            place_in_queue=i,
+            canceled=[True, False][random.randint(0, 1)],
+            client_id=client.id,
+            visit_id=visit.id,
+            reception_id=reception.id,
+        )
+
+        queue_member.save()
