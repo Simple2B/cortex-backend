@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class ClientInfo(BaseModel):
+    id: int
     firstName: str
     lastName: str
     birthday: datetime.date
@@ -23,6 +24,8 @@ class ClientInfo(BaseModel):
     stressfulLevel: int
     consentMinorChild: bool
     relationshipChild: Optional[str]
+
+    # tags: List[str] = []
 
 
 class Client(BaseModel):
