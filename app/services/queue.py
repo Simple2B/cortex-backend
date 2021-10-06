@@ -8,7 +8,7 @@ from app.logger import log
 
 
 class QueueService:
-    def add_client_to_queue(self, client_data: ClientInfo) -> Client:
+    def add_client_to_queue(self, client_data: Client) -> Client:
 
         doctor = Doctor.query.first()
 

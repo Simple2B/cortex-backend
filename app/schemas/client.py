@@ -29,7 +29,8 @@ class ClientInfo(BaseModel):
 
 
 class Client(BaseModel):
-    api_key: str
+    id: Optional[int]
+    api_key: Optional[str]
     first_name: str
     last_name: str
     phone: str
