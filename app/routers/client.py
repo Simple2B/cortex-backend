@@ -28,7 +28,7 @@ def get_clients():
 
 
 @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
-async def add_client_to_queue(client_data: ClientInfo):
+async def add_client_to_queue(client_data: Client):
     """Put clients to queue"""
     service = QueueService()
     service.add_client_to_queue(client_data)
@@ -37,7 +37,14 @@ async def add_client_to_queue(client_data: ClientInfo):
     return "ok"
 
 
-@router_client.get("/queue", response_model=List[Queue], tags=["Client"])
+@router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue():
     """Show queue"""
-    return QueueMemberDB.query.all()
+    clients_queues = []
+    queues = QueueMemberDB.query.all()
+    clients = ClientDB.query.all()
+    for queue in queues:
+        for client in clients:
+            if queue.client_id == client.id:
+                clients_queues.append(client)
+    return clients_queues
