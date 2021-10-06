@@ -9,7 +9,9 @@ from app import models
 from app.logger import log
 from admin.config import BaseConfig as conf
 
-from admin.database import add_doctor_to_db
+from admin.database import generate_test_data
+
+# from test import generate_test_data
 
 log.set_level(conf.LOG_LEVEL)
 
@@ -27,7 +29,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
-    add_doctor_to_db()
+    generate_test_data()
 
 
 @app.cli.command()

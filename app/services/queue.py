@@ -2,7 +2,7 @@ import datetime
 
 # from .auth import get_current_doctor
 from app.schemas import Client, ClientInfo
-from app.models import QueueMember, Reception, Doctor, Visit
+from app.models import QueueMember, Reception, Doctor, Visit, Client as ClientDB
 
 from app.logger import log
 
@@ -22,7 +22,10 @@ class QueueService:
         #     if doctor.is_authenticated:
         #         return doctor
 
-        # client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first
+        client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
+
+        if not client:
+            return
 
         reception = Reception(
             date=datetime.datetime.now(),
@@ -30,24 +33,32 @@ class QueueService:
         )
 
         reception.save()
-
         log(log.INFO, "Reception created [%d]", reception.id)
 
-        visit = Visit(
-            data_time=datetime.datetime.now(),
-            # ? duration => may be end of visit
-            # rougue_mode=,
-            client_id=client_data.id,
-            doctor_id=doctor.id,
-        )
-        visit.save()
+        visit = Visit.query.filter(Visit.client_id == client.id).first()
+        if not visit:
+            visit = Visit(
+                data_time=datetime.datetime.now(),
+                # ? duration => may be end of visit
+                # rougue_mode=,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
 
-        log(log.INFO, "Visit created [%d]", visit.id)
+            log(log.INFO, "Visit created [%d]", visit.id)
+        else:
+            # ? duration => may be end of visit
+            # visit.rougue_mode=,
+            visit.data_time = datetime.datetime.now()
+            visit.doctor_id = doctor.id
+
+            visit.save()
 
         queue_member = QueueMember(
             # place_in_queue=,
             # canceled=,
-            client_id=client_data.id,
+            client_id=client.id,
             visit_id=visit.id,
             reception_id=reception.id,
         )
