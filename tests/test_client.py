@@ -1,5 +1,4 @@
 import pytest
-import json
 from typing import Generator
 from fastapi.testclient import TestClient
 

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from typing import List
-from fastapi.security import OAuth2PasswordBearer
+
+# from fastapi.security import OAuth2PasswordBearer
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, QueueMember, Queue
+from app.schemas import ClientInfo, Client, Queue
 from app.models import Client as ClientDB, QueueMember as QueueMemberDB
 
 

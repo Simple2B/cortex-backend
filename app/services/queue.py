@@ -1,8 +1,10 @@
 import datetime
-from .auth import get_current_doctor
-from app.schemas import Client, ClientInfo, Queue
-from app.models import Client as ClientDB, QueueMember, Reception, Doctor, Visit
-from app.logger import log
+
+# from .auth import get_current_doctor
+from app.schemas import Client, ClientInfo
+from app.models import QueueMember, Reception, Doctor, Visit
+
+# from app.logger import log
 
 
 class QueueService:

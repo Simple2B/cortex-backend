@@ -8,10 +8,6 @@ from app.database import engine, Base
 from app.setup import create_app
 from app.models import (
     Client,
-    ClientCondition,
-    ClientDisease,
-    Condition,
-    Disease,
     Doctor,
     Visit,
     Reception,
