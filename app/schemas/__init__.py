@@ -2,3 +2,4 @@
 from .auth import Doctor, DoctorCreate, Token, DoctorLogin
 from .base_response import BaseResponsePydantic
 from .client import ClientInfo, Client
+from .queue_member import QueueMember, Queue
