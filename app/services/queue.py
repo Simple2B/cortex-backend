@@ -4,7 +4,7 @@ import datetime
 from app.schemas import Client, ClientInfo
 from app.models import QueueMember, Reception, Doctor, Visit
 
-# from app.logger import log
+from app.logger import log
 
 
 class QueueService:
@@ -31,6 +31,8 @@ class QueueService:
 
         reception.save()
 
+        log(log.INFO, "Reception created [%d]", reception.id)
+
         visit = Visit(
             data_time=datetime.datetime.now(),
             # ? duration => may be end of visit
@@ -39,6 +41,8 @@ class QueueService:
             doctor_id=doctor.id,
         )
         visit.save()
+
+        log(log.INFO, "Visit created [%d]", visit.id)
 
         queue_member = QueueMember(
             # place_in_queue=,
@@ -49,5 +53,7 @@ class QueueService:
         )
 
         queue_member.save()
+
+        log(log.INFO, "QueueMember created [%d]", queue_member.id)
 
         # return queue_member
