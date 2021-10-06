@@ -17,3 +17,9 @@ class QueueMember(Base, ModelMixin):
 
     client = relationship("Client", viewonly=True)
     reception = relationship("Reception", viewonly=True)
+
+    def __str__(self) -> str:
+        return f"{self.id}: [{self.client}]"
+
+    def __repr__(self) -> str:
+        return self.__str__()
