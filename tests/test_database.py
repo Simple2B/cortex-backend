@@ -92,3 +92,6 @@ def test_generate_data(client: TestClient):
     queues = QueueMember.query.all()
     assert queues
     assert len(reception.queue_members) == len(queues)
+
+    # client = Client.query.first()
+    # assert client
