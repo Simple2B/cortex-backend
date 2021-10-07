@@ -1,26 +1,25 @@
 import datetime
 
-# from .auth import get_current_doctor
-from app.schemas import Client
-from app.models import QueueMember, Reception, Doctor, Visit, Client as ClientDB
+from fastapi import Depends
+from .auth import get_current_doctor
+from app.schemas import Client, Doctor
+from app.models import (
+    QueueMember,
+    Reception,
+    Visit,
+    Client as ClientDB,
+    Doctor as DoctorDB,
+)
 
 from app.logger import log
 
 
 class QueueService:
-    def add_client_to_queue(self, client_data: Client) -> Client:
+    def add_client_to_queue(self, client_data: Client, doctor: Doctor) -> Client:
 
-        doctor = Doctor.query.first()
+        doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
 
-        # if current_user.is_authenticated():
-        #     doctor_id = current_user.get_id()
-
-        # doctors = Doctor.query.all()
-        # for i in doctors:
-        #     doctor = doctors[i]
-        #     doctor: Doctor = current_user
-        #     if doctor.is_authenticated:
-        #         return doctor
+        # doctor: Doctor = Depends(get_current_doctor)
 
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
 
