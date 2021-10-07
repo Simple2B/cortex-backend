@@ -13,3 +13,13 @@ def login(client, email=conf.ADMIN_EMAIL, password=conf.ADMIN_PASSWORD) -> str:
 
 def logout(client):
     raise NotImplementedError()
+
+
+def admin_login(client, email, password="123"):
+    return client.post(
+        "/admin/login", data=dict(email=email, password=password), follow_redirects=True
+    )
+
+
+def admin_logout(client):
+    return client.get("/admin/logout", follow_redirects=True)
