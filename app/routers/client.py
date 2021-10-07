@@ -1,14 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 # from fastapi.security import OAuth2PasswordBearer
 
 from app.services import ClientService, QueueService
 from app.schemas import ClientInfo, Client
-from app.models import (
-    Client as ClientDB,
-    QueueMember as QueueMemberDB,
-)
+from app.models import Client as ClientDB, QueueMember as QueueMemberDB, Doctor
+from app.services.auth import get_current_doctor
 
 
 router_client = APIRouter(prefix="/client")
@@ -34,23 +32,25 @@ async def registrations(client_data: ClientInfo):
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
-def get_clients():
+def get_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
     return ClientDB.query.all()
 
 
 @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
-async def add_client_to_queue(client_data: Client):
+async def add_client_to_queue(
+    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+):
     """Put clients to queue"""
     service = QueueService()
-    service.add_client_to_queue(client_data)
+    service.add_client_to_queue(client_data, doctor)
     # if not client:
     #     raise HTTPException(status_code=404, detail="Client didn't add to queue")
     return "ok"
 
 
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
-def get_queue():
+def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show queue"""
     queue = []
     queue_members = QueueMemberDB.query.all()
