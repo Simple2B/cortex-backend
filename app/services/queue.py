@@ -26,22 +26,20 @@ class QueueService:
         if not visit:
             visit = Visit(
                 data_time=datetime.datetime.now(),
-                # ? duration => may be end of visit
-                # rougue_mode=,
+                # TODO duration => may be end of visit
+                # TODO rougue_mode=,
                 client_id=client.id,
                 doctor_id=doctor.id,
             )
             visit.save()
             log(log.INFO, "Visit created [%d]", visit.id)
         else:
-            # ? duration => may be end of visit
-            # visit.rougue_mode=,
+            # TODO duration => may be end of visit
+            # TODO visit.rougue_mode=,
             visit.data_time = datetime.datetime.now()
             visit.doctor_id = doctor.id
             visit.save()
         queue_member = QueueMember(
-            # place_in_queue=,
-            # canceled=,
             client_id=client.id,
             visit_id=visit.id,
             reception_id=reception.id,

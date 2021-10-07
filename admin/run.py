@@ -1,7 +1,6 @@
 #!/user/bin/env python
 import click
 
-# from flask_mail import Mail
 from admin import create_app
 from admin import db
 from app import models

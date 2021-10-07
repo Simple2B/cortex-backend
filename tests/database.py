@@ -30,31 +30,9 @@ CLIENT_LAST_NAME = [
     "Franclin",
 ]
 
-CLIENT_EMAIL = [
-    "email_1@email.com",
-    "email_2@email.com",
-    "email_3@email.com",
-    "email_4@email.com",
-    "email_5@email.com",
-    "email_6@email.com",
-    "email_7@email.com",
-    "email_8@email.com",
-    "email_9@email.com",
-    "email_10@email.com",
-]
+CLIENT_EMAIL = "email_{}@email.com"
 
-CLIENT_NUMBER_PHONE = [
-    "+18143519421",
-    "+16143519421",
-    "+14143519421",
-    "+18643519421",
-    "+14443519421",
-    "+16143519444",
-    "+16143555444",
-    "+18188555444",
-    "+14143519666",
-    "+14143444666",
-]
+CLIENT_NUMBER_PHONE = "12345{:06d}"
 
 BASE_DATE_BIRTHDAY = datetime.date(year=1973, month=10, day=12)
 
@@ -77,8 +55,8 @@ def generate_test_data():
             city="NY",
             state="US",
             zip=12345,
-            phone=CLIENT_NUMBER_PHONE[i],
-            email=CLIENT_EMAIL[i],
+            phone=CLIENT_NUMBER_PHONE.format(i),
+            email=CLIENT_EMAIL.format(i),
             referring="Trevor",
             medications="medications",
             covid_tested_positive=[False, True, None][random.randint(0, 2)],
@@ -92,7 +70,7 @@ def generate_test_data():
 
         visit = Visit(
             data_time=datetime.datetime.now(),
-            # ? duration => may be end of visit
+            # TODO duration => may be end of visit
             rougue_mode=[True, False][random.randint(0, 1)],
             client_id=client.id,
             doctor_id=doctor.id,
