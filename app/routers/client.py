@@ -1,15 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from typing import List
 
 # from fastapi.security import OAuth2PasswordBearer
 
-from app.services import ClientService, QueueService, get_current_doctor
-from app.schemas import ClientInfo, Client, Queue
+from app.services import ClientService, QueueService
+from app.schemas import ClientInfo, Client
 from app.models import (
     Client as ClientDB,
     QueueMember as QueueMemberDB,
-    Reception,
-    Doctor,
 )
 
 

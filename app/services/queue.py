@@ -1,7 +1,7 @@
 import datetime
 
 # from .auth import get_current_doctor
-from app.schemas import Client, ClientInfo
+from app.schemas import Client
 from app.models import QueueMember, Reception, Doctor, Visit, Client as ClientDB
 
 from app.logger import log
