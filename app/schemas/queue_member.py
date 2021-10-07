@@ -11,7 +11,7 @@ class QueueMember(BaseModel):
 
 
 class Queue(BaseModel):
-    place_in_queue: int
+    place_in_queue: Optional[int]
     client_id: int
     visit_id: int
     reception_id: int

@@ -27,12 +27,16 @@ class QueueService:
         if not client:
             return
 
-        reception = Reception(
-            date=datetime.datetime.now(),
-            doctor_id=doctor.id,
-        )
+        reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
+        reception.date = datetime.datetime.now()
+
+        # reception = Reception(
+        #     date=datetime.datetime.now(),
+        #     doctor_id=doctor.id,
+        # )
 
         reception.save()
+
         log(log.INFO, "Reception created [%d]", reception.id)
 
         visit = Visit.query.filter(Visit.client_id == client.id).first()

@@ -1,11 +1,16 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 # from fastapi.security import OAuth2PasswordBearer
 
-from app.services import ClientService, QueueService
+from app.services import ClientService, QueueService, get_current_doctor
 from app.schemas import ClientInfo, Client, Queue
-from app.models import Client as ClientDB, QueueMember as QueueMemberDB
+from app.models import (
+    Client as ClientDB,
+    QueueMember as QueueMemberDB,
+    Reception,
+    Doctor,
+)
 
 
 router_client = APIRouter(prefix="/client")
@@ -19,6 +24,15 @@ async def registrations(client_data: ClientInfo):
     if not client:
         raise HTTPException(status_code=404, detail="Client didn't registration")
     return client
+
+
+# @router_client.post("/create_reception", response_model=str, tags=["Client"])
+# def create_reception(doctor: Doctor = Depends(get_current_doctor):
+#     """Create reception for clients"""
+#         reception = Reception(date=datetime.datetime.now(), doctor_id=doctor.id)
+#         reception.save()
+
+#         return "ok"
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
@@ -40,11 +54,11 @@ async def add_client_to_queue(client_data: Client):
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue():
     """Show queue"""
-    clients_queues = []
-    queues = QueueMemberDB.query.all()
+    queue = []
+    queue_members = QueueMemberDB.query.all()
     clients = ClientDB.query.all()
-    for queue in queues:
+    for queue_member in queue_members:
         for client in clients:
-            if queue.client_id == client.id:
-                clients_queues.append(client)
-    return clients_queues
+            if queue_member.id == client.id:
+                queue.append(client)
+    return queue

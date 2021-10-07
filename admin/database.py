@@ -79,6 +79,14 @@ def add_doctor_to_db(
     )
     doctor.password = passwd
     doctor.save()
+
+    reception = Reception(
+        date=datetime.datetime.now(),
+        doctor_id=doctor.id,
+    )
+
+    reception.save()
+
     return doctor
 
 

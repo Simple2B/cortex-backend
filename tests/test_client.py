@@ -49,6 +49,15 @@ data = {
     "relationshipChild": "",
 }
 
+data_client = {
+    "id": 11,
+    # "api_key": Optional[str]
+    "first_name": "Alex",
+    "last_name": "Brown",
+    "phone": "19077653340",
+    "email": "client@gmail.com",
+}
+
 
 def test_client(client: TestClient):
     # 1. add Client into DB (client_data)
@@ -78,16 +87,6 @@ def test_client(client: TestClient):
     assert response
     assert response.ok
 
-
-def test_get_queue(client: TestClient):
-    data_client = {
-        "id": 11,
-        # "api_key": Optional[str]
-        "first_name": "Alex",
-        "last_name": "Brown",
-        "phone": "19077653340",
-        "email": "client@gmail.com",
-    }
     # add client for queue
     response = client.post("/api/client/add_clients_queue", json=data_client)
     assert response
