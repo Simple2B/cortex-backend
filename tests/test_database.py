@@ -14,6 +14,7 @@ from app.models import (
     QueueMember,
 )
 from .database import generate_test_data
+from .utils import login
 
 
 @pytest.fixture()
@@ -22,14 +23,15 @@ def client() -> Generator:
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as c:
+        generate_test_data()
+        token = login(c)
+        c.headers["Authorization"] = f"Bearer {token}"
         yield c
     Base.metadata.drop_all(bind=engine)
     engine.dispose()
 
 
 def test_generate_data(client: TestClient):
-    generate_test_data()
-
     assert len(Client.query.all()) == 10
     assert len(Doctor.query.all()) == 1
     assert len(Visit.query.all()) > 0

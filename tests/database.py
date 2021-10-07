@@ -64,11 +64,8 @@ def generate_test_data():
     if not doctor:
         doctor = add_doctor_to_db()
 
-    reception = Reception(
-        date=datetime.datetime.now(),
-        doctor_id=doctor.id,
-    )
-
+    reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
+    reception.date = datetime.datetime.now()
     reception.save()
 
     for i in range(CLIENT_NUMBER):
