@@ -1,7 +1,5 @@
 import datetime
 
-from fastapi import Depends
-from .auth import get_current_doctor
 from app.schemas import Client, Doctor
 from app.models import (
     QueueMember,
@@ -19,8 +17,6 @@ class QueueService:
 
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
 
-        # doctor: Doctor = Depends(get_current_doctor)
-
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
 
         if not client:
@@ -28,11 +24,6 @@ class QueueService:
 
         reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
         reception.date = datetime.datetime.now()
-
-        # reception = Reception(
-        #     date=datetime.datetime.now(),
-        #     doctor_id=doctor.id,
-        # )
 
         reception.save()
 
@@ -69,5 +60,3 @@ class QueueService:
         queue_member.save()
 
         log(log.INFO, "QueueMember created [%d]", queue_member.id)
-
-        # return queue_member
