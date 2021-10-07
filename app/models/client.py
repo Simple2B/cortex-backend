@@ -20,11 +20,9 @@ class Client(Base, ModelMixin):
     city = Column(String(64), nullable=True)
     state = Column(String(64), nullable=True)
     zip = Column(Integer, nullable=True)
-
     phone = Column(String(32), unique=True, index=True)
     email = Column(String(128), unique=True, index=True)
     referring = Column(String(128), nullable=True)
-
     medications = Column(String(128), nullable=True)
     covid_tested_positive = Column(Boolean, nullable=True, default=None)
     covid_vaccine = Column(Boolean, nullable=True, default=None)

@@ -15,6 +15,7 @@ class ClientService:
         condition = Condition.query.filter(Condition.name == condition_name).first()
         if not condition:
             condition = Condition(name=condition_name).save()
+            log(log.INFO, "Condition [%s] has been saved", condition.name)
         ClientCondition(client_id=client_id, condition_id=condition.id).save()
 
     @staticmethod
@@ -22,6 +23,7 @@ class ClientService:
         disease = Disease.query.filter(Disease.name == disease_name).first()
         if not disease:
             disease = Disease(name=disease_name).save()
+            log(log.INFO, "Disease [%s] has been saved", disease.name)
         ClientDisease(client_id=client_id, disease_id=disease.id).save()
 
     @staticmethod
@@ -44,6 +46,7 @@ class ClientService:
             consent_minor_child=client_data.consentMinorChild,
             relationship_child=client_data.relationshipChild,
         ).save()
+        log(log.INFO, "Client [%s] has been registered", client.first_name)
 
         for condition_name in client_data.conditions:
             ClientService.link_client_condition(client.id, condition_name)
@@ -78,6 +81,8 @@ class ClientService:
             client.stressful_level = client_data.stressfulLevel
             client.consent_minor_child = client_data.consentMinorChild
             client.relationship_child = client_data.relationshipChild
+
+            log(log.INFO, "Client [%d] updated [%s]", client.id, client.first_name)
 
             ClientCondition.query.filter(
                 ClientCondition.client_id == client.id

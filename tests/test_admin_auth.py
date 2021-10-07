@@ -2,7 +2,7 @@ import pytest
 import tests.setup_flask  # noqa: F401
 
 from admin import db, create_app
-from tests.utils import login, logout
+from tests.utils import admin_login as login, admin_logout as logout
 from admin.database import add_doctor_to_db
 
 

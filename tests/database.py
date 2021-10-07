@@ -1,10 +1,9 @@
-# from app import db
 import datetime
 import random
-from admin.config import BaseConfig as conf
-from app.models import Doctor, Reception, Client
+from app.models import Client, Doctor, Visit, Reception, QueueMember
+from admin.database import add_doctor_to_db
 
-CLIENT_NUMBER = 11
+CLIENT_NUMBER = 10
 CLIENT_FIRST_NAME = [
     "Alex",
     "Marta",
@@ -16,7 +15,6 @@ CLIENT_FIRST_NAME = [
     "Poll",
     "Leon",
     "Sara",
-    "Alex",
 ]
 
 CLIENT_LAST_NAME = [
@@ -30,7 +28,6 @@ CLIENT_LAST_NAME = [
     "Kennedy",
     "Pearsone",
     "Franclin",
-    "Brown",
 ]
 
 CLIENT_EMAIL = "email_{}@email.com"
@@ -40,48 +37,19 @@ CLIENT_NUMBER_PHONE = "12345{:06d}"
 BASE_DATE_BIRTHDAY = datetime.date(year=1973, month=10, day=12)
 
 
-def add_doctor_to_db(
-    first_name=conf.ADMIN_FIRST_NAME,
-    last_name=conf.ADMIN_LAST_NAME,
-    email=conf.ADMIN_EMAIL,
-    role=Doctor.DoctorRole.Admin,
-    passwd=conf.ADMIN_PASSWORD,
-):
-    doctor = Doctor(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        role=role,
-    )
-    doctor.password = passwd
-    doctor.save()
-
-    reception = Reception(
-        date=datetime.datetime.now(),
-        doctor_id=doctor.id,
-    )
-
-    reception.save()
-
-    return doctor
-
-
 def generate_test_data():
     doctor = Doctor.query.first()
     if not doctor:
         doctor = add_doctor_to_db()
 
-    reception = Reception(
-        date=datetime.datetime.now(),
-        doctor_id=doctor.id,
-    )
-
+    reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
+    reception.date = datetime.datetime.now()
     reception.save()
 
     for i in range(CLIENT_NUMBER):
         client = Client(
-            first_name=CLIENT_FIRST_NAME[i],
-            last_name=CLIENT_LAST_NAME[i],
+            first_name=CLIENT_FIRST_NAME[random.randint(0, len(CLIENT_FIRST_NAME) - 1)],
+            last_name=CLIENT_LAST_NAME[random.randint(0, len(CLIENT_LAST_NAME) - 1)],
             birthday=BASE_DATE_BIRTHDAY + datetime.timedelta(days=1),
             address="Street",
             city="NY",
@@ -99,3 +67,22 @@ def generate_test_data():
         )
 
         client.save()
+
+        visit = Visit(
+            data_time=datetime.datetime.now(),
+            # TODO duration => may be end of visit
+            rougue_mode=[True, False][random.randint(0, 1)],
+            client_id=client.id,
+            doctor_id=doctor.id,
+        )
+        visit.save()
+
+        queue_member = QueueMember(
+            place_in_queue=i,
+            canceled=[True, False][random.randint(0, 1)],
+            client_id=client.id,
+            visit_id=visit.id,
+            reception_id=reception.id,
+        )
+
+        queue_member.save()

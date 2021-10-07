@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class ClientInfo(BaseModel):
+    id: int
     firstName: str
     lastName: str
     birthday: datetime.date
@@ -24,9 +25,12 @@ class ClientInfo(BaseModel):
     consentMinorChild: bool
     relationshipChild: Optional[str]
 
+    # tags: List[str] = []
+
 
 class Client(BaseModel):
-    api_key: str
+    id: Optional[int]
+    api_key: Optional[str]
     first_name: str
     last_name: str
     phone: str
