@@ -9,6 +9,7 @@ from app.setup import create_app
 from app.models import Client, ClientCondition, ClientDisease, Condition, Disease
 
 from .database import generate_test_data
+from .utils import login
 
 
 @pytest.fixture()
@@ -18,6 +19,8 @@ def client() -> Generator:
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as c:
         generate_test_data()
+        token = login(c)
+        c.headers["Authorization"] = f"Bearer {token}"
         yield c
     Base.metadata.drop_all(bind=engine)
     engine.dispose()
@@ -26,7 +29,7 @@ def client() -> Generator:
 TEST_CONDITIONS = ["Dizziness", "Asthma", "Obesity"]
 TEST_DISEASES = ["Concussion", "Diabetes"]
 
-data = {
+DATA = {
     "id": 11,
     "firstName": "Alex",
     "lastName": "Brown",
@@ -49,7 +52,7 @@ data = {
     "relationshipChild": "",
 }
 
-data_client = {
+DATA_CLIENT = {
     "id": 11,
     # "api_key": Optional[str]
     "first_name": "Alex",
@@ -61,11 +64,11 @@ data_client = {
 
 def test_client(client: TestClient):
     # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=data)
+    response = client.post("/api/client/registration", json=DATA)
     assert response
     assert response.ok
 
-    client_db = Client.query.filter(Client.email == data["email"]).first()
+    client_db = Client.query.filter(Client.email == DATA["email"]).first()
     assert client_db
     condition_names_in_db = [c.name for c in Condition.query.all()]
     for condition_name in TEST_CONDITIONS:
@@ -88,7 +91,7 @@ def test_client(client: TestClient):
     assert response.ok
 
     # add client for queue
-    response = client.post("/api/client/add_clients_queue", json=data_client)
+    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
     assert response
     assert response.ok
 
