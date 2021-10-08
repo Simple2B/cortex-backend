@@ -38,3 +38,10 @@ class Client(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ClientPhone(BaseModel):
+    phone: str
+
+    class Config:
+        orm_mode = True
