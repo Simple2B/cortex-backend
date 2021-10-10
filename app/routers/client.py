@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client
+from app.schemas import ClientInfo, Client, ClientPhone
 from app.models import Client as ClientDB, QueueMember as QueueMemberDB, Doctor
 from app.services.auth import get_current_doctor
 
@@ -15,6 +15,16 @@ async def registrations(client_data: ClientInfo):
     """Register new client"""
     service = ClientService()
     client = service.register_new_client(client_data)
+    if not client:
+        raise HTTPException(status_code=404, detail="Client didn't registration")
+    return client
+
+
+@router_client.post("/kiosk", response_model=Client, tags=["Client"])
+async def identify_client_with_phone(phone_data: ClientPhone):
+    """Identify client with phone"""
+    service = ClientService()
+    client = service.identify_client_with_phone(phone_data)
     if not client:
         raise HTTPException(status_code=404, detail="Client didn't registration")
     return client
