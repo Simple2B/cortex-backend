@@ -1,3 +1,4 @@
+import datetime
 from app.schemas import Client, ClientInfo, ClientPhone
 from app.models import (
     Client as ClientDB,
@@ -31,7 +32,9 @@ class ClientService:
         client = ClientDB(
             first_name=client_data.firstName,
             last_name=client_data.lastName,
-            birthday=client_data.birthday,
+            birthday=datetime.datetime.strptime(client_data.birthday, "%Y-%m-%d").date()
+            if client_data.birthday
+            else None,
             address=client_data.address,
             city=client_data.city,
             state=client_data.state,
@@ -68,6 +71,11 @@ class ClientService:
             client.first_name = client_data.firstName
             client.last_name = client_data.lastName
             client.birthday = client_data.birthday
+            client.birthday = (
+                datetime.datetime.strptime(client_data.birthday, "%Y-%m-%d").date()
+                if client_data.birthday
+                else None
+            )
             client.address = client_data.address
             client.city = client_data.city
             client.state = client_data.state
