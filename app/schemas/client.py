@@ -6,14 +6,14 @@ from typing import Optional
 class ClientInfo(BaseModel):
     firstName: str
     lastName: str
-    birthday: datetime.date
-    address: str
-    city: str
-    state: str
-    zip: int
+    birthday: Optional[datetime.date]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    zip: Optional[int]
     phone: str
     email: EmailStr
-    referring: str
+    referring: Optional[str]
     conditions: list[str]
     otherCondition: Optional[str]
     diseases: list[str]
@@ -21,7 +21,7 @@ class ClientInfo(BaseModel):
     covidTestedPositive: Optional[bool]
     covidVaccine: Optional[bool]
     stressfulLevel: int
-    consentMinorChild: bool
+    consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
 
 
