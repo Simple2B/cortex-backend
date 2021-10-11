@@ -6,7 +6,7 @@ from typing import Optional
 class ClientInfo(BaseModel):
     firstName: str
     lastName: str
-    birthday: Optional[datetime.date] or Optional[str]
+    birthday: Optional[datetime.date]
     address: Optional[str]
     city: Optional[str]
     state: Optional[str]
