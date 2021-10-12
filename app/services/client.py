@@ -28,15 +28,15 @@ class ClientService:
         ClientDisease(client_id=client_id, disease_id=disease.id).save()
 
     @staticmethod
-    def register(client_data: ClientInfo) -> ClientDB:
-        def get_bool_data(covid_test: str):
-            if covid_test == "true":
-                covid_test = True
-            elif covid_test == "false":
-                covid_test = False
-            else:
-                covid_test = None
+    def get_bool_data(covid_test: str):
+        if covid_test == "true":
+            covid_test = True
+        elif covid_test == "false":
+            covid_test = False
+        else:
+            covid_test = None
 
+    def register(self, client_data: ClientInfo) -> ClientDB:
         client = ClientDB(
             first_name=client_data.firstName,
             last_name=client_data.lastName,
@@ -51,8 +51,8 @@ class ClientService:
             email=client_data.email,
             referring=client_data.referring,
             medications=client_data.medications,
-            covid_tested_positive=get_bool_data(client_data.covidTestedPositive),
-            covid_vaccine=get_bool_data(client_data.covidVaccine),
+            covid_tested_positive=self.get_bool_data(client_data.covidTestedPositive),
+            covid_vaccine=self.get_bool_data(client_data.covidVaccine),
             stressful_level=client_data.stressfulLevel,
             consent_minor_child=client_data.consentMinorChild,
             relationship_child=client_data.relationshipChild,
@@ -92,8 +92,10 @@ class ClientService:
             client.email = client_data.email
             client.referring = client_data.referring
             client.medications = client_data.medications
-            client.covid_tested_positive = client_data.covidTestedPositive
-            client.covid_vaccine = client_data.covidVaccine
+            client.covid_tested_positive = self.get_bool_data(
+                client_data.covidTestedPositive
+            )
+            client.covid_vaccine = self.get_bool_data(client_data.covidVaccine)
             client.stressful_level = client_data.stressfulLevel
             client.consent_minor_child = client_data.consentMinorChild
             client.relationship_child = client_data.relationshipChild
