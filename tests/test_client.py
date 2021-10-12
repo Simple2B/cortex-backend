@@ -38,15 +38,15 @@ DATA = {
     "city": "New York",
     "state": "US",
     "zip": "02232",
-    "phone": "19077653340",
+    "phone": "+19077653340",
     "email": "client@gmail.com",
     "referring": "referring",
     "conditions": TEST_CONDITIONS,
     "otherCondition": "hvoroba",
     "diseases": TEST_DISEASES,
     "medications": "aspirin",
-    "covidTestedPositive": True,
-    "covidVaccine": None,
+    "covidTestedPositive": "no",
+    "covidVaccine": "null",
     "stressfulLevel": 5,
     "consentMinorChild": False,
     "relationshipChild": "",
@@ -54,7 +54,6 @@ DATA = {
 
 DATA_CLIENT = {
     "id": 11,
-    # "api_key": Optional[str]
     "first_name": "Alex",
     "last_name": "Brown",
     "phone": "19077653340",

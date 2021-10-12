@@ -1,5 +1,12 @@
+import enum
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+
+
+class YesNoNone(enum.Enum):
+    YES = "yes"
+    NO = "no"
+    NONE = "null"
 
 
 class ClientInfo(BaseModel):
@@ -17,8 +24,8 @@ class ClientInfo(BaseModel):
     otherCondition: Optional[str]
     diseases: list[str]
     medications: str
-    covidTestedPositive: Optional[bool]
-    covidVaccine: Optional[bool]
+    covidTestedPositive: Optional[YesNoNone]
+    covidVaccine: Optional[YesNoNone]
     stressfulLevel: int
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
