@@ -17,8 +17,8 @@ class ClientInfo(BaseModel):
     otherCondition: Optional[str]
     diseases: list[str]
     medications: str
-    covidTestedPositive: Optional[bool]
-    covidVaccine: Optional[bool]
+    covidTestedPositive: Optional[bool] or None
+    covidVaccine: Optional[bool] or None
     stressfulLevel: int
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
