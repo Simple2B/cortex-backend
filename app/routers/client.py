@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone
+from app.schemas import ClientInfo, Client, ClientPhone, ClientIntake
 from app.models import Client as ClientDB, QueueMember as QueueMemberDB, Doctor
 from app.services.auth import get_current_doctor
 
@@ -57,3 +57,12 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
             if queue_member.id == client.id:
                 queue.append(client)
     return queue
+
+
+@router_client.get(
+    "/clients_intake", response_model=List[ClientIntake], tags=["Client"]
+)
+def get_clients_intake(doctor: Doctor = Depends(get_current_doctor)):
+    """Show client for Intake"""
+    data_client = ClientDB.query.all()
+    return data_client

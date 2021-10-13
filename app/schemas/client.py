@@ -1,3 +1,4 @@
+import datetime
 import enum
 from pydantic import BaseModel, EmailStr
 from typing import Optional
@@ -30,6 +31,9 @@ class ClientInfo(BaseModel):
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
 
+    class Config:
+        orm_mode = True
+
 
 class Client(BaseModel):
     api_key: Optional[str]
@@ -44,6 +48,31 @@ class Client(BaseModel):
 
 class ClientPhone(BaseModel):
     phone: str
+
+    class Config:
+        orm_mode = True
+
+
+class ClientIntake(BaseModel):
+    firstName: Optional[str]
+    lastName: Optional[str]
+    birthday: Optional[datetime.date]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    zip: Optional[int]
+    phone: Optional[str]
+    email: EmailStr
+    referring: Optional[str]
+    # conditions: list[str]
+    otherCondition: Optional[str]
+    # diseases: list[str]
+    medications: Optional[str]
+    covidTestedPositive: Optional[YesNoNone]
+    covidVaccine: Optional[YesNoNone]
+    stressfulLevel: Optional[int]
+    consentMinorChild: Optional[bool]
+    relationshipChild: Optional[str]
 
     class Config:
         orm_mode = True
