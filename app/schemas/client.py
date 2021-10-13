@@ -54,6 +54,7 @@ class ClientPhone(BaseModel):
 
 
 class ClientIntake(BaseModel):
+    api_key: Optional[str]
     firstName: Optional[str]
     lastName: Optional[str]
     birthday: Optional[datetime.date]
