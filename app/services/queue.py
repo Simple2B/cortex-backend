@@ -39,10 +39,17 @@ class QueueService:
             visit.data_time = datetime.datetime.now()
             visit.doctor_id = doctor.id
             visit.save()
+        client_in_queue = QueueMember.query.all()
+        place_in_queue = None
+        if len(client_in_queue) > 0:
+            place_in_queue = len(client_in_queue) + 1
+        else:
+            place_in_queue = 1
         queue_member = QueueMember(
             client_id=client.id,
             visit_id=visit.id,
             reception_id=reception.id,
+            place_in_queue=place_in_queue,
         )
         queue_member.save()
         log(log.INFO, "QueueMember created [%d]", queue_member.id)
