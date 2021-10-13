@@ -1,5 +1,5 @@
 import datetime
-from app.schemas import Client, ClientInfo, ClientPhone
+from app.schemas import Client, ClientInfo
 from app.models import (
     Client as ClientDB,
     Condition,
