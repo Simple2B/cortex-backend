@@ -30,7 +30,7 @@ TEST_CONDITIONS = ["Dizziness", "Asthma", "Obesity"]
 TEST_DISEASES = ["Concussion", "Diabetes"]
 
 DATA = {
-    "id": 11,
+    # "id": 11,
     "firstName": "Alex",
     "lastName": "Brown",
     "birthday": "2000-09-16",
@@ -84,7 +84,7 @@ def test_client(client: TestClient):
     desesses = ClientDisease.query.filter(ClientDisease.client_id == client_db.id).all()
     assert len(desesses) == 2
 
-    # 1. get Clients
+    #  get Clients
     response = client.get("/api/client/clients")
     assert response
     assert response.ok
@@ -94,7 +94,7 @@ def test_client(client: TestClient):
     assert response
     assert response.ok
 
-    # 1. get Client with phone
+    #  get Client with phone
     clientDB = Client.query.first()
     phone = {"phone": clientDB.phone}
     response = client.post("/api/client/kiosk", json=phone)
@@ -105,5 +105,12 @@ def test_client(client: TestClient):
 def test_get_queue(client: TestClient):
     # 1. get Queue
     response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+
+
+def test_get_clients_intake(client: TestClient):
+    # 1. get clients for intake
+    response = client.get("/api/client/clients_intake")
     assert response
     assert response.ok
