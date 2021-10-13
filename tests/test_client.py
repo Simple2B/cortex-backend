@@ -94,13 +94,6 @@ def test_client(client: TestClient):
     assert response
     assert response.ok
 
-    #  get Client with phone
-    clientDB = Client.query.first()
-    phone = {"phone": clientDB.phone}
-    response = client.post("/api/client/kiosk", json=phone)
-    assert response
-    assert response.ok
-
 
 def test_get_queue(client: TestClient):
     # 1. get Queue
@@ -112,5 +105,14 @@ def test_get_queue(client: TestClient):
 def test_get_clients_intake(client: TestClient):
     # 1. get clients for intake
     response = client.get("/api/client/clients_intake")
+    assert response
+    assert response.ok
+
+
+def test_identify_client_with_phone(client: TestClient):
+    #  get Client with phone
+    clientDB = Client.query.first()
+    phone = {"phone": clientDB.phone}
+    response = client.post("/api/client/kiosk", json=phone)
     assert response
     assert response.ok

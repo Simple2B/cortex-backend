@@ -110,7 +110,3 @@ class ClientService:
             return client.save()
 
         return client
-
-    def identify_client_with_phone(self, phone_num: ClientPhone) -> Client:
-        client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
-        return client
