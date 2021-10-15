@@ -15,13 +15,16 @@ from app.logger import log
 class QueueService:
     def add_client_to_queue(self, client_data: Client, doctor: Doctor) -> Client:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
+        reception = Reception(
+            date=datetime.datetime.now(),
+            doctor_id=doctor.id,
+        )
+        reception.save()
+
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
             log(log.ERROR, "add_client_to_queue: Client doesn't registration")
             return
-        reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
-        reception.date = datetime.datetime.now()
-        reception.save()
         log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
         visit = Visit.query.filter(Visit.client_id == client.id).first()
         if not visit:
