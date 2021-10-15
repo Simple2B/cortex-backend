@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.services import AuthService, get_current_doctor
-from app.schemas import DoctorCreate, Doctor, Token, DoctorLogin
+from app.schemas import DoctorCreate, Doctor, Token
 
 
 router = APIRouter(prefix="/auth")
