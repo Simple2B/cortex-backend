@@ -11,6 +11,7 @@ class YesNoNone(enum.Enum):
 
 
 class ClientInfo(BaseModel):
+    id: Optional[int]
     firstName: str
     lastName: str
     birthday: Optional[str]
@@ -36,6 +37,7 @@ class ClientInfo(BaseModel):
 
 
 class Client(BaseModel):
+    id: Optional[int]
     api_key: Optional[str]
     first_name: str
     last_name: str
@@ -63,7 +65,7 @@ class ClientIntake(BaseModel):
     state: Optional[str]
     zip: Optional[int]
     phone: Optional[str]
-    email: EmailStr
+    email: Optional[EmailStr]
     referring: Optional[str]
     # conditions: list[str]
     otherCondition: Optional[str]

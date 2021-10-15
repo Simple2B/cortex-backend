@@ -1,5 +1,5 @@
 import datetime
-from app.schemas import Client, ClientInfo, ClientPhone
+from app.schemas import Client, ClientInfo
 from app.models import (
     Client as ClientDB,
     Condition,
@@ -65,6 +65,24 @@ class ClientService:
     def register_new_client(self, client_data: ClientInfo) -> Client:
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
+            log(log.INFO, "Client [%s] must registered", client_data.firstName)
+            client_with_email = ClientDB.query.filter(
+                ClientDB.email == client_data.email
+            ).first()
+            if client_with_email:
+                conditions = ClientCondition.query.filter(
+                    ClientCondition.client_id == client_with_email.id
+                ).all()
+                deseases = ClientDisease.query.filter(
+                    ClientDisease.client_id == client_with_email.id
+                ).all()
+                log(log.INFO, "Such email [%s] exists", client_with_email)
+                for condition in conditions:
+                    condition.delete()
+                for desease in deseases:
+                    desease.delete()
+                client_with_email.delete()
+                log(log.INFO, "Email [%s] deleted", client_with_email)
             client = self.register(client_data)
             log(log.INFO, "Added client [%s]", client)
         else:
@@ -109,8 +127,4 @@ class ClientService:
 
             return client.save()
 
-        return client
-
-    def identify_client_with_phone(self, phone_num: ClientPhone) -> Client:
-        client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
         return client

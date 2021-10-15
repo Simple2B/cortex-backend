@@ -21,10 +21,12 @@ async def registrations(client_data: ClientInfo):
 
 
 @router_client.post("/kiosk", response_model=Client, tags=["Client"])
-async def identify_client_with_phone(phone_data: ClientPhone):
+async def identify_client_with_phone(
+    phone_data: ClientPhone, doctor: Doctor = Depends(get_current_doctor)
+):
     """Identify client with phone"""
-    service = ClientService()
-    client = service.identify_client_with_phone(phone_data)
+    service = QueueService()
+    client = service.identify_client_with_phone(phone_data, doctor)
     if not client:
         raise HTTPException(status_code=404, detail="Client didn't registration")
     return client
