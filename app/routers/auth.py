@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.services import AuthService, get_current_doctor
 from app.schemas import DoctorCreate, Doctor, Token, DoctorLogin
@@ -19,10 +19,10 @@ async def sign_up(doctor_data: DoctorCreate):
 
 
 @router.post("/sign_in", response_model=Token, tags=["Auth"])
-async def sign_in(form_data: DoctorLogin):
+async def sign_in(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login"""
     service = AuthService()
-    return service.authenticate_doctor(form_data.email, form_data.password)
+    return service.authenticate_doctor(form_data.username, form_data.password)
 
 
 @router.get("/doctor", response_model=Doctor, tags=["Auth"])

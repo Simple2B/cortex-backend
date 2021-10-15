@@ -60,6 +60,7 @@ class QueueService:
     def identify_client_with_phone(
         self, phone_num: ClientPhone, doctor: Doctor
     ) -> Client:
+        doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
         client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
         if not client:
             log(

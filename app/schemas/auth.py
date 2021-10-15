@@ -11,8 +11,10 @@ class Doctor(BaseModel):
 
 
 class DoctorLogin(BaseModel):
+    # username: str
     email: str
     password: str
+    # grant_type: str
 
 
 class DoctorCreate(BaseModel):
