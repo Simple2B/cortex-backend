@@ -30,7 +30,7 @@ TEST_CONDITIONS = ["Dizziness", "Asthma", "Obesity"]
 TEST_DISEASES = ["Concussion", "Diabetes"]
 
 DATA = {
-    # "id": 11,
+    "id": 11,
     "firstName": "Alex",
     "lastName": "Brown",
     "birthday": "2000-09-16",

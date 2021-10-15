@@ -18,6 +18,7 @@ class QueueService:
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
             log(log.ERROR, "add_client_to_queue: Client doesn't registration")
+            return
         reception = Reception.query.filter(Reception.doctor_id == doctor.id).first()
         reception.date = datetime.datetime.now()
         reception.save()

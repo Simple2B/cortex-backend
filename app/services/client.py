@@ -69,13 +69,13 @@ class ClientService:
             client_with_email = ClientDB.query.filter(
                 ClientDB.email == client_data.email
             ).first()
-            conditions = ClientCondition.query.filter(
-                ClientCondition.client_id == client_with_email.id
-            ).all()
-            deseases = ClientDisease.query.filter(
-                ClientDisease.client_id == client_with_email.id
-            ).all()
             if client_with_email:
+                conditions = ClientCondition.query.filter(
+                    ClientCondition.client_id == client_with_email.id
+                ).all()
+                deseases = ClientDisease.query.filter(
+                    ClientDisease.client_id == client_with_email.id
+                ).all()
                 log(log.INFO, "Such email [%s] exists", client_with_email)
                 for condition in conditions:
                     condition.delete()
