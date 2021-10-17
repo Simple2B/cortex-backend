@@ -1,5 +1,6 @@
 import datetime
 
+from sqlalchemy import and_
 from app.schemas import Client, Doctor, ClientPhone
 from app.models import (
     QueueMember,
@@ -15,11 +16,22 @@ from app.logger import log
 class QueueService:
     def add_client_to_queue(self, client_data: Client, doctor: Doctor) -> Client:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
-        reception = Reception(
-            date=datetime.datetime.now(),
-            doctor_id=doctor.id,
-        )
-        reception.save()
+
+        date = datetime.date.today()
+
+        reception = Reception.query.filter(
+            and_(
+                Reception.doctor_id == doctor.id,
+                Reception.date == date,
+            )
+        ).first()
+
+        if not reception:
+            reception = Reception(
+                date=datetime.date.today(),
+                doctor_id=doctor.id,
+            )
+            reception.save()
 
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
@@ -43,6 +55,7 @@ class QueueService:
             visit.data_time = datetime.datetime.now()
             visit.doctor_id = doctor.id
             visit.save()
+
         client_in_queue = QueueMember.query.all()
 
         place_in_queue = None

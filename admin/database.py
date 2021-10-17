@@ -2,7 +2,7 @@
 import datetime
 import random
 from admin.config import BaseConfig as conf
-from app.models import Doctor, Reception, Client
+from app.models import Doctor, Client
 
 CLIENT_NUMBER = 11
 CLIENT_FIRST_NAME = [
@@ -56,13 +56,6 @@ def add_doctor_to_db(
     doctor.password = passwd
     doctor.save()
 
-    reception = Reception(
-        date=datetime.datetime.now(),
-        doctor_id=doctor.id,
-    )
-
-    reception.save()
-
     return doctor
 
 
@@ -70,13 +63,6 @@ def generate_test_data():
     doctor = Doctor.query.first()
     if not doctor:
         doctor = add_doctor_to_db()
-
-    reception = Reception(
-        date=datetime.datetime.now(),
-        doctor_id=doctor.id,
-    )
-
-    reception.save()
 
     for i in range(CLIENT_NUMBER):
         client = Client(
