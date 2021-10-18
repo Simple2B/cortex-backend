@@ -1,8 +1,9 @@
 import datetime
 
-# from sqlalchemy import and_
-from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy import and_
+from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
+from app.schemas.client import ClientInTake
 
 from app.services import ClientService, QueueService
 from app.schemas import ClientInfo, Client, ClientPhone
@@ -11,13 +12,8 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Doctor,
     Reception,
-    ClientCondition,
-    Condition,
-    ClientDisease,
-    Disease,
 )
 from app.services.auth import get_current_doctor
-from app.logger import log
 
 
 router_client = APIRouter(prefix="/client")
@@ -41,7 +37,9 @@ async def identify_client_with_phone(
     service = QueueService()
     client = service.identify_client_with_phone(phone_data, doctor)
     if not client:
-        raise HTTPException(status_code=404, detail="Client didn't registration")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+        )
     return client
 
 
@@ -65,70 +63,20 @@ async def add_client_to_queue(
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show queue"""
     date = datetime.date.today()
-    # reception = Reception.query.filter(
-    #     and_(
-    #         Reception.doctor_id == doctor.id,
-    #         Reception.date == date,
-    #     )
-    # ).first()
     reception = Reception.query.filter(Reception.date == date).first()
     queue_members = QueueMemberDB.query.filter(
-        QueueMemberDB.reception_id == reception.id
+        and_(
+            QueueMemberDB.reception_id == reception.id,
+            QueueMemberDB.visit_id == None,  # noqa E711
+            QueueMemberDB.canceled == False,
+        )
     ).all()
-    return queue_members
+    return [member.client for member in queue_members]
 
 
-@router_client.get(
-    "/client_intake/{api_key}", response_model=ClientInfo, tags=["Client"]
-)
-async def client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Show client for Intake"""
-    client = ClientDB.query.filter(ClientDB.api_key == api_key).first()
-    if not client:
-        log(log.ERROR, "Client [%s] not found", client)
-        raise HTTPException(status_code=404, detail="Client not found")
-
-    log(log.INFO, "Client [%s] for intake", client)
-    conditions = [
-        link.condition.name
-        for link in ClientCondition.query.filter(
-            ClientCondition.client_id == client.id
-        ).all()
-    ]
-
-    diseases = [
-        link.disease.name
-        for link in ClientDisease.query.filter(
-            ClientDisease.client_id == client.id
-        ).all()
-    ]
-
-    client_intake: ClientInfo = {
-        "id": client.id,
-        "firstName": client.first_name,
-        "lastName": client.last_name,
-        "birthday": client.birthday.strftime("%m/%d/%Y"),
-        "address": client.address,
-        "city": client.city,
-        "state": client.state,
-        "zip": client.zip,
-        "phone": client.phone,
-        "email": client.email,
-        "referring": client.referring,
-        "conditions": conditions,
-        "otherCondition": "",
-        "diseases": diseases,
-        "medications": client.medications,
-        "covidTestedPositive": client.covid_tested_positive,
-        "covidVaccine": client.covid_vaccine,
-        "stressfulLevel": client.stressful_level,
-        "consentMinorChild": client.consent_minor_child,
-        "relationshipChild": client.relationship_child,
-    }
-    client_in_queue = QueueMemberDB.query.filter(
-        QueueMemberDB.client_id == client.id
-    ).first()
-    if client_in_queue:
-        client_in_queue.delete()
-        log(log.INFO, "Client in queue [%s] deleted", client_in_queue)
-    return client_intake
+@router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
+async def client_intake(
+    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Put client intake and returns it"""
+    return ClientService.intake(client_data, doctor)
