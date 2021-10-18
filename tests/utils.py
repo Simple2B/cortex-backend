@@ -7,14 +7,14 @@ from admin.config import BaseConfig as conf
 def login(client, username=conf.ADMIN_EMAIL, password=conf.ADMIN_PASSWORD) -> str:
     """get token"""
     data = dict(
-        grant_type=password,
+        grant_type="password",
         username=username,
         password=password,
         scope="",
         client_id="",
         client_secret="",
     )
-    response = client.post("/api/auth/sign_in", json=data)
+    response = client.post("/api/auth/sign_in", data=data)
     assert response
     assert response.ok
     assert b'"access_token"' in response.content
