@@ -6,7 +6,17 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import Client, ClientCondition, ClientDisease, Condition, Disease
+from app.models import (
+    Client,
+    ClientCondition,
+    ClientDisease,
+    Condition,
+    Disease,
+    Visit,
+    Doctor,
+    Reception,
+    QueueMember,
+)
 
 from .database import generate_test_data
 from .utils import login
@@ -96,19 +106,45 @@ def test_client(client: TestClient):
 
 
 def test_get_queue(client: TestClient):
-    # 1. get Queue
+    # 1. create Reception
+    doctor = Doctor.query.first()
+    reception = Reception(doctor_id=doctor.id).save()
+    # 2. add 5 clients in the queue
+    for clientDB in Client.query.limit(5).all():
+        QueueMember(
+            reception_id=reception.id,
+            client_id=clientDB.id,
+        ).save()
+    # 3. get Queue
     response = client.get("/api/client/queue")
     assert response
     assert response.ok
+    data = response.json()
+    assert data
+    assert len(data) == 5
 
 
 def test_get_client_intake(client: TestClient):
-    # 1. get clients for intake
     clientDB = Client.query.first()
-    response = client.get(f"/api/client/client_intake/{clientDB.api_key}")
+    # 1. add patient in queue
+    phone = {"phone": clientDB.phone}
+    response = client.post("/api/client/kiosk", json=phone)
+    assert response.ok
+    # 2. get client for intake
+    data = {"api_key": clientDB.api_key, "rougue_mode": True}
+    response = client.post("/api/client/client_intake", json=data)
     assert response
     assert response.ok
-    assert response.data
+    data = response.json()
+    assert data
+    assert data["id"] == clientDB.id
+
+    visit: Visit = Visit.query.first()
+    assert visit
+    assert visit.client_id == clientDB.id
+    assert not visit.end_time
+    doctor = Doctor.query.first()
+    assert visit.doctor_id == doctor.id
 
 
 def test_identify_client_with_phone(client: TestClient):
