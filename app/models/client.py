@@ -78,7 +78,3 @@ class Client(Base, ModelMixin):
             "consentMinorChild": self.consent_minor_child,
             "relationshipChild": self.relationship_child,
         }
-
-    @property
-    def lastName(self):
-        return self.last_name
