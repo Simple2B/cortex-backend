@@ -71,7 +71,8 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
             QueueMemberDB.canceled == False,
         )
     ).all()
-    return [member.client for member in queue_members]
+    members = [member.client for member in queue_members]
+    return members
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
