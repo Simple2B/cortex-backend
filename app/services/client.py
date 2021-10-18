@@ -1,6 +1,6 @@
 import datetime
 from fastapi import HTTPException, status
-from app.models.visit import Visit
+from sqlalchemy.sql.elements import and_
 from app.schemas import Client, ClientInfo, ClientInTake, Doctor
 from app.models import (
     Client as ClientDB,
@@ -9,6 +9,7 @@ from app.models import (
     Disease,
     ClientDisease,
     QueueMember as QueueMemberDB,
+    Visit,
 )
 from app.logger import log
 
@@ -134,7 +135,9 @@ class ClientService:
 
     @staticmethod
     def intake(client_data: ClientInTake, doctor: Doctor) -> ClientInfo:
-        client = ClientDB.query.filter(ClientDB.api_key == client_data.api_key).first()
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == client_data.api_key
+        ).first()
         if not client:
             log(log.ERROR, "Client [%s] not found", client)
             raise HTTPException(
@@ -142,19 +145,6 @@ class ClientService:
             )
 
         log(log.INFO, "Client [%s] for intake", client)
-        conditions = [
-            link.condition.name
-            for link in ClientCondition.query.filter(
-                ClientCondition.client_id == client.id
-            ).all()
-        ]
-
-        diseases = [
-            link.disease.name
-            for link in ClientDisease.query.filter(
-                ClientDisease.client_id == client.id
-            ).all()
-        ]
 
         visit = Visit(
             rougue_mode=client_data.rougue_mode,
@@ -180,25 +170,19 @@ class ClientService:
                 log.INFO, "Client in queue [%s] goto visit [%s]", client_in_queue, visit
             )
 
-        return {
-            "id": client.id,
-            "firstName": client.first_name,
-            "lastName": client.last_name,
-            "birthday": client.birthday.strftime("%m/%d/%Y"),
-            "address": client.address,
-            "city": client.city,
-            "state": client.state,
-            "zip": client.zip,
-            "phone": client.phone,
-            "email": client.email,
-            "referring": client.referring,
-            "conditions": conditions,
-            "otherCondition": "",
-            "diseases": diseases,
-            "medications": client.medications,
-            "covidTestedPositive": client.covid_tested_positive,
-            "covidVaccine": client.covid_vaccine,
-            "stressfulLevel": client.stressful_level,
-            "consentMinorChild": client.consent_minor_child,
-            "relationshipChild": client.relationship_child,
-        }
+        return client.client_info
+
+    @staticmethod
+    def get_intake(doctor: Doctor) -> ClientInfo:
+        today = datetime.date.today()
+        visit: Visit = Visit.query.filter(
+            and_(Visit.date == today, Visit.doctor_id == doctor.id)
+        ).first()
+        if not visit:
+            log(log.ERROR, "No reception today")
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                detail="No reception today",
+            )
+
+        return visit.client.client_info

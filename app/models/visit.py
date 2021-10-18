@@ -1,5 +1,5 @@
-from datetime import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime
+import datetime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Date
 from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
@@ -9,7 +9,8 @@ class Visit(Base, ModelMixin):
     __tablename__ = "visits"
 
     id = Column(Integer, primary_key=True, index=True)
-    data_time = Column(DateTime, default=datetime.utcnow)
+    date = Column(Date, default=datetime.date.today())
+    start_time = Column(DateTime, default=datetime.datetime.utcnow)
     end_time = Column(DateTime, nullable=True)
     # ? duration => may be end of visit
     rougue_mode = Column(Boolean, default=False)

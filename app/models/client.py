@@ -37,3 +37,48 @@ class Client(Base, ModelMixin):
 
     def __repr__(self) -> str:
         return self.__str__()
+
+    @property
+    def client_info(self):
+        from .condition import ClientCondition
+        from .disease import ClientDisease
+
+        conditions = [
+            link.condition.name
+            for link in ClientCondition.query.filter(
+                ClientCondition.client_id == self.id
+            ).all()
+        ]
+
+        diseases = [
+            link.disease.name
+            for link in ClientDisease.query.filter(
+                ClientDisease.client_id == self.id
+            ).all()
+        ]
+        return {
+            "id": self.id,
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "birthday": self.birthday.strftime("%m/%d/%Y"),
+            "address": self.address,
+            "city": self.city,
+            "state": self.state,
+            "zip": self.zip,
+            "phone": self.phone,
+            "email": self.email,
+            "referring": self.referring,
+            "conditions": conditions,
+            "otherCondition": "",
+            "diseases": diseases,
+            "medications": self.medications,
+            "covidTestedPositive": self.covid_tested_positive,
+            "covidVaccine": self.covid_vaccine,
+            "stressfulLevel": self.stressful_level,
+            "consentMinorChild": self.consent_minor_child,
+            "relationshipChild": self.relationship_child,
+        }
+
+    @property
+    def lastName(self):
+        return self.last_name

@@ -146,6 +146,13 @@ def test_get_client_intake(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
+    response = client.get("/api/client/client_intake")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert data["id"] == clientDB.id
+
 
 def test_identify_client_with_phone(client: TestClient):
     #  get Client with phone
