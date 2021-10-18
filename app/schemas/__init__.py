@@ -1,5 +1,5 @@
 # flake8: noqa F401
 from .auth import Doctor, DoctorCreate, Token, DoctorLogin
 from .base_response import BaseResponsePydantic
-from .client import ClientInfo, Client, ClientPhone, ClientIntake
+from .client import ClientInfo, Client, ClientPhone
 from .queue_member import QueueMember, Queue
