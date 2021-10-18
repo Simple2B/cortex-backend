@@ -1,4 +1,5 @@
 import datetime
+from app.models.visit import Visit
 from app.schemas import Client, ClientInfo
 from app.models import (
     Client as ClientDB,
@@ -76,12 +77,18 @@ class ClientService:
                 deseases = ClientDisease.query.filter(
                     ClientDisease.client_id == client_with_email.id
                 ).all()
+                visit = Visit.query.filter(
+                    Visit.client_id == client_with_email.id
+                ).first()
                 log(log.INFO, "Such email [%s] exists", client_with_email)
                 for condition in conditions:
                     condition.delete()
                 for desease in deseases:
                     desease.delete()
+
+                visit.delete()
                 client_with_email.delete()
+
                 log(log.INFO, "Email [%s] deleted", client_with_email)
             client = self.register(client_data)
             log(log.INFO, "Added client [%s]", client)
