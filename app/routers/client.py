@@ -128,6 +128,6 @@ async def client_intake(api_key: str, doctor: Doctor = Depends(get_current_docto
                 QueueMemberDB.client_id == client.id
             ).first()
             if client_in_queue:
-                # client_in_queue.delete()
+                client_in_queue.delete()
                 log(log.INFO, "Client in queue [%s] deleted", client_in_queue)
             return client_intake
