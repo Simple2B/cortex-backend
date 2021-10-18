@@ -72,9 +72,10 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     #     )
     # ).first()
     reception = Reception.query.filter(Reception.date == date).first()
-    if reception:
-        return reception.queue_members
-    return
+    queue_members = QueueMemberDB.query.filter(
+        QueueMemberDB.reception_id == reception.id
+    ).all()
+    return queue_members
 
 
 @router_client.get(
