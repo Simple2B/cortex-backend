@@ -77,7 +77,9 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     return
 
 
-@router_client.get("/client_intake", response_model=ClientInfo, tags=["Client"])
+@router_client.get(
+    "/client_intake/{api_key}", response_model=ClientInfo, tags=["Client"]
+)
 async def client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Show client for Intake"""
     data_clients = ClientDB.query.all()
