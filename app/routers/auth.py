@@ -29,5 +29,5 @@ async def sign_in(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.get("/doctor", response_model=Doctor, tags=["Auth"])
 def get_user(doctor: Doctor = Depends(get_current_doctor)):
     """Show current authenticated doctor"""
-    Reception(doctor_id=doctor.id).save()
+
     return doctor
