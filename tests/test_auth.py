@@ -83,6 +83,6 @@ def test_doctor_login_wrong_password(client: TestClient):
     )
     doc.password = TEST_PASS
     # 2. bad login
-    data = {"email": TEST_EMAIL, "password": "dummy"}
-    response = client.post("/api/auth/sign_in", json=data)
+    data = {"grant_type": "password", "username": TEST_EMAIL, "password": "dummy"}
+    response = client.post("/api/auth/sign_in", data=data)
     assert response.status_code == 401
