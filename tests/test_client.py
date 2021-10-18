@@ -18,7 +18,7 @@ from app.models import (
     QueueMember,
 )
 
-from .database import generate_test_data
+from .database import generate_test_data, CLIENT_NUMBER
 from .utils import login
 
 
@@ -36,11 +36,11 @@ def client() -> Generator:
     engine.dispose()
 
 
-TEST_CONDITIONS = ["Dizziness", "Asthma", "Obesity"]
-TEST_DISEASES = ["Concussion", "Diabetes"]
+TEST_CONDITIONS = ["TEST_CONDITION_1", "TEST_CONDITION_2", "TEST_CONDITION_3"]
+TEST_DISEASES = ["TEST_DISEASE_1", "TEST_DISEASE_2"]
 
 DATA = {
-    "id": 11,
+    "id": CLIENT_NUMBER + 1,
     "firstName": "Alex",
     "lastName": "Brown",
     "birthday": "2000-09-16",
@@ -63,20 +63,32 @@ DATA = {
 }
 
 DATA_CLIENT = {
-    "id": 11,
+    "id": CLIENT_NUMBER + 1,
     "first_name": "Alex",
     "last_name": "Brown",
-    "phone": "19077653340",
+    "phone": "+19077653340",
     "email": "client@gmail.com",
 }
 
 
-def test_client(client: TestClient):
+def test_registration_client(client: TestClient):
+    def get_clients_number() -> int:
+        #  get Clients
+        response = client.get("/api/client/clients")
+        assert response
+        assert response.ok
+        data = response.json()
+        assert data
+        return len(data)
+
+    clients_number_before = get_clients_number()
+
     # 1. add Client into DB (client_data)
     response = client.post("/api/client/registration", json=DATA)
     assert response
     assert response.ok
 
+    # 2. Check db
     client_db = Client.query.filter(Client.email == DATA["email"]).first()
     assert client_db
     condition_names_in_db = [c.name for c in Condition.query.all()]
@@ -94,15 +106,27 @@ def test_client(client: TestClient):
     desesses = ClientDisease.query.filter(ClientDisease.client_id == client_db.id).all()
     assert len(desesses) == 2
 
-    #  get Clients
-    response = client.get("/api/client/clients")
+    client_number_after = get_clients_number()
+
+    assert clients_number_before == client_number_after - 1
+
+
+def test_doctor_put_client_in_queue(client: TestClient):
+    # 1. add Client into DB (client_data)
+    response = client.post("/api/client/registration", json=DATA)
     assert response
     assert response.ok
-
-    # add client for queue
+    # 2. Add client for queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
     assert response
     assert response.ok
+    # 3. get Queue
+    response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["id"] == 11
 
 
 def test_get_queue(client: TestClient):
