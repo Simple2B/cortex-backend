@@ -64,6 +64,10 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
     date = datetime.date.today()
     reception = Reception.query.filter(Reception.date == date).first()
+    if not reception:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Reception not found"
+        )
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
