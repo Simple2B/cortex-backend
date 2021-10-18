@@ -6,13 +6,14 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import (
-    Client,
-    Doctor,
-    Visit,
-    Reception,
-    QueueMember,
-)
+
+# from app.models import (
+#     Client,
+#     Doctor,
+#     Visit,
+#     Reception,
+#     QueueMember,
+# )
 from .database import generate_test_data
 from .utils import login
 

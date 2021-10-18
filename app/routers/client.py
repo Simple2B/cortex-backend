@@ -1,7 +1,6 @@
 import datetime
 
 # from sqlalchemy import and_
-from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
