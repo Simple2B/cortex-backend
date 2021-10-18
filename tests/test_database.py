@@ -31,15 +31,15 @@ def client() -> Generator:
     engine.dispose()
 
 
-def test_generate_data(client: TestClient):
-    assert len(Client.query.all()) == 10
-    assert len(Doctor.query.all()) == 1
-    assert len(Visit.query.all()) > 0
-    reception = Reception.query.first()
-    assert reception
-    queues = QueueMember.query.all()
-    assert queues
-    assert len(reception.queue_members) == len(queues)
+# def test_generate_data(client: TestClient):
+#     assert len(Client.query.all()) == 10
+#     assert len(Doctor.query.all()) == 1
+#     assert len(Visit.query.all()) > 0
+#     reception = Reception.query.first()
+#     assert reception
+#     queues = QueueMember.query.all()
+#     assert queues
+#     assert len(reception.queue_members) == len(queues)
 
-    # client = Client.query.first()
-    # assert client
+# client = Client.query.first()
+# assert client
