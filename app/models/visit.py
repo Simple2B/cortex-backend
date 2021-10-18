@@ -10,6 +10,7 @@ class Visit(Base, ModelMixin):
 
     id = Column(Integer, primary_key=True, index=True)
     data_time = Column(DateTime, default=datetime.utcnow)
+    end_time = Column(DateTime, nullable=True)
     # ? duration => may be end of visit
     rougue_mode = Column(Boolean, default=False)
 

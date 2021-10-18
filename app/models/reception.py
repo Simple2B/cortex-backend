@@ -1,5 +1,5 @@
-from datetime import datetime
-from sqlalchemy import DateTime, Column, ForeignKey, Integer
+import datetime
+from sqlalchemy import Date, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
@@ -9,7 +9,7 @@ class Reception(Base, ModelMixin):
     __tablename__ = "receptions"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(Date, default=datetime.date.today)
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
     doctor = relationship("Doctor", viewonly=True)

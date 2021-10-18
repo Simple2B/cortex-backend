@@ -36,8 +36,12 @@ def test_auth(client: TestClient):
     assert response.ok
 
     # 3. Try login
-    data = dict(email=TEST_EMAIL, password=TEST_PASS)
-    response = client.post("/api/auth/sign_in", json=data)
+    data = dict(
+        grant_type="password",
+        username=TEST_EMAIL,
+        password=TEST_PASS,
+    )
+    response = client.post("/api/auth/sign_in", data=data)
     assert response
     assert response.ok
     assert b'"access_token"' in response.content
@@ -79,6 +83,6 @@ def test_doctor_login_wrong_password(client: TestClient):
     )
     doc.password = TEST_PASS
     # 2. bad login
-    data = {"email": TEST_EMAIL, "password": "dummy"}
-    response = client.post("/api/auth/sign_in", json=data)
+    data = {"grant_type": "password", "username": TEST_EMAIL, "password": "dummy"}
+    response = client.post("/api/auth/sign_in", data=data)
     assert response.status_code == 401

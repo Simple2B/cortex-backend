@@ -32,8 +32,8 @@ class AuthService:
             return Doctor.from_orm(doctor)
         return None
 
-    def authenticate_doctor(self, email: str, password: str) -> Token:
-        doctor = DoctorDB.authenticate(email=email, password=password)
+    def authenticate_doctor(self, username: str, password: str) -> Token:
+        doctor = DoctorDB.authenticate(email=username, password=password)
         if not doctor:
             log(log.ERROR, "Authentication failed")
             raise HTTPException(

@@ -1,9 +1,18 @@
-from fastapi import APIRouter, HTTPException, Depends
+import datetime
+
+from sqlalchemy import and_
+from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
+from app.schemas.client import ClientInTake
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone, ClientIntake
-from app.models import Client as ClientDB, QueueMember as QueueMemberDB, Doctor
+from app.schemas import ClientInfo, Client, ClientPhone
+from app.models import (
+    Client as ClientDB,
+    QueueMember as QueueMemberDB,
+    Doctor,
+    Reception,
+)
 from app.services.auth import get_current_doctor
 
 
@@ -28,7 +37,9 @@ async def identify_client_with_phone(
     service = QueueService()
     client = service.identify_client_with_phone(phone_data, doctor)
     if not client:
-        raise HTTPException(status_code=404, detail="Client didn't registration")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+        )
     return client
 
 
@@ -51,20 +62,21 @@ async def add_client_to_queue(
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show queue"""
-    queue = []
-    queue_members = QueueMemberDB.query.all()
-    clients = ClientDB.query.all()
-    for queue_member in queue_members:
-        for client in clients:
-            if queue_member.id == client.id:
-                queue.append(client)
-    return queue
+    date = datetime.date.today()
+    reception = Reception.query.filter(Reception.date == date).first()
+    queue_members = QueueMemberDB.query.filter(
+        and_(
+            QueueMemberDB.reception_id == reception.id,
+            QueueMemberDB.visit_id == None,  # noqa E711
+            QueueMemberDB.canceled == False,
+        )
+    ).all()
+    return [member.client for member in queue_members]
 
 
-@router_client.get(
-    "/clients_intake", response_model=List[ClientIntake], tags=["Client"]
-)
-def get_clients_intake(doctor: Doctor = Depends(get_current_doctor)):
-    """Show client for Intake"""
-    data_client = ClientDB.query.all()
-    return data_client
+@router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
+async def client_intake(
+    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Put client intake and returns it"""
+    return ClientService.intake(client_data, doctor)
