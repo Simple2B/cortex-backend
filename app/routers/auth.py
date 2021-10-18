@@ -3,7 +3,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.services import AuthService, get_current_doctor
 from app.schemas import DoctorCreate, Doctor, Token
-from app.models import Reception
 
 
 router = APIRouter(prefix="/auth")
