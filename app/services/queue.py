@@ -30,6 +30,7 @@ class QueueService:
 
         if not reception:
             reception = Reception(
+                date=datetime.date.today(),
                 doctor_id=doctor.id,
             )
             reception.save()

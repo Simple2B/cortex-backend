@@ -62,8 +62,7 @@ async def add_client_to_queue(
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
-    date = datetime.date.today()
-    reception = Reception.query.filter(Reception.date == date).first()
+    reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
     if not reception:
         reception = Reception(doctor_id=doctor.id).save()
     queue_members = QueueMemberDB.query.filter(
