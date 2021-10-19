@@ -149,7 +149,7 @@ def test_get_queue(client: TestClient):
 
 
 def test_get_client_intake_from_kiosk(client: TestClient):
-    clientDB = Client.query.first()
+    clientDB: Client = Client.query.first()
     # 1. add patient in queue
     phone = {"phone": clientDB.phone}
     response = client.post("/api/client/kiosk", json=phone)
@@ -170,7 +170,9 @@ def test_get_client_intake_from_kiosk(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get("/api/client/client_intake")
+    api_key = clientDB.api_key
+
+    response = client.get(f"/api/client/client_intake/{api_key}")
     assert response
     assert response.ok
     data = response.json()
@@ -184,7 +186,7 @@ def test_get_client_intake_add_doctor(client: TestClient):
     assert response
     assert response.ok
 
-    client_intake = Client.query.filter(Client.id == DATA["id"]).first()
+    client_intake: Client = Client.query.filter(Client.id == DATA["id"]).first()
 
     # 2. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
@@ -207,7 +209,7 @@ def test_get_client_intake_add_doctor(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get("/api/client/client_intake")
+    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
     assert response
     assert response.ok
     data = response.json()

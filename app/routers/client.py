@@ -92,7 +92,9 @@ async def client_intake(
     return ClientService.intake(client_data, doctor)
 
 
-@router_client.get("/client_intake", response_model=ClientInfo, tags=["Client"])
-async def get_client_intake(doctor: Doctor = Depends(get_current_doctor)):
+@router_client.get(
+    "/client_intake/{api_key}", response_model=ClientInfo, tags=["Client"]
+)
+async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Returns client intake"""
-    return ClientService.get_intake(doctor)
+    return ClientService.get_intake(api_key)

@@ -50,7 +50,7 @@ class Client(BaseModel):
 
 class ClientInTake(BaseModel):
     api_key: str
-    rougue_mode: bool
+    rougue_mode: Optional[bool]
 
 
 class ClientPhone(BaseModel):
