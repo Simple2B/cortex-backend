@@ -56,6 +56,21 @@ class Client(Base, ModelMixin):
                 ClientDisease.client_id == self.id
             ).all()
         ]
+
+        if self.covid_tested_positive == "true":
+            self.covid_tested_positive = "yes"
+        elif self.covid_tested_positive == "false":
+            self.covid_tested_positive = "no"
+        else:
+            "null"
+
+        if self.covid_vaccine == "true":
+            self.covid_vaccine = "yes"
+        elif self.covid_vaccine == "false":
+            self.covid_vaccine = "no"
+        else:
+            "null"
+
         return {
             "id": self.id,
             "api_key": self.api_key,
