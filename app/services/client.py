@@ -185,6 +185,7 @@ class ClientService:
         visit: Visit = Visit.query.filter(
             and_(Visit.date == today, Visit.doctor_id == doctor.id)
         ).first()
+        log(log.INFO, "GET: get_intake client with visit [%s]", visit)
         if not visit:
             log(log.ERROR, "No reception today")
             raise HTTPException(
