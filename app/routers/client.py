@@ -97,4 +97,4 @@ async def client_intake(
 )
 async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Returns client intake"""
-    return ClientService.get_intake(api_key)
+    return ClientService.get_intake(api_key, doctor)

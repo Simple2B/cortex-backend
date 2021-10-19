@@ -182,26 +182,34 @@ class ClientService:
         return client.client_info
 
     @staticmethod
-    def get_intake(api_key: str) -> ClientInfo:
-        # today = datetime.date.today()
-        # visit: Visit = Visit.query.filter(
-        #     and_(Visit.date == today, Visit.doctor_id == doctor.id)
-        # ).first()
-        # log(log.INFO, "GET: get_intake client with visit [%s]", visit)
+    def get_intake(api_key: str, doctor: Doctor) -> ClientInfo:
 
-        # if not visit:
-        #     log(log.ERROR, "No reception today")
-        #     raise HTTPException(
-        #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-        #         detail="No reception today",
-        #     )
-        client = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
             log(log.ERROR, "No such client with api_key [%s]", api_key)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                 detail="No such client with api_key",
+            )
+
+        today = datetime.date.today()
+
+        visit: Visit = Visit.query.filter(
+            and_(
+                Visit.date == today,
+                Visit.doctor_id == doctor.id,
+                Visit.client_id == client.id,
+            )
+        ).first()
+
+        log(log.INFO, "GET: get_intake client with visit [%s]", visit)
+
+        if not visit:
+            log(log.ERROR, "No reception today")
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                detail="No reception today",
             )
 
         return client.client_info
