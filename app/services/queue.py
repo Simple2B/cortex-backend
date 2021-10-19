@@ -42,6 +42,8 @@ class QueueService:
 
         place_in_queue = len(client_in_queue) + 1 if client_in_queue else 1
 
+        log(log.INFO, "add_client_to_queue: place_in_queue [%d]", place_in_queue)
+
         queue_member = QueueMember(
             client_id=client.id,
             reception_id=reception.id,
