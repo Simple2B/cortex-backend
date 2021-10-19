@@ -67,6 +67,8 @@ class ClientService:
         return client
 
     def register_new_client(self, client_data: ClientInfo) -> Client:
+        log(log.INFO, "Register_new_client: client_data [%s] ", client_data)
+
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
             log(log.INFO, "Client [%s] must registered", client_data.firstName)
