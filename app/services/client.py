@@ -81,6 +81,9 @@ class ClientService:
                     ClientDisease.client_id == client_with_email.id
                 ).delete()
                 Visit.query.filter(Visit.client_id == client_with_email.id).delete()
+                QueueMemberDB.query.filter(
+                    QueueMemberDB.client_id == client_with_email.id
+                ).delete()
 
                 log(log.INFO, "Such email [%s] exists", client_with_email)
                 client_with_email.delete()
