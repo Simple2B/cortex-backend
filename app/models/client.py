@@ -58,6 +58,7 @@ class Client(Base, ModelMixin):
         ]
         return {
             "id": self.id,
+            "api_key": self.api_key,
             "firstName": self.first_name,
             "lastName": self.last_name,
             "birthday": self.birthday.strftime("%m/%d/%Y"),

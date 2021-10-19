@@ -11,6 +11,7 @@ class YesNoNone(enum.Enum):
 
 class ClientInfo(BaseModel):
     id: Optional[int]
+    api_key: Optional[str]
     firstName: str
     lastName: str
     birthday: Optional[str]
