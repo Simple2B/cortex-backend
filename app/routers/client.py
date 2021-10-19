@@ -43,6 +43,14 @@ async def identify_client_with_phone(
     return client
 
 
+@router_client.get("/kiosk/{phone}", response_model=Client, tags=["Client"])
+async def get_client_with_phone(
+    phone: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get client with phone"""
+    return QueueService.get_client_with_phone(phone)
+
+
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
 def get_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
@@ -86,5 +94,5 @@ async def client_intake(
 
 @router_client.get("/client_intake", response_model=ClientInfo, tags=["Client"])
 async def get_client_intake(doctor: Doctor = Depends(get_current_doctor)):
-    """Put client intake and returns it"""
+    """Returns client intake"""
     return ClientService.get_intake(doctor)

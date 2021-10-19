@@ -185,3 +185,19 @@ def test_identify_client_with_phone(client: TestClient):
     response = client.post("/api/client/kiosk", json=phone)
     assert response
     assert response.ok
+    data = response.json()
+    assert data
+    assert data["id"] == clientDB.id
+    assert data["phone"] == clientDB.phone
+
+
+def test_get_client_with_phone(client: TestClient):
+    #  get Client with phone
+    clientDB = Client.query.first()
+    phone = clientDB.phone
+    response = client.get(f"/api/client/kiosk/{phone}")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert data["phone"] == clientDB.phone

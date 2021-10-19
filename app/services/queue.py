@@ -66,3 +66,13 @@ class QueueService:
             )
         self.add_client_to_queue(client, doctor)
         return client
+
+    def get_client_with_phone(phone: str) -> Client:
+        client = ClientDB.query.filter(ClientDB.phone == phone).first()
+        if not client:
+            log(
+                log.ERROR,
+                "identify_client_with_phone: No such phone number [%s] Client doesn't registration",
+                phone,
+            )
+        return client
