@@ -176,7 +176,7 @@ class ClientService:
             log(
                 log.INFO, "Client in queue [%s] goto visit [%s]", client_in_queue, visit
             )
-
+        log(log.INFO, "POST: Client_info in queue [%s]", client.client_info)
         return client.client_info
 
     @staticmethod
