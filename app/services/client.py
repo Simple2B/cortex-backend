@@ -146,7 +146,10 @@ class ClientService:
 
         log(log.INFO, "Client [%s] for intake", client)
 
+        today = datetime.date.today()
+
         visit = Visit(
+            date=today,
             rougue_mode=client_data.rougue_mode,
             client_id=client.id,
             doctor_id=doctor.id,
