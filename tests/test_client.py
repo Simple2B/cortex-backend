@@ -170,7 +170,7 @@ def test_get_client_intake(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get("/api/client/get_client_intake")
+    response = client.get("/api/client/client_intake")
     assert response
     assert response.ok
     data = response.json()
