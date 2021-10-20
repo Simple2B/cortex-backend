@@ -14,3 +14,6 @@ class Reception(Base, ModelMixin):
 
     doctor = relationship("Doctor", viewonly=True)
     queue_members = relationship("QueueMember", viewonly=True)
+
+    def __repr__(self):
+        return f"<{self.id}: doctor {self.doctor}: date {self.date}>"
