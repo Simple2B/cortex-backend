@@ -10,6 +10,7 @@ from app.models import (
     ClientDisease,
     QueueMember as QueueMemberDB,
     Visit,
+    Reception,
 )
 from app.logger import log
 
@@ -151,8 +152,9 @@ class ClientService:
 
         log(log.INFO, "Client [%s] for intake", client)
 
+        today = datetime.date.today()
         visit = Visit(
-            date=datetime.date.today(),
+            date=today,
             # TODO -> end_time
             start_time=datetime.datetime.now(),
             # end_time=datetime.datetime.now() + datetime.timedelta(minutes=30),
@@ -160,6 +162,9 @@ class ClientService:
             client_id=client.id,
             doctor_id=doctor.id,
         ).save()
+
+        # TODO get reception from today
+        reception = Reception.query.filter(Reception.date == today).first()
 
         log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
         client_in_queue: QueueMemberDB = QueueMemberDB.query.filter(
@@ -176,7 +181,10 @@ class ClientService:
             client_in_queue.visit_id = visit.id
             client_in_queue.save()
             log(
-                log.INFO, "Client in queue [%s] goto visit [%s]", client_in_queue, visit
+                log.INFO,
+                "Client in queue [%s] go to visit [%s]",
+                client_in_queue,
+                visit,
             )
         log(log.INFO, "POST: Client_info in queue [%s]", client.client_info)
         return client.client_info
