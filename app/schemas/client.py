@@ -43,6 +43,7 @@ class Client(BaseModel):
     last_name: str
     phone: str
     email: str
+    rougue_mode: Optional[bool]
 
     class Config:
         orm_mode = True
