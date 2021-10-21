@@ -94,7 +94,7 @@ class QueueService:
                 QueueMember.reception_id == reception.id,
                 QueueMember.client_id == client.id,
             )
-        )
+        ).first()
 
         queue_member.canceled = True
 
