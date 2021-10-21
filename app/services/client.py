@@ -193,10 +193,15 @@ class ClientService:
             log(
                 log.INFO,
                 "Client in queue [%s] go to visit [%s]",
-                client_in_queue,
-                visit,
+                client_in_queue.client,
+                visit.id,
             )
-        log(log.INFO, "POST: Client_info in queue [%s]", client.client_info)
+        log(
+            log.INFO,
+            "POST: Client_info in queue [%d] [%s]",
+            client.client_info["id"],
+            client.client_info["firstName"],
+        )
         return client.client_info
 
     @staticmethod
