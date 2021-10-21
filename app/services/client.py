@@ -162,14 +162,24 @@ class ClientService:
             client_id=client.id,
             doctor_id=doctor.id,
         ).save()
+        log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
 
         # TODO get reception from today
         reception = Reception.query.filter(Reception.date == today).first()
+        log(log.INFO, "Client Intake: Today reception [%s]", reception)
 
-        log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
         client_in_queue: QueueMemberDB = QueueMemberDB.query.filter(
-            QueueMemberDB.client_id == client.id
+            and_(
+                QueueMemberDB.client_id == client.id,
+                QueueMemberDB.reception_id == reception.id,
+            )
         ).first()
+
+        log(
+            log.INFO,
+            "Client Intake: client in queue for today reception [%s]",
+            client_in_queue,
+        )
 
         if not client_in_queue:
             raise HTTPException(
