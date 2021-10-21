@@ -49,6 +49,7 @@ class QueueService:
             client_id=client.id,
             reception_id=reception.id,
             place_in_queue=place_in_queue,
+            canceled=False,
         )
         queue_member.save()
         log(log.INFO, "add_client_to_queue: QueueMember created [%d]", queue_member.id)

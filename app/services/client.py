@@ -198,10 +198,7 @@ class ClientService:
                 visit.id,
             )
         log(
-            log.INFO,
-            "POST: Client_info in queue [%d] [%s]",
-            client.client_info["id"],
-            client.client_info["firstName"],
+            log.INFO, "POST: Client_info in queue [%s]", client.client_info["firstName"]
         )
         return client.client_info
 
