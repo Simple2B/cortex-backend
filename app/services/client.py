@@ -189,6 +189,7 @@ class ClientService:
 
         if client_in_queue:
             client_in_queue.visit_id = visit.id
+            client_in_queue.canceled = True
             client_in_queue.save()
             log(
                 log.INFO,
