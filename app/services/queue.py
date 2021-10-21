@@ -35,7 +35,7 @@ class QueueService:
             )
             reception.save()
 
-        log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
+            log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
 
         client_in_queue = QueueMember.query.filter(
             QueueMember.reception_id == reception.id
