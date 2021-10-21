@@ -172,6 +172,7 @@ class ClientService:
             and_(
                 QueueMemberDB.client_id == client.id,
                 QueueMemberDB.reception_id == reception.id,
+                QueueMemberDB.canceled == False,  # noqa E712
             )
         ).first()
 
@@ -198,7 +199,9 @@ class ClientService:
                 visit.id,
             )
         log(
-            log.INFO, "POST: Client_info in queue [%s]", client.client_info["firstName"]
+            log.INFO,
+            "POST: Client_info in queue [%s]",
+            client.client_info["firstName"],
         )
         return client.client_info
 
