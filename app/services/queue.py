@@ -76,7 +76,6 @@ class QueueService:
                 Reception.date == datetime.date.today(),
             )
         ).first()
-        reception.delete()
 
         log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
 
@@ -97,6 +96,7 @@ class QueueService:
             )
         )
 
+        reception.delete()
         queue_member.delete()
 
         log(
