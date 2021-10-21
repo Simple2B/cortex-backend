@@ -8,7 +8,7 @@ class QueueMember(Base, ModelMixin):
     __tablename__ = "queue_members"
 
     id = Column(Integer, primary_key=True, index=True)
-    place_in_queue = Column(Integer)
+    place_in_queue = Column(Integer, nullable=True)
     canceled = Column(Boolean, default=False)
 
     client_id = Column(Integer, ForeignKey("clients.id"))

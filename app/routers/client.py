@@ -67,6 +67,15 @@ async def add_client_to_queue(
     return "ok"
 
 
+@router_client.post("/delete_clients_queue", response_model=Client, tags=["Client"])
+async def delete_client_from_queue(
+    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Delete client from queue"""
+    service = QueueService()
+    return service.delete_client_from_queue(client_data, doctor)
+
+
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
