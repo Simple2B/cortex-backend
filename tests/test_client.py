@@ -217,32 +217,32 @@ def test_get_client_intake_add_doctor(client: TestClient):
     assert data["id"] == client_intake.id
 
 
-# def test_delete_client_from_queue(client: TestClient):
-#     # 1. add Client into DB (client_data)
-#     response = client.post("/api/client/registration", json=DATA)
-#     assert response
-#     assert response.ok
+def test_delete_client_from_queue(client: TestClient):
+    # 1. add Client into DB (client_data)
+    response = client.post("/api/client/registration", json=DATA)
+    assert response
+    assert response.ok
 
-#     req_client: Client = Client.query.filter(Client.id == DATA["id"]).first()
+    req_client: Client = Client.query.filter(Client.id == DATA["id"]).first()
 
-#     # 2. doctor add patient in queue
-#     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
-#     assert response
-#     assert response.ok
+    # 2. doctor add patient in queue
+    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
+    assert response
+    assert response.ok
 
-#     client_data = {
-#         "id": req_client.id,
-#         "api_key": req_client.api_key,
-#         "first_name": req_client.first_name,
-#         "last_name": req_client.last_name,
-#         "phone": req_client.phone,
-#         "email": req_client.email,
-#     }
+    client_data = {
+        "id": req_client.id,
+        "api_key": req_client.api_key,
+        "first_name": req_client.first_name,
+        "last_name": req_client.last_name,
+        "phone": req_client.phone,
+        "email": req_client.email,
+    }
 
-#     # 3. doctor delete patient from queue
-#     response = client.post("/api/client/delete_clients_queue", json=client_data)
-#     assert response
-#     assert response.ok
+    # 3. doctor delete patient from queue
+    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    assert response
+    assert response.ok
 
 
 def test_identify_client_with_phone(client: TestClient):
