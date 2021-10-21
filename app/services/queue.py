@@ -96,8 +96,7 @@ class QueueService:
             )
         )
 
-        reception.delete()
-        queue_member.delete()
+        queue_member.canceled = True
 
         log(
             log.INFO,
