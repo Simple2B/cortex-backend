@@ -54,7 +54,7 @@ def add_doctor_to_db(
         role=role,
     )
     doctor.password = passwd
-    doctor.save()
+    doctor.save(True)
 
     return doctor
 
@@ -84,4 +84,4 @@ def generate_test_data():
             relationship_child="relationship child",
         )
 
-        client.save()
+        client.save(True)

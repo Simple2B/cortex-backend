@@ -132,13 +132,13 @@ def test_doctor_put_client_in_queue(client: TestClient):
 def test_get_queue(client: TestClient):
     # 1. create Reception
     doctor = Doctor.query.first()
-    reception = Reception(doctor_id=doctor.id).save()
+    reception = Reception(doctor_id=doctor.id).save(True)
     # 2. add 5 clients in the queue
     for clientDB in Client.query.limit(5).all():
         QueueMember(
             reception_id=reception.id,
             client_id=clientDB.id,
-        ).save()
+        ).save(True)
     # 3. get Queue
     response = client.get("/api/client/queue")
     assert response
@@ -218,18 +218,12 @@ def test_get_client_intake_add_doctor(client: TestClient):
 
 
 def test_delete_client_from_queue(client: TestClient):
-    # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=DATA)
-    assert response
-    assert response.ok
+    # # 1. add Client into DB (client_data)
+    # response = client.post("/api/client/registration", json=DATA)
+    # assert response
+    # assert response.ok
 
-    req_client: Client = Client.query.filter(Client.id == DATA["id"]).first()
-
-    # 2. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
-    assert response
-    assert response.ok
-
+    req_client: Client = Client.query.first()
     client_data = {
         "id": req_client.id,
         "api_key": req_client.api_key,
@@ -238,6 +232,11 @@ def test_delete_client_from_queue(client: TestClient):
         "phone": req_client.phone,
         "email": req_client.email,
     }
+
+    # 2. doctor add patient in queue
+    response = client.post("/api/client/add_clients_queue", json=client_data)
+    assert response
+    assert response.ok
 
     # 3. doctor delete patient from queue
     response = client.post("/api/client/delete_clients_queue", json=client_data)

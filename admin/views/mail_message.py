@@ -31,7 +31,7 @@ def new_doctor():
             last_name=form.last_name.data,
             email=email,
             role=Doctor.DoctorRole(form.role.data),
-        ).save()
+        ).save(True)
         link = urljoin(
             request.host_url, conf.URL_REG_DOCTOR.format(api_key=doc.api_key)
         )

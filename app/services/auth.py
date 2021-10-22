@@ -27,7 +27,7 @@ class AuthService:
         if doctor:
             doctor.email_approved = True
             doctor.password = doctor_data.password
-            doctor.save()
+            doctor.save(True)
             log(log.INFO, "Doctor [%s] has been approved", doctor.first_name)
             return Doctor.from_orm(doctor)
         return None

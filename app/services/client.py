@@ -20,17 +20,17 @@ class ClientService:
     def link_client_condition(client_id: int, condition_name: str):
         condition = Condition.query.filter(Condition.name == condition_name).first()
         if not condition:
-            condition = Condition(name=condition_name).save()
+            condition = Condition(name=condition_name).save(True)
             log(log.INFO, "Condition [%s] has been saved", condition.name)
-        ClientCondition(client_id=client_id, condition_id=condition.id).save()
+        ClientCondition(client_id=client_id, condition_id=condition.id).save(True)
 
     @staticmethod
     def link_client_disease(client_id: int, disease_name: str):
         disease = Disease.query.filter(Disease.name == disease_name).first()
         if not disease:
-            disease = Disease(name=disease_name).save()
+            disease = Disease(name=disease_name).save(True)
             log(log.INFO, "Disease [%s] has been saved", disease.name)
-        ClientDisease(client_id=client_id, disease_id=disease.id).save()
+        ClientDisease(client_id=client_id, disease_id=disease.id).save(True)
 
     @staticmethod
     def register(client_data: ClientInfo) -> ClientDB:
@@ -53,7 +53,7 @@ class ClientService:
             stressful_level=client_data.stressfulLevel,
             consent_minor_child=client_data.consentMinorChild,
             relationship_child=client_data.relationshipChild,
-        ).save()
+        ).save(True)
         log(log.INFO, "Client [%s] has been registered", client.first_name)
 
         for condition_name in client_data.conditions:
@@ -135,7 +135,7 @@ class ClientService:
             for disease_name in client_data.diseases:
                 ClientService.link_client_disease(client.id, disease_name)
 
-            return client.save()
+            return client.save(True)
 
         return client
 
@@ -161,7 +161,7 @@ class ClientService:
             rougue_mode=client_data.rougue_mode,
             client_id=client.id,
             doctor_id=doctor.id,
-        ).save()
+        ).save(True)
         log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
 
         # TODO get reception from today
@@ -191,7 +191,7 @@ class ClientService:
         if client_in_queue:
             client_in_queue.visit_id = visit.id
             client_in_queue.canceled = True
-            client_in_queue.save()
+            client_in_queue.save(True)
             log(
                 log.INFO,
                 "Client in queue [%s] go to visit [%s]",
