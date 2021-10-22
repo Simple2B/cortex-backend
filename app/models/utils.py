@@ -8,7 +8,7 @@ class ModelMixin(object):
         if do_commit:
             try:
                 db_session.commit()
-            except:
+            except:  # noqa E722
                 db_session.rollback()
                 raise
         return self
