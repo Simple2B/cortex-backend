@@ -72,12 +72,10 @@ class QueueService:
             client.first_name,
         )
 
-        today = datetime.date.today()
-
         reception: Reception = Reception.query.filter(
             and_(
                 Reception.doctor_id == doctor.id,
-                Reception.date == today,
+                Reception.date == datetime.date.today(),
             )
         ).first()
 
@@ -110,7 +108,6 @@ class QueueService:
             return
 
         queue_member.canceled = True
-        # queue_member.visit_id = None
         queue_member.save()
 
         log(
