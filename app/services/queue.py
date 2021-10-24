@@ -94,7 +94,7 @@ class QueueService:
 
         log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
 
-        visit = Visit.query.filter(
+        visit: Visit = Visit.query.filter(
             and_(
                 Visit.date == today,
                 Visit.client_id == client.id,
@@ -109,7 +109,7 @@ class QueueService:
                 reception.id,
             )
 
-        visit.deleted()
+        visit.delete()
         log(log.INFO, "delete_client_from_queue: Visit [%d] deleted", visit.id)
 
         queue_member: QueueMember = QueueMember.query.filter(
