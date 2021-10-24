@@ -94,24 +94,6 @@ class QueueService:
 
         log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
 
-        visit: Visit = Visit.query.filter(
-            and_(
-                Visit.date == today,
-                Visit.client_id == client.id,
-                Visit.doctor_id == doctor.id,
-            )
-        ).first()
-
-        if not visit:
-            log(
-                log.INFO,
-                "delete_client_from_queue: visit not found for today [%s]",
-                reception.id,
-            )
-
-        visit.delete()
-        log(log.INFO, "delete_client_from_queue: Visit [%d] deleted", visit.id)
-
         queue_member: QueueMember = QueueMember.query.filter(
             and_(
                 QueueMember.reception_id == reception.id,
