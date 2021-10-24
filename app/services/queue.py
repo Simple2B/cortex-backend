@@ -107,7 +107,7 @@ class QueueService:
             )
             return
 
-        queue_member.canceled = False
+        queue_member.canceled = True
         queue_member.save()
 
         log(
