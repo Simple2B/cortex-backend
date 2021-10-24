@@ -111,7 +111,7 @@ class QueueService:
             return
 
         queue_member.canceled = True
-        queue_member.visit_id = None
+        # queue_member.visit_id = None
         queue_member.save()
 
         log(
