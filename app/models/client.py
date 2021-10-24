@@ -59,8 +59,7 @@ class Client(Base, ModelMixin):
         ]
 
         visits = [
-            {visit.date, visit.doctor}
-            for visit in Visit.query.filter(Visit.client_id == self.id).all()
+            visit for visit in Visit.query.filter(Visit.client_id == self.id).all()
         ]
 
         if self.covid_tested_positive == "true":
