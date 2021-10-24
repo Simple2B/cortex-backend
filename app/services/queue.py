@@ -108,6 +108,7 @@ class QueueService:
             return
 
         queue_member.canceled = True
+        queue_member.place_in_queue = None
         queue_member.save()
 
         log(
