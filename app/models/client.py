@@ -58,9 +58,9 @@ class Client(Base, ModelMixin):
             ).all()
         ]
 
-        # visits = [
-        #     visit for visit in Visit.query.filter(Visit.client_id == self.id).all()
-        # ]
+        visits = [
+            visit for visit in Visit.query.filter(Visit.client_id == self.id).all()
+        ]
 
         if self.covid_tested_positive == "true":
             self.covid_tested_positive = "yes"
@@ -98,5 +98,5 @@ class Client(Base, ModelMixin):
             "stressfulLevel": self.stressful_level,
             "consentMinorChild": self.consent_minor_child,
             "relationshipChild": self.relationship_child,
-            # "visits": visits,
+            "visits": visits,
         }

@@ -31,7 +31,7 @@ class ClientInfo(BaseModel):
     stressfulLevel: int
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
-    # visits: Optional[list[object]]
+    visits: Optional[list]
 
     class Config:
         orm_mode = True
