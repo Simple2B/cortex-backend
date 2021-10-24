@@ -8,6 +8,7 @@ from app.models import (
     Reception,
     Client as ClientDB,
     Doctor as DoctorDB,
+    Visit,
 )
 
 from app.logger import log
@@ -72,10 +73,12 @@ class QueueService:
             client.first_name,
         )
 
+        today = datetime.date.today()
+
         reception: Reception = Reception.query.filter(
             and_(
                 Reception.doctor_id == doctor.id,
-                Reception.date == datetime.date.today(),
+                Reception.date == today,
             )
         ).first()
 
@@ -90,6 +93,24 @@ class QueueService:
             )
 
         log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
+
+        visit = Visit.query.filter(
+            and_(
+                Visit.date == today,
+                Visit.client_id == client.id,
+                Visit.doctor_id == doctor.id,
+            )
+        ).first()
+
+        if not visit:
+            log(
+                log.INFO,
+                "delete_client_from_queue: visit not found for today [%s]",
+                reception.id,
+            )
+
+        visit.deleted()
+        log(log.INFO, "delete_client_from_queue: Visit [%d] deleted", visit.id)
 
         queue_member: QueueMember = QueueMember.query.filter(
             and_(
@@ -108,6 +129,7 @@ class QueueService:
             return
 
         queue_member.canceled = True
+        queue_member.visit_id = None
         queue_member.save()
 
         log(
