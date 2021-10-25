@@ -15,7 +15,6 @@ from app.models import (
 )
 from app.services.auth import get_current_doctor
 
-
 router_client = APIRouter(prefix="/client")
 
 
