@@ -1,7 +1,6 @@
 import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
-from sqlalchemy.sql.visitors import Visitable
 from app.schemas import Client, ClientInfo, ClientInTake, Doctor
 from app.models import (
     Client as ClientDB,
@@ -229,7 +228,7 @@ class ClientService:
         visit: Visit = Visit.query.filter(
             and_(
                 Visit.client_id == client.id,
-                Visit.end_time == None,
+                Visit.end_time == None,  # noqa E711
                 Visit.doctor_id == doctor.id,
                 Visit.date == today,
             )

@@ -8,7 +8,6 @@ from app.models import (
     Reception,
     Client as ClientDB,
     Doctor as DoctorDB,
-    Visit,
 )
 
 from app.logger import log
