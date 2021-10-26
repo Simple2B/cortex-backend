@@ -12,6 +12,7 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Doctor,
     Reception,
+    Visit,
 )
 from app.services.auth import get_current_doctor
 
@@ -100,13 +101,18 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
             QueueMemberDB.canceled == False,
         )
     ).all()
+
     members = [member.client for member in queue_members]
-    # visit: Visit = Visit.query.filter(Visit.date == reception.date).all()
-    # visit
-    # members_without_complete_visit = []
-    # for member in members:
-    #     member.client_info["visits"]
-    return members
+
+    members_without_complete_visit = []
+    for member in members:
+        visits = member.client_info["visits"]
+        if len(visits) == 0:
+            members_without_complete_visit.append(member)
+        for visit in visits:
+            if visit.end_time is None:
+                members_without_complete_visit.append(member)
+    return members_without_complete_visit
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])

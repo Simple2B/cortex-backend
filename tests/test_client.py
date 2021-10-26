@@ -193,12 +193,12 @@ def test_get_queue(client: TestClient):
     assert queue_member
 
     # 8. get Queue again
-    # response = client.get("/api/client/queue")
-    # assert response
-    # assert response.ok
-    # data = response.json()
-    # assert data
-    # assert len(data) == 4
+    response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert len(data) == 4
 
 
 def test_get_client_intake_from_kiosk(client: TestClient):
