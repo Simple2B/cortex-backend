@@ -28,7 +28,7 @@ def test_auth(client: TestClient):
         first_name="TestFirstName",
         last_name="TestLastName",
         email=TEST_EMAIL,
-    ).save()
+    ).save(True)
     # 2. send password to backend
     data = {"api_key": doc.api_key, "password": TEST_PASS}
     response = client.post("/api/auth/sign_up", json=data)
@@ -64,7 +64,7 @@ def test_doctor_register_wrong_api_key(client: TestClient):
         first_name="TestFirstName",
         last_name="TestLastName",
         email=TEST_EMAIL,
-    ).save()
+    ).save(True)
     # 2. send password to backend with wrong key
     data = {"api_key": "dummy", "password": TEST_PASS}
     response = client.post("/api/auth/sign_up", json=data)

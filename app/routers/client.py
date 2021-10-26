@@ -15,7 +15,6 @@ from app.models import (
 )
 from app.services.auth import get_current_doctor
 
-
 router_client = APIRouter(prefix="/client")
 
 
@@ -67,12 +66,22 @@ async def add_client_to_queue(
     return "ok"
 
 
+@router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
+async def delete_client_from_queue(
+    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Delete client from queue"""
+    service = QueueService()
+    service.delete_client_from_queue(client_data, doctor)
+    return "ok"
+
+
 @router_client.get("/queue", response_model=List[Client], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
     reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
     if not reception:
-        reception = Reception(doctor_id=doctor.id).save()
+        reception = Reception(doctor_id=doctor.id).save(True)
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,

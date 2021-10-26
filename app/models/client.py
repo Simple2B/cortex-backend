@@ -42,6 +42,7 @@ class Client(Base, ModelMixin):
     def client_info(self):
         from .condition import ClientCondition
         from .disease import ClientDisease
+        from .visit import Visit
 
         conditions = [
             link.condition.name
@@ -55,6 +56,10 @@ class Client(Base, ModelMixin):
             for link in ClientDisease.query.filter(
                 ClientDisease.client_id == self.id
             ).all()
+        ]
+
+        visits = [
+            visit for visit in Visit.query.filter(Visit.client_id == self.id).all()
         ]
 
         if self.covid_tested_positive == "true":
@@ -93,4 +98,5 @@ class Client(Base, ModelMixin):
             "stressfulLevel": self.stressful_level,
             "consentMinorChild": self.consent_minor_child,
             "relationshipChild": self.relationship_child,
+            "visits": visits,
         }

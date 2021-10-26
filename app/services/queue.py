@@ -33,9 +33,9 @@ class QueueService:
                 date=datetime.date.today(),
                 doctor_id=doctor.id,
             )
-            reception.save()
+            reception.save(True)
 
-        log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
+            log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
 
         client_in_queue = QueueMember.query.filter(
             QueueMember.reception_id == reception.id
@@ -49,9 +49,73 @@ class QueueService:
             client_id=client.id,
             reception_id=reception.id,
             place_in_queue=place_in_queue,
+            canceled=False,
         )
-        queue_member.save()
+        queue_member.save(True)
         log(log.INFO, "add_client_to_queue: QueueMember created [%d]", queue_member.id)
+
+    def delete_client_from_queue(self, client_data: Client, doctor: Doctor) -> None:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.phone == client_data.phone
+        ).first()
+
+        if not client:
+            log(log.ERROR, "delete_client_from_queue: Client doesn't registration")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(
+            log.INFO,
+            "delete_client_from_queue: Client [%d] [%s] from db",
+            client.id,
+            client.first_name,
+        )
+
+        reception: Reception = Reception.query.filter(
+            and_(
+                Reception.doctor_id == doctor.id,
+                Reception.date == datetime.date.today(),
+            )
+        ).first()
+
+        if not reception:
+            log(
+                log.ERROR,
+                "delete_client_from_queue: reception doesn't found [%s]",
+                reception.id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Reception not found"
+            )
+
+        log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
+
+        queue_member: QueueMember = QueueMember.query.filter(
+            and_(
+                QueueMember.reception_id == reception.id,
+                QueueMember.client_id == client.id,
+            )
+        ).first()
+
+        if not queue_member:
+            log(
+                log.WARNING,
+                "Not found query_member for client [%d], reception [%d]",
+                client.id,
+                reception.id,
+            )
+            return
+
+        queue_member.canceled = True
+        # queue_member.place_in_queue = None
+        queue_member.save()
+
+        log(
+            log.INFO,
+            "delete_client_from_queue: queue_member [%s] deleted",
+            queue_member,
+        )
 
     def identify_client_with_phone(
         self, phone_num: ClientPhone, doctor: Doctor

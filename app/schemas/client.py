@@ -31,6 +31,7 @@ class ClientInfo(BaseModel):
     stressfulLevel: int
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
+    visits: Optional[list]
 
     class Config:
         orm_mode = True
@@ -43,6 +44,7 @@ class Client(BaseModel):
     last_name: str
     phone: str
     email: str
+    rougue_mode: Optional[bool]
 
     class Config:
         orm_mode = True

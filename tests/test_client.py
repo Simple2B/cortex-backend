@@ -132,13 +132,13 @@ def test_doctor_put_client_in_queue(client: TestClient):
 def test_get_queue(client: TestClient):
     # 1. create Reception
     doctor = Doctor.query.first()
-    reception = Reception(doctor_id=doctor.id).save()
+    reception = Reception(doctor_id=doctor.id).save(True)
     # 2. add 5 clients in the queue
     for clientDB in Client.query.limit(5).all():
         QueueMember(
             reception_id=reception.id,
             client_id=clientDB.id,
-        ).save()
+        ).save(True)
     # 3. get Queue
     response = client.get("/api/client/queue")
     assert response
@@ -217,8 +217,80 @@ def test_get_client_intake_add_doctor(client: TestClient):
     assert data["id"] == client_intake.id
 
 
+def test_delete_client_from_queue(client: TestClient):
+    # # 1. add Client into DB (client_data)
+    # response = client.post("/api/client/registration", json=DATA)
+    # assert response
+    # assert response.ok
+
+    req_client: Client = Client.query.first()
+    client_data = {
+        "id": req_client.id,
+        "api_key": req_client.api_key,
+        "first_name": req_client.first_name,
+        "last_name": req_client.last_name,
+        "phone": req_client.phone,
+        "email": req_client.email,
+    }
+
+    # 2. doctor add patient in queue
+    response = client.post("/api/client/add_clients_queue", json=client_data)
+    assert response
+    assert response.ok
+
+    # 3. doctor delete patient from queue
+    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    assert response
+    assert response.ok
+
+
+def test_delete_member_from_queue(client: TestClient):
+    # 1. create Reception
+    doctor = Doctor.query.first()
+    reception: Reception = Reception(doctor_id=doctor.id).save(True)
+    # 2. add 5 clients in the queue
+    for clientDB in Client.query.limit(5).all():
+        QueueMember(
+            reception_id=reception.id,
+            client_id=clientDB.id,
+        ).save(True)
+    # 3. get Queue
+    response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert len(data) == 5
+
+    reception_member = reception.queue_members[1]
+
+    member = Client.query.filter(Client.id == reception_member.id).first()
+
+    client_data = {
+        "id": member.id,
+        "api_key": member.api_key,
+        "first_name": member.first_name,
+        "last_name": member.last_name,
+        "phone": member.phone,
+        "email": member.email,
+    }
+
+    # 4. doctor delete patient from queue
+    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    assert response
+    assert response.ok
+
+    # 5. get queue after delete
+    response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert len(data) == 4
+
+
 def test_identify_client_with_phone(client: TestClient):
-    #  get Client with phone
+    #  Client with phone
     clientDB = Client.query.first()
     phone = {"phone": clientDB.phone}
     response = client.post("/api/client/kiosk", json=phone)

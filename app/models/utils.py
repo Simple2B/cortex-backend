@@ -6,7 +6,11 @@ class ModelMixin(object):
         # Save this model to the database.
         db_session.add(self)
         if do_commit:
-            db_session.commit()
+            try:
+                db_session.commit()
+            except:  # noqa E722
+                db_session.rollback()
+                raise
         return self
 
     def delete(self):

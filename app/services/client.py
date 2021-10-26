@@ -10,6 +10,7 @@ from app.models import (
     ClientDisease,
     QueueMember as QueueMemberDB,
     Visit,
+    Reception,
 )
 from app.logger import log
 
@@ -19,17 +20,17 @@ class ClientService:
     def link_client_condition(client_id: int, condition_name: str):
         condition = Condition.query.filter(Condition.name == condition_name).first()
         if not condition:
-            condition = Condition(name=condition_name).save()
+            condition = Condition(name=condition_name).save(True)
             log(log.INFO, "Condition [%s] has been saved", condition.name)
-        ClientCondition(client_id=client_id, condition_id=condition.id).save()
+        ClientCondition(client_id=client_id, condition_id=condition.id).save(True)
 
     @staticmethod
     def link_client_disease(client_id: int, disease_name: str):
         disease = Disease.query.filter(Disease.name == disease_name).first()
         if not disease:
-            disease = Disease(name=disease_name).save()
+            disease = Disease(name=disease_name).save(True)
             log(log.INFO, "Disease [%s] has been saved", disease.name)
-        ClientDisease(client_id=client_id, disease_id=disease.id).save()
+        ClientDisease(client_id=client_id, disease_id=disease.id).save(True)
 
     @staticmethod
     def register(client_data: ClientInfo) -> ClientDB:
@@ -52,7 +53,7 @@ class ClientService:
             stressful_level=client_data.stressfulLevel,
             consent_minor_child=client_data.consentMinorChild,
             relationship_child=client_data.relationshipChild,
-        ).save()
+        ).save(True)
         log(log.INFO, "Client [%s] has been registered", client.first_name)
 
         for condition_name in client_data.conditions:
@@ -134,7 +135,7 @@ class ClientService:
             for disease_name in client_data.diseases:
                 ClientService.link_client_disease(client.id, disease_name)
 
-            return client.save()
+            return client.save(True)
 
         return client
 
@@ -151,20 +152,35 @@ class ClientService:
 
         log(log.INFO, "Client [%s] for intake", client)
 
+        today = datetime.date.today()
         visit = Visit(
-            date=datetime.date.today(),
+            date=today,
             # TODO -> end_time
             start_time=datetime.datetime.now(),
             # end_time=datetime.datetime.now() + datetime.timedelta(minutes=30),
             rougue_mode=client_data.rougue_mode,
             client_id=client.id,
             doctor_id=doctor.id,
-        ).save()
-
+        ).save(True)
         log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
+
+        # TODO get reception from today
+        reception = Reception.query.filter(Reception.date == today).first()
+        log(log.INFO, "Client Intake: Today reception [%s]", reception)
+
         client_in_queue: QueueMemberDB = QueueMemberDB.query.filter(
-            QueueMemberDB.client_id == client.id
+            and_(
+                QueueMemberDB.client_id == client.id,
+                QueueMemberDB.reception_id == reception.id,
+                QueueMemberDB.canceled == False,  # noqa E712
+            )
         ).first()
+
+        log(
+            log.INFO,
+            "Client Intake: client in queue for today reception [%s]",
+            client_in_queue,
+        )
 
         if not client_in_queue:
             raise HTTPException(
@@ -174,11 +190,19 @@ class ClientService:
 
         if client_in_queue:
             client_in_queue.visit_id = visit.id
-            client_in_queue.save()
+            client_in_queue.canceled = True
+            client_in_queue.save(True)
             log(
-                log.INFO, "Client in queue [%s] goto visit [%s]", client_in_queue, visit
+                log.INFO,
+                "Client in queue [%s] go to visit [%s]",
+                client_in_queue.client,
+                visit.id,
             )
-        log(log.INFO, "POST: Client_info in queue [%s]", client.client_info)
+        log(
+            log.INFO,
+            "POST: Client_info in queue [%s]",
+            client.client_info["firstName"],
+        )
         return client.client_info
 
     @staticmethod
