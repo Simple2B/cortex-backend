@@ -12,7 +12,6 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Doctor,
     Reception,
-    Visit,
 )
 from app.services.auth import get_current_doctor
 
