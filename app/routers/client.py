@@ -12,6 +12,7 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Doctor,
     Reception,
+    Visit,
 )
 from app.services.auth import get_current_doctor
 
@@ -66,6 +67,16 @@ async def add_client_to_queue(
     return "ok"
 
 
+@router_client.post("/complete_client_visit", response_model=str, tags=["Client"])
+async def complete_client_visit(
+    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Put clients to queue"""
+    service = ClientService()
+    service.complete_client_visit(client_data, doctor)
+    return "ok"
+
+
 @router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
 async def delete_client_from_queue(
     client_data: Client, doctor: Doctor = Depends(get_current_doctor)
@@ -82,6 +93,7 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
     if not reception:
         reception = Reception(doctor_id=doctor.id).save(True)
+
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
@@ -90,6 +102,11 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
         )
     ).all()
     members = [member.client for member in queue_members]
+    # visit: Visit = Visit.query.filter(Visit.date == reception.date).all()
+    # visit
+    # members_without_complete_visit = []
+    # for member in members:
+    #     member.client_info["visits"]
     return members
 
 
