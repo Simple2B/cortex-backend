@@ -1,6 +1,7 @@
 import pytest
 from typing import Generator
 from fastapi.testclient import TestClient
+from sqlalchemy.sql.elements import and_
 
 import tests.setup  # noqa: F401
 from app.database import engine, Base
@@ -143,9 +144,61 @@ def test_get_queue(client: TestClient):
     response = client.get("/api/client/queue")
     assert response
     assert response.ok
+    queue_data = response.json()
+    assert queue_data
+    assert len(queue_data) == 5
+
+    client_intake = Client.query.filter(
+        and_(
+            Client.id == QueueMember.client_id, QueueMember.reception_id == reception.id
+        )
+    ).first()
+
+    # 4. post client for intake (create visit)
+    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    response = client.post("/api/client/client_intake", json=data)
+    assert response
+    assert response.ok
     data = response.json()
     assert data
-    assert len(data) == 5
+    assert data["id"] == client_intake.id
+
+    visit: Visit = Visit.query.first()
+    assert visit
+    assert visit.client_id == client_intake.id
+    assert not visit.end_time
+    doctor = Doctor.query.first()
+    assert visit.doctor_id == doctor.id
+
+    # 5. get client intake
+    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert data["id"] == client_intake.id
+
+    # 6. end_date for visit
+    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    response = client.post("/api/client/complete_client_visit", json=data)
+    assert response
+    assert response.ok
+
+    # 7. add client_intake in the queue again
+    queue_member = QueueMember(
+        reception_id=reception.id,
+        client_id=client_intake.id,
+    ).save(True)
+
+    assert queue_member
+
+    # 8. get Queue again
+    # response = client.get("/api/client/queue")
+    # assert response
+    # assert response.ok
+    # data = response.json()
+    # assert data
+    # assert len(data) == 4
 
 
 def test_get_client_intake_from_kiosk(client: TestClient):
@@ -312,3 +365,48 @@ def test_get_client_with_phone(client: TestClient):
     data = response.json()
     assert data
     assert data["phone"] == clientDB.phone
+
+
+def test_complete_client_visit(client: TestClient):
+    # complete visit (add end_date to visit)
+
+    # 1. add Client into DB (client_data)
+    response = client.post("/api/client/registration", json=DATA)
+    assert response
+    assert response.ok
+
+    client_intake: Client = Client.query.filter(Client.id == DATA["id"]).first()
+
+    # 2. doctor add patient in queue
+    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
+    assert response
+    assert response.ok
+
+    # 3. get client for intake (create visit)
+    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    response = client.post("/api/client/client_intake", json=data)
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert data["id"] == DATA_CLIENT["id"]
+
+    visit: Visit = Visit.query.first()
+    assert visit
+    assert visit.client_id == client_intake.id
+    assert not visit.end_time
+    doctor = Doctor.query.first()
+    assert visit.doctor_id == doctor.id
+
+    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert data["id"] == client_intake.id
+
+    # 4. end_date for visit
+    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    response = client.post("/api/client/complete_client_visit", json=data)
+    assert response
+    assert response.ok
