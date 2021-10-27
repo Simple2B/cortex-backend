@@ -133,13 +133,13 @@ def test_doctor_put_client_in_queue(client: TestClient):
 def test_get_queue(client: TestClient):
     # 1. create Reception
     doctor = Doctor.query.first()
-    reception = Reception(doctor_id=doctor.id).save(True)
+    reception = Reception(doctor_id=doctor.id).save()
     # 2. add 5 clients in the queue
     for clientDB in Client.query.limit(5).all():
         QueueMember(
             reception_id=reception.id,
             client_id=clientDB.id,
-        ).save(True)
+        ).save()
     # 3. get Queue
     response = client.get("/api/client/queue")
     assert response
@@ -148,14 +148,12 @@ def test_get_queue(client: TestClient):
     assert queue_data
     assert len(queue_data) == 5
 
-    client_intake = Client.query.filter(
-        and_(
-            Client.id == QueueMember.client_id, QueueMember.reception_id == reception.id
-        )
-    ).first()
+    member = QueueMember.query.filter(QueueMember.reception_id == reception.id).first()
+
+    client_intake = Client.query.filter(Client.id == member.client_id).first()
 
     # 4. post client for intake (create visit)
-    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    data = {"api_key": client_intake.api_key, "rougue_mode": False}
     response = client.post("/api/client/client_intake", json=data)
     assert response
     assert response.ok
@@ -188,7 +186,7 @@ def test_get_queue(client: TestClient):
     queue_member = QueueMember(
         reception_id=reception.id,
         client_id=client_intake.id,
-    ).save(True)
+    ).save()
 
     assert queue_member
 
@@ -215,12 +213,12 @@ def test_get_queue(client: TestClient):
     assert response.ok
 
     # 10. get Queue again without delete member
-    # response = client.get("/api/client/queue")
-    # assert response
-    # assert response.ok
-    # data = response.json()
-    # assert data
-    # assert len(data) == 4
+    response = client.get("/api/client/queue")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
+    assert len(data) == 4
 
 
 def test_get_client_intake_from_kiosk(client: TestClient):
