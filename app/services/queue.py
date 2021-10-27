@@ -91,14 +91,14 @@ class QueueService:
 
         log(log.INFO, "delete_client_from_queue: reception today [%s]", reception.id)
 
-        queue_member: QueueMember = QueueMember.query.filter(
+        member_in_queue: QueueMember = QueueMember.query.filter(
             and_(
                 QueueMember.reception_id == reception.id,
                 QueueMember.client_id == client.id,
             )
-        ).first()
+        ).all()
 
-        if not queue_member:
+        if not member_in_queue:
             log(
                 log.WARNING,
                 "Not found query_member for client [%d], reception [%d]",
@@ -107,15 +107,17 @@ class QueueService:
             )
             return
 
-        queue_member.canceled = True
-        # queue_member.place_in_queue = None
-        queue_member.save()
+        for member in member_in_queue:
+            if member.canceled == False:
+                member.canceled = True
+                # queue_member.place_in_queue = None
+                member.save()
 
-        log(
-            log.INFO,
-            "delete_client_from_queue: queue_member [%s] deleted",
-            queue_member,
-        )
+                log(
+                    log.INFO,
+                    "delete_client_from_queue: queue_member [%s] deleted",
+                    member,
+                )
 
     def identify_client_with_phone(
         self, phone_num: ClientPhone, doctor: Doctor
