@@ -198,7 +198,29 @@ def test_get_queue(client: TestClient):
     assert response.ok
     data = response.json()
     assert data
-    assert len(data) == 4
+    assert len(data) == 5
+
+    client_data = {
+        "id": client_intake.id,
+        "api_key": client_intake.api_key,
+        "first_name": client_intake.first_name,
+        "last_name": client_intake.last_name,
+        "phone": client_intake.phone,
+        "email": client_intake.email,
+    }
+
+    # 9. doctor delete patient from queue
+    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    assert response
+    assert response.ok
+
+    # 10. get Queue again without delete member
+    # response = client.get("/api/client/queue")
+    # assert response
+    # assert response.ok
+    # data = response.json()
+    # assert data
+    # assert len(data) == 4
 
 
 def test_get_client_intake_from_kiosk(client: TestClient):

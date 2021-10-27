@@ -96,22 +96,26 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
-            QueueMemberDB.visit_id == None,  # noqa E711
+            # QueueMemberDB.visit_id == None,  # noqa E711
             QueueMemberDB.canceled == False,
         )
     ).all()
 
-    members = [member.client for member in queue_members]
+    members = [
+        {"client": member.client, "canceled": member.canceled}
+        for member in queue_members
+    ]
 
     members_without_complete_visit = []
     for member in members:
-        visits = member.client_info["visits"]
+        visits = member["client"].client_info["visits"]
         if len(visits) == 0:
             members_without_complete_visit.append(member)
         for visit in visits:
-            if visit.end_time is None:
+            if visit.end_time is None or member["canceled"] == False:
                 members_without_complete_visit.append(member)
-    return members_without_complete_visit
+
+    return [member["client"] for member in members_without_complete_visit]
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
