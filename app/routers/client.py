@@ -14,6 +14,7 @@ from app.models import (
     Reception,
 )
 from app.services.auth import get_current_doctor
+from app.logger import log
 
 router_client = APIRouter(prefix="/client")
 
@@ -66,6 +67,17 @@ async def add_client_to_queue(
     return "ok"
 
 
+@router_client.post("/complete_client_visit", response_model=str, tags=["Client"])
+async def complete_client_visit(
+    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Put clients to queue"""
+    log(log.INFO, "client to queue: Client data [%s]", client_data)
+    service = ClientService()
+    service.complete_client_visit(client_data, doctor)
+    return "ok"
+
+
 @router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
 async def delete_client_from_queue(
     client_data: Client, doctor: Doctor = Depends(get_current_doctor)
@@ -82,6 +94,7 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
     if not reception:
         reception = Reception(doctor_id=doctor.id).save(True)
+
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
@@ -89,8 +102,22 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
             QueueMemberDB.canceled == False,
         )
     ).all()
-    members = [member.client for member in queue_members]
-    return members
+
+    members = [
+        {"client": member.client, "canceled": member.canceled}
+        for member in queue_members
+    ]
+
+    members_without_complete_visit = []
+    for member in members:
+        visits = member["client"].client_info["visits"]
+        if not visits:
+            members_without_complete_visit.append(member)
+        for visit in visits:
+            if visit.end_time:  # noqa E712
+                members_without_complete_visit.append(member)
+
+    return [member["client"] for member in members_without_complete_visit]
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])

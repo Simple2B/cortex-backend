@@ -157,7 +157,6 @@ class ClientService:
             date=today,
             # TODO -> end_time
             start_time=datetime.datetime.now(),
-            # end_time=datetime.datetime.now() + datetime.timedelta(minutes=30),
             rougue_mode=client_data.rougue_mode,
             client_id=client.id,
             doctor_id=doctor.id,
@@ -204,6 +203,61 @@ class ClientService:
             client.client_info["firstName"],
         )
         return client.client_info
+
+    def complete_client_visit(self, client_data: ClientInTake, doctor: Doctor) -> None:
+        log(log.INFO, "complete_client_visit: complete client_data [%s]", client_data)
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == client_data.api_key
+        ).first()
+
+        if not client:
+            log(log.ERROR, "complete_client_visit: Client doesn't registration")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(
+            log.INFO,
+            "complete_client_visit: Client [%d] [%s] from db",
+            client.id,
+            client.first_name,
+        )
+
+        today = datetime.date.today()
+
+        visit: Visit = Visit.query.filter(
+            and_(
+                Visit.client_id == client.id,
+                Visit.end_time == None,  # noqa E711
+                Visit.doctor_id == doctor.id,
+                Visit.date == today,
+            )
+        ).first()
+
+        if not visit:
+            log(log.ERROR, "complete_client_visit: Visit doesn't created")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Visit doesn't created!"
+            )
+
+        log(
+            log.INFO,
+            "complete_client_visit: Visit [%d] found for client [%s] for today [%s]",
+            visit.id,
+            client.first_name,
+            today,
+        )
+
+        visit.end_time = datetime.datetime.utcnow()
+        visit.save(True)
+
+        log(
+            log.INFO,
+            "complete_client_visit: Visit [%d] close for client [%s] for today [%s]",
+            visit.id,
+            client.first_name,
+            today,
+        )
 
     @staticmethod
     def get_intake(api_key: str, doctor: Doctor) -> ClientInfo:
