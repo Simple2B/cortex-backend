@@ -96,7 +96,7 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
-            # QueueMemberDB.visit_id == None,
+            QueueMemberDB.visit_id == None,
             QueueMemberDB.canceled == False,  # noqa E711
         )
     ).all()
@@ -109,10 +109,10 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     members_without_complete_visit = []
     for member in members:
         visits = member["client"].client_info["visits"]
-        if len(visits) == 0:
+        if not visits:
             members_without_complete_visit.append(member)
         for visit in visits:
-            if visit.end_time is None or member["canceled"] == False:  # noqa E712
+            if visit.end_time:  # noqa E712
                 members_without_complete_visit.append(member)
 
     return [member["client"] for member in members_without_complete_visit]
