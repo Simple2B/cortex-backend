@@ -96,8 +96,8 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
-            QueueMemberDB.visit_id == None,
-            QueueMemberDB.canceled == False,  # noqa E711
+            QueueMemberDB.visit_id == None,  # noqa E711
+            QueueMemberDB.canceled == False,
         )
     ).all()
 

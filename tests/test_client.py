@@ -1,7 +1,6 @@
 import pytest
 from typing import Generator
 from fastapi.testclient import TestClient
-from sqlalchemy.sql.elements import and_
 
 import tests.setup  # noqa: F401
 from app.database import engine, Base

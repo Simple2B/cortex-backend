@@ -108,7 +108,7 @@ class QueueService:
             return
 
         for member in member_in_queue:
-            if member.canceled == False:
+            if member.canceled == False:  # noqa E712
                 member.canceled = True
                 # queue_member.place_in_queue = None
                 member.save()
