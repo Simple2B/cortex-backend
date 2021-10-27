@@ -39,7 +39,7 @@ def client() -> Generator:
 TEST_CONDITIONS = ["TEST_CONDITION_1", "TEST_CONDITION_2", "TEST_CONDITION_3"]
 TEST_DISEASES = ["TEST_DISEASE_1", "TEST_DISEASE_2"]
 
-DATA = {
+DATA_FULL_INFO = {
     "id": CLIENT_NUMBER + 1,
     "firstName": "Alex",
     "lastName": "Brown",
@@ -84,12 +84,12 @@ def test_registration_client(client: TestClient):
     clients_number_before = get_clients_number()
 
     # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=DATA)
+    response = client.post("/api/client/registration", json=DATA_FULL_INFO)
     assert response
     assert response.ok
 
     # 2. Check db
-    client_db = Client.query.filter(Client.email == DATA["email"]).first()
+    client_db = Client.query.filter(Client.email == DATA_FULL_INFO["email"]).first()
     assert client_db
     condition_names_in_db = [c.name for c in Condition.query.all()]
     for condition_name in TEST_CONDITIONS:
@@ -113,7 +113,7 @@ def test_registration_client(client: TestClient):
 
 def test_doctor_put_client_in_queue(client: TestClient):
     # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=DATA)
+    response = client.post("/api/client/registration", json=DATA_FULL_INFO)
     assert response
     assert response.ok
     # 2. Add client for queue
@@ -254,11 +254,11 @@ def test_get_client_intake_from_kiosk(client: TestClient):
 
 def test_get_client_intake_add_doctor(client: TestClient):
     # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=DATA)
+    response = client.post("/api/client/registration", json=DATA_FULL_INFO)
     assert response
     assert response.ok
 
-    client_intake: Client = Client.query.filter(Client.id == DATA["id"]).first()
+    client_intake: Client = Client.query.filter(Client.id == DATA_FULL_INFO["id"]).first()
 
     # 2. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
@@ -390,11 +390,11 @@ def test_complete_client_visit(client: TestClient):
     # complete visit (add end_date to visit)
 
     # 1. add Client into DB (client_data)
-    response = client.post("/api/client/registration", json=DATA)
+    response = client.post("/api/client/registration", json=DATA_FULL_INFO)
     assert response
     assert response.ok
 
-    client_intake: Client = Client.query.filter(Client.id == DATA["id"]).first()
+    client_intake: Client = Client.query.filter(Client.id == DATA_FULL_INFO["id"]).first()
 
     # 2. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)

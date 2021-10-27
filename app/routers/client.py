@@ -14,6 +14,7 @@ from app.models import (
     Reception,
 )
 from app.services.auth import get_current_doctor
+from app.logger import log
 
 router_client = APIRouter(prefix="/client")
 
@@ -71,6 +72,7 @@ async def complete_client_visit(
     client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Put clients to queue"""
+    log(log.INFO, "client to queue: Client data [%s]", client_data)
     service = ClientService()
     service.complete_client_visit(client_data, doctor)
     return "ok"
