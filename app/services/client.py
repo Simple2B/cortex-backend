@@ -251,7 +251,13 @@ class ClientService:
         visit.end_time = datetime.datetime.utcnow()
         visit.save(True)
 
-        visit
+        log(
+            log.INFO,
+            "complete_client_visit: Visit [%d] close for client [%s] for today [%s]",
+            visit.id,
+            client.first_name,
+            today,
+        )
 
     @staticmethod
     def get_intake(api_key: str, doctor: Doctor) -> ClientInfo:
