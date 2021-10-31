@@ -2,7 +2,7 @@ import datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_
-from app.schemas import Client, Doctor, ClientPhone
+from app.schemas import Client, Doctor, ClientPhone, ClientQueue
 from app.models import (
     QueueMember,
     Reception,
@@ -21,16 +21,18 @@ class QueueService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
+
+        today = datetime.date.today()
         reception = Reception.query.filter(
             and_(
                 Reception.doctor_id == doctor.id,
-                Reception.date == datetime.date.today(),
+                Reception.date == today,
             )
         ).first()
 
         if not reception:
             reception = Reception(
-                date=datetime.date.today(),
+                date=today,
                 doctor_id=doctor.id,
             )
             reception.save(True)
@@ -51,10 +53,12 @@ class QueueService:
             place_in_queue=place_in_queue,
             canceled=False,
         )
-        queue_member.save(True)
+        queue_member.save()
         log(log.INFO, "add_client_to_queue: QueueMember created [%d]", queue_member.id)
 
-    def delete_client_from_queue(self, client_data: Client, doctor: Doctor) -> None:
+    def delete_client_from_queue(
+        self, client_data: ClientQueue, doctor: Doctor
+    ) -> None:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.phone == client_data.phone
         ).first()
@@ -95,8 +99,9 @@ class QueueService:
             and_(
                 QueueMember.reception_id == reception.id,
                 QueueMember.client_id == client.id,
+                QueueMember.canceled == False,  # noqa E712
             )
-        ).all()
+        ).first()
 
         if not member_in_queue:
             log(
@@ -107,16 +112,14 @@ class QueueService:
             )
             return
 
-        for member in member_in_queue:
-            if member.canceled == False:  # noqa E712
-                member.canceled = True
-                member.save()
+        member_in_queue.canceled = True
+        member_in_queue.save()
 
-                log(
-                    log.INFO,
-                    "delete_client_from_queue: queue_member [%s] deleted",
-                    member,
-                )
+        log(
+            log.INFO,
+            "delete_client_from_queue: queue_member [%s] deleted",
+            member_in_queue,
+        )
 
     def identify_client_with_phone(
         self, phone_num: ClientPhone, doctor: Doctor

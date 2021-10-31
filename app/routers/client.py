@@ -6,7 +6,7 @@ from typing import List
 from app.schemas.client import ClientInTake
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone
+from app.schemas import ClientInfo, Client, ClientPhone, ClientQueue
 from app.models import (
     Client as ClientDB,
     QueueMember as QueueMemberDB,
@@ -80,7 +80,7 @@ async def complete_client_visit(
 
 @router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
 async def delete_client_from_queue(
-    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+    client_data: ClientQueue, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Delete client from queue"""
     service = QueueService()
@@ -88,36 +88,61 @@ async def delete_client_from_queue(
     return "ok"
 
 
-@router_client.get("/queue", response_model=List[Client], tags=["Client"])
+@router_client.get("/queue", response_model=List[ClientQueue], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
-    reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
+    today = datetime.date.today()
+    reception = Reception.query.filter(Reception.date == today).first()
     if not reception:
         reception = Reception(doctor_id=doctor.id).save(True)
 
     queue_members = QueueMemberDB.query.filter(
         and_(
             QueueMemberDB.reception_id == reception.id,
-            QueueMemberDB.visit_id == None,  # noqa E711
-            QueueMemberDB.canceled == False,
+            QueueMemberDB.canceled == False,  # noqa E712
         )
     ).all()
 
     members = [
-        {"client": member.client, "canceled": member.canceled}
+        {
+            "client": member.client,
+            "canceled": member.canceled,
+            "place_in_queue": member.place_in_queue,
+        }
         for member in queue_members
     ]
 
     members_without_complete_visit = []
     for member in members:
+        client_member = {
+            "api_key": member["client"].client_info["api_key"],
+            "email": member["client"].client_info["email"],
+            "first_name": member["client"].client_info["firstName"],
+            "id": member["client"].client_info["id"],
+            "last_name": member["client"].client_info["lastName"],
+            "phone": member["client"].client_info["phone"],
+            "place_in_queue": member["place_in_queue"],
+            # TODO: rougue_mode
+            # "rougue_mode": member["client"].client_info,
+        }
         visits = member["client"].client_info["visits"]
         if not visits:
-            members_without_complete_visit.append(member)
+            members_without_complete_visit.append(client_member)
+        count_visits = len(visits)
+        visit_with_end_time = []
         for visit in visits:
-            if visit.end_time:  # noqa E712
-                members_without_complete_visit.append(member)
+            if visit.date == today and not visit.end_time:  # noqa E712
+                members_without_complete_visit.append(client_member)
+            if visit.date == today and visit.end_time:
+                visit_with_end_time.append(visit)
+        if (
+            count_visits > 0
+            and count_visits == len(visit_with_end_time)
+            and member["canceled"] == False
+        ):
+            members_without_complete_visit.append(client_member)
 
-    return [member["client"] for member in members_without_complete_visit]
+    return [member for member in members_without_complete_visit]
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
