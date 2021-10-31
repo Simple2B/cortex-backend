@@ -138,7 +138,7 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
         if (
             count_visits > 0
             and count_visits == len(visit_with_end_time)
-            and member["canceled"] == False
+            and member["canceled"] == False  # noqa E712
         ):
             members_without_complete_visit.append(client_member)
 
