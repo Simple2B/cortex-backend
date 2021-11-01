@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_
@@ -144,3 +145,58 @@ class QueueService:
                 phone,
             )
         return client
+
+    def get_queue(self, doctor: Doctor) -> List[ClientQueue]:
+        today = datetime.date.today()
+        reception = Reception.query.filter(Reception.date == today).first()
+        if not reception:
+            reception = Reception(doctor_id=doctor.id).save(True)
+
+        queue_members = QueueMember.query.filter(
+            and_(
+                QueueMember.reception_id == reception.id,
+                QueueMember.canceled == False,  # noqa E712
+            )
+        ).all()
+
+        members = [
+            {
+                "client": member.client,
+                "canceled": member.canceled,
+                "place_in_queue": member.place_in_queue,
+            }
+            for member in queue_members
+        ]
+
+        members_without_complete_visit = []
+        for member in members:
+            member_info = member["client"].client_info
+            client_member = {
+                "api_key": member_info["api_key"],
+                "email": member_info["email"],
+                "first_name": member_info["firstName"],
+                "id": member_info["id"],
+                "last_name": member_info["lastName"],
+                "phone": member_info["phone"],
+                "place_in_queue": member["place_in_queue"],
+                # TODO: rougue_mode
+                # "rougue_mode": member_info,
+            }
+            visits = member["client"].client_info["visits"]
+            if not visits:
+                members_without_complete_visit.append(client_member)
+            count_visits = len(visits)
+            visit_with_end_time = []
+            for visit in visits:
+                if visit.date == today and not visit.end_time:  # noqa E712
+                    members_without_complete_visit.append(client_member)
+                if visit.date == today and visit.end_time:
+                    visit_with_end_time.append(visit)
+            if (
+                count_visits > 0
+                and count_visits == len(visit_with_end_time)
+                and member["canceled"] == False  # noqa E712
+            ):
+                members_without_complete_visit.append(client_member)
+
+        return [member for member in members_without_complete_visit]
