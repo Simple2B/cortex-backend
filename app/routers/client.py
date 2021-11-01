@@ -1,17 +1,12 @@
-import datetime
-
-from sqlalchemy import and_
 from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
 from app.schemas.client import ClientInTake
 
 from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone
+from app.schemas import ClientInfo, Client, ClientPhone, ClientQueue
 from app.models import (
     Client as ClientDB,
-    QueueMember as QueueMemberDB,
     Doctor,
-    Reception,
 )
 from app.services.auth import get_current_doctor
 from app.logger import log
@@ -80,7 +75,7 @@ async def complete_client_visit(
 
 @router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
 async def delete_client_from_queue(
-    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+    client_data: ClientQueue, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Delete client from queue"""
     service = QueueService()
@@ -88,36 +83,12 @@ async def delete_client_from_queue(
     return "ok"
 
 
-@router_client.get("/queue", response_model=List[Client], tags=["Client"])
+@router_client.get("/queue", response_model=List[ClientQueue], tags=["Client"])
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
-    reception = Reception.query.filter(Reception.date == datetime.date.today()).first()
-    if not reception:
-        reception = Reception(doctor_id=doctor.id).save(True)
-
-    queue_members = QueueMemberDB.query.filter(
-        and_(
-            QueueMemberDB.reception_id == reception.id,
-            QueueMemberDB.visit_id == None,  # noqa E711
-            QueueMemberDB.canceled == False,
-        )
-    ).all()
-
-    members = [
-        {"client": member.client, "canceled": member.canceled}
-        for member in queue_members
-    ]
-
-    members_without_complete_visit = []
-    for member in members:
-        visits = member["client"].client_info["visits"]
-        if not visits:
-            members_without_complete_visit.append(member)
-        for visit in visits:
-            if visit.end_time:  # noqa E712
-                members_without_complete_visit.append(member)
-
-    return [member["client"] for member in members_without_complete_visit]
+    service = QueueService()
+    queue_members = service.get_queue(doctor)
+    return queue_members
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])

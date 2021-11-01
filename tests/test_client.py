@@ -134,11 +134,12 @@ def test_get_queue(client: TestClient):
     doctor = Doctor.query.first()
     reception = Reception(doctor_id=doctor.id).save()
     # 2. add 5 clients in the queue
+    count = 1
     for clientDB in Client.query.limit(5).all():
         QueueMember(
-            reception_id=reception.id,
-            client_id=clientDB.id,
+            reception_id=reception.id, client_id=clientDB.id, place_in_queue=count
         ).save()
+        count = count + 1
     # 3. get Queue
     response = client.get("/api/client/queue")
     assert response
@@ -149,10 +150,14 @@ def test_get_queue(client: TestClient):
 
     member = QueueMember.query.filter(QueueMember.reception_id == reception.id).first()
 
-    client_intake = Client.query.filter(Client.id == member.client_id).first()
+    client_intake: Client = Client.query.filter(Client.id == member.client_id).first()
 
     # 4. post client for intake (create visit)
-    data = {"api_key": client_intake.api_key, "rougue_mode": False}
+    data = {
+        "api_key": client_intake.api_key,
+        "rougue_mode": False,
+        "place_in_queue": client_intake.client_info["place_in_queue"],
+    }
     response = client.post("/api/client/client_intake", json=data)
     assert response
     assert response.ok
@@ -176,18 +181,30 @@ def test_get_queue(client: TestClient):
     assert data["id"] == client_intake.id
 
     # 6. end_date for visit
-    data = {"api_key": client_intake.api_key, "rougue_mode": True}
+    data = {
+        "api_key": client_intake.api_key,
+        "rougue_mode": True,
+        "place_in_queue": client_intake.client_info["place_in_queue"],
+    }
     response = client.post("/api/client/complete_client_visit", json=data)
     assert response
     assert response.ok
 
     # 7. add client_intake in the queue again
-    queue_member = QueueMember(
-        reception_id=reception.id,
-        client_id=client_intake.id,
-    ).save()
+
+    queue_member = {
+        "id": client_intake.id,
+        "first_name": client_intake.first_name,
+        "last_name": client_intake.last_name,
+        "phone": client_intake.phone,
+        "email": client_intake.email,
+    }
 
     assert queue_member
+
+    response = client.post("/api/client/add_clients_queue", json=queue_member)
+    assert response
+    assert response.ok
 
     # 8. get Queue again
     response = client.get("/api/client/queue")
@@ -204,6 +221,7 @@ def test_get_queue(client: TestClient):
         "last_name": client_intake.last_name,
         "phone": client_intake.phone,
         "email": client_intake.email,
+        "place_in_queue": client_intake.client_info["place_in_queue"],
     }
 
     # 9. doctor delete patient from queue
@@ -258,7 +276,9 @@ def test_get_client_intake_add_doctor(client: TestClient):
     assert response
     assert response.ok
 
-    client_intake: Client = Client.query.filter(Client.id == DATA_FULL_INFO["id"]).first()
+    client_intake: Client = Client.query.filter(
+        Client.id == DATA_FULL_INFO["id"]
+    ).first()
 
     # 2. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
@@ -394,7 +414,9 @@ def test_complete_client_visit(client: TestClient):
     assert response
     assert response.ok
 
-    client_intake: Client = Client.query.filter(Client.id == DATA_FULL_INFO["id"]).first()
+    client_intake: Client = Client.query.filter(
+        Client.id == DATA_FULL_INFO["id"]
+    ).first()
 
     # 2. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)

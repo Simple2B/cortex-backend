@@ -153,18 +153,12 @@ class ClientService:
         log(log.INFO, "Client [%s] for intake", client)
 
         today = datetime.date.today()
-        visit = Visit(
-            date=today,
-            # TODO -> end_time
-            start_time=datetime.datetime.now(),
-            rougue_mode=client_data.rougue_mode,
-            client_id=client.id,
-            doctor_id=doctor.id,
-        ).save(True)
-        log(log.INFO, "Client Intake: Visit created [%d]", visit.id)
 
-        # TODO get reception from today
         reception = Reception.query.filter(Reception.date == today).first()
+        if not reception:
+            reception = Reception(date=today, doctor_id=doctor.id).save()
+            log(log.INFO, "Client Intake: Today reception created [%s]", reception)
+
         log(log.INFO, "Client Intake: Today reception [%s]", reception)
 
         client_in_queue: QueueMemberDB = QueueMemberDB.query.filter(
@@ -181,27 +175,68 @@ class ClientService:
             client_in_queue,
         )
 
-        if not client_in_queue:
-            raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="Client doesn't at queue",
+        visits = Visit.query.filter(
+            and_(
+                Visit.date == today,
+                Visit.client_id == client.id,
+                Visit.end_time == None,  # noqa E711
             )
+        ).all()
 
-        if client_in_queue:
-            client_in_queue.visit_id = visit.id
-            client_in_queue.canceled = True
-            client_in_queue.save(True)
+        all_visits = Visit.query.filter(
+            and_(
+                Visit.date == today,
+                Visit.client_id == client.id,
+            )
+        ).all()
+
+        if not visits:
+            visit = Visit(
+                date=today,
+                start_time=datetime.datetime.now(),
+                # TODO: rougue_mode
+                rougue_mode=client_data.rougue_mode,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            ).save()
             log(
                 log.INFO,
-                "Client in queue [%s] go to visit [%s]",
-                client_in_queue.client,
+                "Client Intake: visit [%d] for today created [%d]",
+                len(all_visits) + 1,
                 visit.id,
             )
+
+            client_in_queue.visit_id = visit.id
+            client_in_queue.save(True)
+
         log(
             log.INFO,
-            "POST: Client_info in queue [%s]",
-            client.client_info["firstName"],
+            "Client Intake: client visits [%s]",
+            visits,
         )
+
+        for visit in visits:
+            if not visit.end_time:
+                visit.start_time = datetime.datetime.now()
+                # TODO: visit.rougue_mode
+                visit.doctor_id = doctor.id
+                visit.save()
+
+                log(
+                    log.INFO,
+                    "Client Intake: Visit without end_time date updated [%d]",
+                    visit.id,
+                )
+
+                client_in_queue.visit_id = visit.id
+                client_in_queue.save()
+                log(
+                    log.INFO,
+                    "Client in queue [%s] go to visit again [%s]",
+                    client_in_queue.client,
+                    visit.id,
+                )
+
         return client.client_info
 
     def complete_client_visit(self, client_data: ClientInTake, doctor: Doctor) -> None:
@@ -225,6 +260,8 @@ class ClientService:
 
         today = datetime.date.today()
 
+        reception = Reception.query.filter(Reception.date == today).first()
+
         visit: Visit = Visit.query.filter(
             and_(
                 Visit.client_id == client.id,
@@ -239,6 +276,8 @@ class ClientService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Visit doesn't created!"
             )
+        visit.end_time = datetime.datetime.utcnow()
+        visit.save()
 
         log(
             log.INFO,
@@ -248,8 +287,21 @@ class ClientService:
             today,
         )
 
-        visit.end_time = datetime.datetime.utcnow()
-        visit.save(True)
+        queue_members: QueueMemberDB = QueueMemberDB.query.filter(
+            and_(
+                QueueMemberDB.reception_id == reception.id,
+                QueueMemberDB.canceled == False,  # noqa E712
+                QueueMemberDB.visit_id == visit.id,
+                QueueMemberDB.place_in_queue == client.client_info["place_in_queue"],
+            )
+        ).first()
+
+        queue_members.visit_id
+
+        queue_members.canceled = True
+        queue_members.client.client_info["place_in_queue"] = None
+        queue_members.place_in_queue = None
+        queue_members.save()
 
         log(
             log.INFO,

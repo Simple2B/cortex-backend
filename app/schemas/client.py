@@ -32,6 +32,7 @@ class ClientInfo(BaseModel):
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
     visits: Optional[list]
+    place_in_queue: Optional[int]
 
     class Config:
         orm_mode = True
@@ -50,8 +51,16 @@ class Client(BaseModel):
         orm_mode = True
 
 
+class ClientQueue(Client):
+    place_in_queue: Optional[int]
+
+    class Config:
+        orm_mode = True
+
+
 class ClientInTake(BaseModel):
     api_key: str
+    place_in_queue: Optional[int]
     rougue_mode: Optional[bool]
 
 
