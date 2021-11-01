@@ -36,7 +36,7 @@ class QueueService:
                 date=today,
                 doctor_id=doctor.id,
             )
-            reception.save(True)
+            reception.save()
 
             log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
 

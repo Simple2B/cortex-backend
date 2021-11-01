@@ -155,6 +155,10 @@ class ClientService:
         today = datetime.date.today()
 
         reception = Reception.query.filter(Reception.date == today).first()
+        if not reception:
+            reception = Reception(date=today, doctor_id=doctor.id).save()
+            log(log.INFO, "Client Intake: Today reception created [%s]", reception)
+
         log(log.INFO, "Client Intake: Today reception [%s]", reception)
 
         client_in_queue: QueueMemberDB = QueueMemberDB.query.filter(
