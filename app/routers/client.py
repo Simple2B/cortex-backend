@@ -114,16 +114,17 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
 
     members_without_complete_visit = []
     for member in members:
+        member_info = member["client"].client_info
         client_member = {
-            "api_key": member["client"].client_info["api_key"],
-            "email": member["client"].client_info["email"],
-            "first_name": member["client"].client_info["firstName"],
-            "id": member["client"].client_info["id"],
-            "last_name": member["client"].client_info["lastName"],
-            "phone": member["client"].client_info["phone"],
+            "api_key": member_info["api_key"],
+            "email": member_info["email"],
+            "first_name": member_info["firstName"],
+            "id": member_info["id"],
+            "last_name": member_info["lastName"],
+            "phone": member_info["phone"],
             "place_in_queue": member["place_in_queue"],
             # TODO: rougue_mode
-            # "rougue_mode": member["client"].client_info,
+            # "rougue_mode": member_info,
         }
         visits = member["client"].client_info["visits"]
         if not visits:
