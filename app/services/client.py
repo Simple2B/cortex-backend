@@ -292,15 +292,12 @@ class ClientService:
                 QueueMemberDB.reception_id == reception.id,
                 QueueMemberDB.canceled == False,  # noqa E712
                 QueueMemberDB.visit_id == visit.id,
-                QueueMemberDB.place_in_queue == client.client_info["place_in_queue"],
             )
         ).first()
 
         queue_members.visit_id
 
         queue_members.canceled = True
-        queue_members.client.client_info["place_in_queue"] = None
-        queue_members.place_in_queue = None
         queue_members.save()
 
         log(

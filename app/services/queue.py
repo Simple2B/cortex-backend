@@ -163,7 +163,6 @@ class QueueService:
             {
                 "client": member.client,
                 "canceled": member.canceled,
-                "place_in_queue": member.place_in_queue,
             }
             for member in queue_members
         ]
@@ -178,7 +177,6 @@ class QueueService:
                 "id": member_info["id"],
                 "last_name": member_info["lastName"],
                 "phone": member_info["phone"],
-                "place_in_queue": member["place_in_queue"],
                 # TODO: rougue_mode
                 # "rougue_mode": member_info,
             }
