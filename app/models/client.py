@@ -78,13 +78,6 @@ class Client(Base, ModelMixin):
         else:
             "null"
 
-        client_in_queue: QueueMember = QueueMember.query.filter(
-            and_(
-                QueueMember.client_id == self.id,
-                QueueMember.canceled == False,  # noqa E712
-            )
-        ).first()
-
         return {
             "id": self.id,
             "api_key": self.api_key,
@@ -108,5 +101,4 @@ class Client(Base, ModelMixin):
             "consentMinorChild": self.consent_minor_child,
             "relationshipChild": self.relationship_child,
             "visits": visits,
-            "place_in_queue": client_in_queue.place_in_queue,
         }
