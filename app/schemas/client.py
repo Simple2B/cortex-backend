@@ -32,7 +32,6 @@ class ClientInfo(BaseModel):
     consentMinorChild: Optional[bool]
     relationshipChild: Optional[str]
     visits: Optional[list]
-    place_in_queue: Optional[int]
 
     class Config:
         orm_mode = True
