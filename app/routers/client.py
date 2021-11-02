@@ -2,8 +2,15 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
 from app.schemas.client import ClientInTake
 
-from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone, ClientQueue
+from app.services import ClientService, QueueService, ReportService
+from app.schemas import (
+    ClientInfo,
+    Client,
+    ClientPhone,
+    ClientQueue,
+    VisitReportReq,
+    VisitReportRes,
+)
 from app.models import (
     Client as ClientDB,
     Doctor,
@@ -105,3 +112,14 @@ async def client_intake(
 async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Returns client intake"""
     return ClientService.get_intake(api_key, doctor)
+
+
+# filtering for reports page
+@router_client.post("/report", response_model=list[VisitReportRes], tags=["Client"])
+def formed_report(
+    client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Filter for page reports by date"""
+    service = ReportService()
+    reports = service.filter_data_for_report(client_data, doctor)
+    return reports
