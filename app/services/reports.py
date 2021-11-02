@@ -8,7 +8,7 @@ from app.schemas import (
 )
 from app.models import Visit
 
-from app.logger import log
+# from app.logger import log
 
 
 class ReportService:

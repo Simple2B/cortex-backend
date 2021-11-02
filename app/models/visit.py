@@ -30,7 +30,6 @@ class Visit(Base, ModelMixin):
 
     @property
     def visit_info(self):
-        from .client import Client
 
         return {
             "id": self.id,

@@ -1,6 +1,5 @@
 import pytest
 import datetime
-import time
 from typing import Generator
 from fastapi.testclient import TestClient
 

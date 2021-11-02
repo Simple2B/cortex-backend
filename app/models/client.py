@@ -1,5 +1,4 @@
 from uuid import uuid4
-from sqlalchemy.sql.elements import and_
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.sql.sqltypes import Boolean
 from app.database import Base
@@ -44,7 +43,6 @@ class Client(Base, ModelMixin):
         from .condition import ClientCondition
         from .disease import ClientDisease
         from .visit import Visit
-        from .queue_member import QueueMember
 
         conditions = [
             link.condition.name
