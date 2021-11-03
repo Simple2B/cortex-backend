@@ -135,7 +135,6 @@ async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     file_report_path = "./visits_report.csv"
     file = FileResponse(file_report_path)
-    file
     return file
 
 

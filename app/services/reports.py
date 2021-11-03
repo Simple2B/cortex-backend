@@ -142,4 +142,71 @@ class ReportService:
                 len(report_of_new_clients),
             )
 
+            with open("./new_clients_report.csv", "w", newline="") as report_file:
+                report = csv.writer(report_file)
+
+                data = [
+                    [
+                        "client",
+                        "birthday",
+                        "email",
+                        "phone",
+                        "state",
+                        "city",
+                        "address",
+                        "covid_tested_positive",
+                        "covid_vaccine",
+                        "conditions",
+                        "diseases",
+                        "medications",
+                        "count of visits",
+                    ]
+                ]
+
+                for visit_report in report_of_new_clients:
+                    full_name = visit_report.first_name + " " + visit_report.last_name
+                    birthday = visit_report.birthday.strftime("%b %d %Y")
+                    email = visit_report.client_info["email"]
+                    phone = visit_report.phone
+                    state = visit_report.state
+                    city = visit_report.city
+                    address = visit_report.address
+                    covid_tested_positive = visit_report.covid_tested_positive
+                    covid_vaccine = visit_report.covid_vaccine
+                    conditions = visit_report.client_info["conditions"]
+                    diseases = visit_report.client_info["diseases"]
+                    medications = visit_report.client_info["medications"]
+                    visits = len(visit_report.client_info["visits"])
+
+                    data.append(
+                        [
+                            full_name,
+                            birthday,
+                            email,
+                            phone,
+                            state,
+                            city,
+                            address,
+                            covid_tested_positive,
+                            covid_vaccine,
+                            conditions,
+                            diseases,
+                            medications,
+                            visits,
+                        ],
+                    )
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: create report data [%s]",
+                    data,
+                )
+                data
+                report.writerows(data)
+
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: write data (count of new clients in data [%d]) to csv file",
+                    len(data),
+                )
+
             return report_of_new_clients
