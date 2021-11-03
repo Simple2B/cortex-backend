@@ -1,4 +1,3 @@
-import datetime
 from typing import List
 import csv
 
@@ -31,7 +30,7 @@ class ReportService:
             end_time,
         )
 
-        if client_data.type == "visit":
+        if client_data.type == "visits":
             log(
                 log.INFO,
                 "filter_data_for_report_of_visit: client_data type [%s]",
