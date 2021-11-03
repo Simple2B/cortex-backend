@@ -115,7 +115,7 @@ async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_d
 
 
 # filtering for reports page
-@router_client.post("/report", response_model=list[VisitReportRes], tags=["Client"])
+@router_client.post("/report", response_model=List[VisitReportRes], tags=["Client"])
 def formed_report(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):

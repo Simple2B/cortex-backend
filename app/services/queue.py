@@ -152,6 +152,12 @@ class QueueService:
         if not reception:
             reception = Reception(doctor_id=doctor.id).save(True)
 
+        log(
+            log.INFO,
+            "get_queue: reception [%s] today",
+            reception,
+        )
+
         queue_members = QueueMember.query.filter(
             and_(
                 QueueMember.reception_id == reception.id,
@@ -166,6 +172,12 @@ class QueueService:
             }
             for member in queue_members
         ]
+
+        log(
+            log.INFO,
+            "get_queue: members count [%d] from queue",
+            len(members),
+        )
 
         members_without_complete_visit = []
         for member in members:
@@ -196,5 +208,11 @@ class QueueService:
                 and member["canceled"] == False  # noqa E712
             ):
                 members_without_complete_visit.append(client_member)
+
+        log(
+            log.INFO,
+            "get_queue: members count [%d] without complete visit",
+            len(members_without_complete_visit),
+        )
 
         return [member for member in members_without_complete_visit]
