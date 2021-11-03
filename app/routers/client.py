@@ -150,3 +150,11 @@ def formed_report_new_clients(
         client_data, doctor
     )
     return report_of_new_clients
+
+
+@router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
+async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
+    """Get for page reports visits by date"""
+    file_report_path = "./new_clients_report.csv"
+    file = FileResponse(file_report_path)
+    return file

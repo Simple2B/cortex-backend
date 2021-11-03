@@ -507,3 +507,8 @@ def test_filter_data_for_report(client: TestClient):
     response = client.post("/api/client/report_new_clients", json=data)
     assert response
     assert response.ok
+
+    # 6. get report with new client
+    response = client.get("/api/client/report_new_clients")
+    assert response
+    assert response.ok
