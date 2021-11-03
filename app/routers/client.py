@@ -10,6 +10,7 @@ from app.schemas import (
     ClientQueue,
     VisitReportReq,
     VisitReportRes,
+    VisitReportResClients,
 )
 from app.models import (
     Client as ClientDB,
@@ -115,11 +116,27 @@ async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_d
 
 
 # filtering for reports page
-@router_client.post("/report", response_model=List[VisitReportRes], tags=["Client"])
-def formed_report(
+@router_client.post(
+    "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
+)
+def formed_report_visit(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):
-    """Filter for page reports by date"""
+    """Filter for page reports visits by date"""
     service = ReportService()
-    reports = service.filter_data_for_report(client_data, doctor)
-    return reports
+    report_of_visit = service.filter_data_for_report_of_visit(client_data, doctor)
+    return report_of_visit
+
+
+@router_client.post(
+    "/report_new_clients", response_model=List[VisitReportResClients], tags=["Client"]
+)
+def formed_report_new_clients(
+    client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Filter for page reports new clients by date"""
+    service = ReportService()
+    report_of_new_clients = service.filter_data_for_report_of_new_clients(
+        client_data, doctor
+    )
+    return report_of_new_clients

@@ -452,7 +452,7 @@ def test_complete_client_visit(client: TestClient):
     assert response.ok
 
 
-def test_filter_data_for_report(client: TestClient):
+def test_filter_data_for_report_of_visits(client: TestClient):
     # 1. create Reception
     doctor = Doctor.query.first()
     # 2. add 3 visits
@@ -487,7 +487,18 @@ def test_filter_data_for_report(client: TestClient):
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
     # 4. put date for filter some report (visit or new clients)
-    response = client.post("/api/client/report", json=data)
+    response = client.post("/api/client/report_visit", json=data)
     assert response
     assert response.ok
     # assert response.text
+
+    # 5. get new clients for report
+    data = {
+        "type": "new clients",
+        "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+        "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+    }
+
+    response = client.post("/api/client/report_new_clients", json=data)
+    assert response
+    assert response.ok

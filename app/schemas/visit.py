@@ -29,9 +29,14 @@ class VisitReportRes(BaseModel):
     date: datetime.date
     start_time: datetime.datetime
     end_time: datetime.datetime
-    # client: str
     client_info: ClientInfo
-    # doctor: str
+
+    class Config:
+        orm_mode = True
+
+
+class VisitReportResClients(BaseModel):
+    client_info: ClientInfo
 
     class Config:
         orm_mode = True
