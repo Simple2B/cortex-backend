@@ -13,10 +13,6 @@ from app.logger import log
 
 
 class ReportService:
-    @staticmethod
-    def format_date(time):
-        return datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
-
     def filter_data_for_report_of_visit(
         self, client_data: VisitReportReq, doctor: Doctor
     ) -> List[VisitReportRes]:
@@ -25,8 +21,8 @@ class ReportService:
             "filter_data_for_report_of_visit: client_data [%s]",
             client_data,
         )
-        start_time = self.format_date(client_data.start_time)
-        end_time = self.format_date(client_data.end_time)
+        start_time = client_data.start_time
+        end_time = client_data.end_time
 
         log(
             log.INFO,
@@ -106,8 +102,8 @@ class ReportService:
             "filter_data_for_report_of_new_clients: client_data [%s]",
             client_data,
         )
-        start_time = self.format_date(client_data.start_time)
-        end_time = self.format_date(client_data.end_time)
+        start_time = client_data.start_time
+        end_time = client_data.end_time
 
         log(
             log.INFO,
@@ -116,7 +112,7 @@ class ReportService:
             end_time,
         )
 
-        if client_data.type == "new clients":
+        if client_data.type == "new_clients":
             log(
                 log.INFO,
                 "filter_data_for_report_of_new_clients: client_data type [%s]",
