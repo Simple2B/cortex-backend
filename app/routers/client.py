@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from starlette.responses import FileResponse
 from typing import List
 from app.schemas.client import ClientInTake
+
 
 from app.services import ClientService, QueueService, ReportService
 from app.schemas import (
@@ -119,13 +121,22 @@ async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_d
 @router_client.post(
     "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
 )
-def formed_report_visit(
+async def formed_report_visit(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Filter for page reports visits by date"""
     service = ReportService()
     report_of_visit = service.filter_data_for_report_of_visit(client_data, doctor)
     return report_of_visit
+
+
+@router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
+async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
+    """Get for page reports visits by date"""
+    file_report_path = "./visits_report.csv"
+    file = FileResponse(file_report_path)
+    file
+    return file
 
 
 @router_client.post(

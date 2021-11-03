@@ -36,7 +36,6 @@ class Visit(Base, ModelMixin):
             "date": self.date,
             "start_time": self.start_time,
             "end_time": self.end_time,
-            # "client": self.client,
             "client_info": self.client.client_info,
             # "doctor": self.doctor,
         }

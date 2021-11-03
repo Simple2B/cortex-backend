@@ -1,5 +1,6 @@
 import datetime
 from typing import List
+import csv
 
 from app.schemas import (
     Doctor,
@@ -59,6 +60,41 @@ class ReportService:
                 "filter_data_for_report_of_visit: report of count [%d] visits",
                 len(report_of_visits),
             )
+
+            with open("./visits_report.csv", "w", newline="") as report_file:
+                report = csv.writer(report_file)
+                data = [["visit", "client", "start of visit", "end of visit"]]
+                for visit_report in report_of_visits:
+                    visit_id = visit_report["id"]
+                    full_name = (
+                        visit_report["client_info"]["firstName"]
+                        + " "
+                        + visit_report["client_info"]["lastName"]
+                    )
+                    visit_start = visit_report["start_time"].strftime(
+                        "%H:%M:%S %b %d %Y"
+                    )
+                    visit_end = visit_report["end_time"].strftime("%H:%M:%S %b %d %Y")
+                    data.append(
+                        [
+                            visit_id,
+                            full_name,
+                            visit_start,
+                            visit_end,
+                        ],
+                    )
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_visit: create report data [%s]",
+                    data,
+                )
+                report.writerows(data)
+
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_visit: write data (count of visit in data [%d]) to csv file",
+                    len(data),
+                )
 
             return report_of_visits
 
