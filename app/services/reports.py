@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 import csv
 
@@ -45,8 +46,21 @@ class ReportService:
             visits_report = []
 
             for visit in all_visits:
-                if visit.start_time >= start_time and visit.end_time <= end_time:
-                    visits_report.append(visit)
+                if visit.end_time:
+                    visit_start_time = datetime.datetime.strptime(
+                        visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "%m/%d/%Y, %H:%M:%S",
+                    )
+                    visit_end_time = datetime.datetime.strptime(
+                        visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "%m/%d/%Y, %H:%M:%S",
+                    )
+                    if visit_start_time >= datetime.datetime.strptime(
+                        start_time, "%m/%d/%Y, %H:%M:%S"
+                    ) and visit_end_time <= datetime.datetime.strptime(
+                        end_time, "%m/%d/%Y, %H:%M:%S"
+                    ):
+                        visits_report.append(visit)
 
             report_of_visits = [visit.visit_info for visit in visits_report]
 

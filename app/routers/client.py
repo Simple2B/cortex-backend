@@ -134,8 +134,7 @@ async def formed_report_visit(
 async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     file_report_path = "./visits_report.csv"
-    file = FileResponse(file_report_path)
-    return file
+    return FileResponse(file_report_path)
 
 
 @router_client.post(
@@ -156,5 +155,4 @@ def formed_report_new_clients(
 async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     file_report_path = "./new_clients_report.csv"
-    file = FileResponse(file_report_path)
-    return file
+    return FileResponse(file_report_path)
