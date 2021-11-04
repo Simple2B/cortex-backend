@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
 from typing import List
@@ -17,6 +18,7 @@ from app.schemas import (
 from app.models import (
     Client as ClientDB,
     Doctor,
+    Reception,
 )
 from app.services.auth import get_current_doctor
 from app.logger import log
@@ -59,6 +61,12 @@ async def get_client_with_phone(
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
 def get_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
+    today = datetime.date.today()
+    reception = Reception.query.filter(Reception.date == today).first()
+    if not reception:
+        log(log.INFO, "get_clients: reception didn't created")
+        reception = Reception(date=today, doctor_id=doctor.id).save()
+        log(log.INFO, "get_clients: Today reception created [%s]", reception)
     return ClientDB.query.all()
 
 
