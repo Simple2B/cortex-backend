@@ -309,11 +309,6 @@ def test_get_client_intake_add_doctor(client: TestClient):
 
 
 def test_delete_client_from_queue(client: TestClient):
-    # # 1. add Client into DB (client_data)
-    # response = client.post("/api/client/registration", json=DATA)
-    # assert response
-    # assert response.ok
-
     req_client: Client = Client.query.first()
     client_data = {
         "id": req_client.id,
@@ -471,7 +466,6 @@ def test_complete_client_visit(client: TestClient):
 
     visit: Visit = Visit.query.all()
     assert visit
-    # assert len(visit) == 3
 
     visit1: Visit = Visit.query.first()
     assert visit1

@@ -117,11 +117,10 @@ async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_d
     return ClientService.get_intake(api_key, doctor)
 
 
-# filtering for reports page
 @router_client.post(
     "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
 )
-async def formed_report_visit(
+def formed_report_visit(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Filter for page reports visits by date"""

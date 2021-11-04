@@ -37,5 +37,6 @@ class Visit(Base, ModelMixin):
             "start_time": self.start_time,
             "end_time": self.end_time,
             "client_info": self.client.client_info,
+            # TODO: add doctor when doctor would be not one
             # "doctor": self.doctor,
         }
