@@ -278,9 +278,28 @@ class ClientService:
 
         if not visit:
             log(log.ERROR, "complete_client_visit: Visit doesn't created")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Visit doesn't created!"
+            # raise HTTPException(
+            #     status_code=status.HTTP_404_NOT_FOUND, detail="Visit doesn't created!"
+            # )
+            # return
+            visit = Visit(
+                end_time=datetime.datetime.utcnow(),
+                client_id=client.id,
+                doctor_id=doctor.id,
+            ).save()
+
+            QueueMemberDB(
+                canceled=True,
+                client_id=client.id,
+                visit_id=visit.id,
+                reception_id=reception.id,
+            ).save()
+            log(
+                log.ERROR,
+                "complete_client_visit: Visit created and complete [%d]",
+                visit.id,
             )
+            return
         visit.end_time = datetime.datetime.utcnow()
         visit.save()
 
@@ -334,6 +353,8 @@ class ClientService:
             reception = Reception(date=today, doctor_id=doctor.id).save()
             log(log.INFO, "get_intake: Today reception created [%s]", reception)
 
+        log(log.INFO, "get_intake: reception created [%s]", reception)
+
         visit: Visit = Visit.query.filter(
             and_(
                 Visit.date == today,
@@ -345,10 +366,7 @@ class ClientService:
         log(log.INFO, "GET: get_intake client with visit [%s]", visit)
 
         if not visit:
-            log(log.ERROR, "get_intake: No reception today")
-            raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="get_intake: No reception today",
-            )
+            log(log.INFO, "get_intake: No client visit, client from db")
+            return client.client_info
 
         return client.client_info

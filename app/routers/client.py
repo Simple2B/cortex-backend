@@ -105,8 +105,7 @@ async def delete_client_from_queue(
 def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients in queue"""
     service = QueueService()
-    queue_members = service.get_queue(doctor)
-    return queue_members
+    return service.get_queue(doctor)
 
 
 @router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
@@ -133,8 +132,7 @@ def formed_report_visit(
 ):
     """Filter for page reports visits by date"""
     service = ReportService()
-    report_of_visit = service.filter_data_for_report_of_visit(client_data, doctor)
-    return report_of_visit
+    return service.filter_data_for_report_of_visit(client_data, doctor)
 
 
 @router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
