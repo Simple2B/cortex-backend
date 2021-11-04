@@ -34,6 +34,16 @@ class ClientService:
 
     @staticmethod
     def register(client_data: ClientInfo) -> ClientDB:
+        covidTestedPositive = client_data.covidTestedPositive
+        covidVaccine = client_data.covidVaccine
+        if covidTestedPositive == None:
+            covidTestedPositive = "null"
+        else:
+            covidTestedPositive = client_data.covidTestedPositive.value
+        if covidVaccine == None:
+            covidVaccine = "null"
+        else:
+            covidVaccine = client_data.covidVaccine.value
         client = ClientDB(
             first_name=client_data.firstName,
             last_name=client_data.lastName,
@@ -48,8 +58,8 @@ class ClientService:
             email=client_data.email,
             referring=client_data.referring,
             medications=client_data.medications,
-            covid_tested_positive=client_data.covidTestedPositive.value,
-            covid_vaccine=client_data.covidVaccine.value,
+            covid_tested_positive=covidTestedPositive,
+            covid_vaccine=covidVaccine,
             stressful_level=client_data.stressfulLevel,
             consent_minor_child=client_data.consentMinorChild,
             relationship_child=client_data.relationshipChild,
@@ -112,8 +122,16 @@ class ClientService:
             client.email = client_data.email
             client.referring = client_data.referring
             client.medications = client_data.medications
-            client.covid_tested_positive = client_data.covidTestedPositive.value
-            client.covid_vaccine = client_data.covidVaccine.value
+            client.covid_tested_positive = (
+                "null"
+                if client_data.covidTestedPositive == None
+                else client_data.covidTestedPositive.value
+            )
+            client.covid_vaccine = (
+                "null"
+                if client_data.covidVaccine == None
+                else client_data.covidVaccine.value
+            )
             client.stressful_level = client_data.stressfulLevel
             client.consent_minor_child = client_data.consentMinorChild
             client.relationship_child = client_data.relationshipChild
