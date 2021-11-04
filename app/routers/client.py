@@ -150,10 +150,7 @@ def formed_report_new_clients(
 ):
     """Filter for page reports new clients by date"""
     service = ReportService()
-    report_of_new_clients = service.filter_data_for_report_of_new_clients(
-        client_data, doctor
-    )
-    return report_of_new_clients
+    return service.filter_data_for_report_of_new_clients(client_data, doctor)
 
 
 @router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
