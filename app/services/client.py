@@ -262,6 +262,11 @@ class ClientService:
 
         reception = Reception.query.filter(Reception.date == today).first()
 
+        if not reception:
+            log(log.INFO, "complete_client_visit: reception didn't created")
+            reception = Reception(date=today, doctor_id=doctor.id).save()
+            log(log.INFO, "Client Intake: Today reception created [%s]", reception)
+
         visit: Visit = Visit.query.filter(
             and_(
                 Visit.client_id == client.id,
@@ -314,13 +319,20 @@ class ClientService:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
-            log(log.ERROR, "No such client with api_key [%s]", api_key)
+            log(log.ERROR, "get_intake: No such client with api_key [%s]", api_key)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="No such client with api_key",
+                detail="get_intake: No such client with api_key",
             )
 
         today = datetime.date.today()
+
+        reception = Reception.query.filter(Reception.date == today).first()
+
+        if not reception:
+            log(log.INFO, "get_intake: reception didn't created")
+            reception = Reception(date=today, doctor_id=doctor.id).save()
+            log(log.INFO, "get_intake: Today reception created [%s]", reception)
 
         visit: Visit = Visit.query.filter(
             and_(
@@ -333,10 +345,10 @@ class ClientService:
         log(log.INFO, "GET: get_intake client with visit [%s]", visit)
 
         if not visit:
-            log(log.ERROR, "No reception today")
+            log(log.ERROR, "get_intake: No reception today")
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="No reception today",
+                detail="get_intake: No reception today",
             )
 
         return client.client_info
