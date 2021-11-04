@@ -16,3 +16,6 @@ __pycache__/
 Pipfile
 
 database-*.sqlite3
+
+visits_report.csv
+new_clients_report.csv

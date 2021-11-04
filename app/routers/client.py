@@ -1,9 +1,19 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from starlette.responses import FileResponse
 from typing import List
 from app.schemas.client import ClientInTake
 
-from app.services import ClientService, QueueService
-from app.schemas import ClientInfo, Client, ClientPhone, ClientQueue
+
+from app.services import ClientService, QueueService, ReportService
+from app.schemas import (
+    ClientInfo,
+    Client,
+    ClientPhone,
+    ClientQueue,
+    VisitReportReq,
+    VisitReportRes,
+    VisitReportResClients,
+)
 from app.models import (
     Client as ClientDB,
     Doctor,
@@ -105,3 +115,43 @@ async def client_intake(
 async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Returns client intake"""
     return ClientService.get_intake(api_key, doctor)
+
+
+@router_client.post(
+    "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
+)
+def formed_report_visit(
+    client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Filter for page reports visits by date"""
+    service = ReportService()
+    report_of_visit = service.filter_data_for_report_of_visit(client_data, doctor)
+    return report_of_visit
+
+
+@router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
+async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
+    """Get for page reports visits by date"""
+    file_report_path = "./visits_report.csv"
+    return FileResponse(file_report_path)
+
+
+@router_client.post(
+    "/report_new_clients", response_model=List[VisitReportResClients], tags=["Client"]
+)
+def formed_report_new_clients(
+    client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Filter for page reports new clients by date"""
+    service = ReportService()
+    report_of_new_clients = service.filter_data_for_report_of_new_clients(
+        client_data, doctor
+    )
+    return report_of_new_clients
+
+
+@router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
+async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
+    """Get for page reports visits by date"""
+    file_report_path = "./new_clients_report.csv"
+    return FileResponse(file_report_path)

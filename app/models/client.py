@@ -1,5 +1,4 @@
 from uuid import uuid4
-from sqlalchemy.sql.elements import and_
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.sql.sqltypes import Boolean
 from app.database import Base
@@ -44,7 +43,6 @@ class Client(Base, ModelMixin):
         from .condition import ClientCondition
         from .disease import ClientDisease
         from .visit import Visit
-        from .queue_member import QueueMember
 
         conditions = [
             link.condition.name
@@ -78,13 +76,6 @@ class Client(Base, ModelMixin):
         else:
             "null"
 
-        client_in_queue: QueueMember = QueueMember.query.filter(
-            and_(
-                QueueMember.client_id == self.id,
-                QueueMember.canceled == False,  # noqa E712
-            )
-        ).first()
-
         return {
             "id": self.id,
             "api_key": self.api_key,
@@ -108,5 +99,4 @@ class Client(Base, ModelMixin):
             "consentMinorChild": self.consent_minor_child,
             "relationshipChild": self.relationship_child,
             "visits": visits,
-            "place_in_queue": client_in_queue.place_in_queue,
         }

@@ -1,4 +1,5 @@
 import pytest
+import datetime
 from typing import Generator
 from fastapi.testclient import TestClient
 
@@ -136,9 +137,7 @@ def test_get_queue(client: TestClient):
     # 2. add 5 clients in the queue
     count = 1
     for clientDB in Client.query.limit(5).all():
-        QueueMember(
-            reception_id=reception.id, client_id=clientDB.id, place_in_queue=count
-        ).save()
+        QueueMember(reception_id=reception.id, client_id=clientDB.id).save()
         count = count + 1
     # 3. get Queue
     response = client.get("/api/client/queue")
@@ -156,7 +155,7 @@ def test_get_queue(client: TestClient):
     data = {
         "api_key": client_intake.api_key,
         "rougue_mode": False,
-        "place_in_queue": client_intake.client_info["place_in_queue"],
+        # "place_in_queue": client_intake.client_info["place_in_queue"],
     }
     response = client.post("/api/client/client_intake", json=data)
     assert response
@@ -184,7 +183,7 @@ def test_get_queue(client: TestClient):
     data = {
         "api_key": client_intake.api_key,
         "rougue_mode": True,
-        "place_in_queue": client_intake.client_info["place_in_queue"],
+        # "place_in_queue": client_intake.client_info["place_in_queue"],
     }
     response = client.post("/api/client/complete_client_visit", json=data)
     assert response
@@ -221,7 +220,7 @@ def test_get_queue(client: TestClient):
         "last_name": client_intake.last_name,
         "phone": client_intake.phone,
         "email": client_intake.email,
-        "place_in_queue": client_intake.client_info["place_in_queue"],
+        # "place_in_queue": client_intake.client_info["place_in_queue"],
     }
 
     # 9. doctor delete patient from queue
@@ -310,11 +309,6 @@ def test_get_client_intake_add_doctor(client: TestClient):
 
 
 def test_delete_client_from_queue(client: TestClient):
-    # # 1. add Client into DB (client_data)
-    # response = client.post("/api/client/registration", json=DATA)
-    # assert response
-    # assert response.ok
-
     req_client: Client = Client.query.first()
     client_data = {
         "id": req_client.id,
@@ -449,5 +443,64 @@ def test_complete_client_visit(client: TestClient):
     # 4. end_date for visit
     data = {"api_key": client_intake.api_key, "rougue_mode": True}
     response = client.post("/api/client/complete_client_visit", json=data)
+    assert response
+    assert response.ok
+
+    # 1. create Reception
+    doctor = Doctor.query.first()
+    # 2. add 3 visits
+    date = datetime.date.today()
+    time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+    count = 1
+    for clientDB in Client.query.limit(3).all():
+        Visit(
+            date=date + datetime.timedelta(days=count),
+            start_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=count),
+            end_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=count + 2),
+            client_id=clientDB.id,
+            doctor_id=doctor.id,
+        ).save()
+        count = count + 1
+
+    visit: Visit = Visit.query.all()
+    assert visit
+
+    visit1: Visit = Visit.query.first()
+    assert visit1
+    visit3: Visit = Visit.query.get(3)
+    assert visit3
+
+    # 3. get visits for report
+    data = {
+        "type": "visit",
+        "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+        "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+    }
+    # 4. put date for filter report visits
+    response = client.post("/api/client/report_visit", json=data)
+    assert response
+    assert response.ok
+    # assert response.text
+
+    # 4. get report with visits
+    response = client.get("/api/client/report_visit")
+    assert response
+    assert response.ok
+
+    # 5. get new clients for report
+    data = {
+        "type": "new clients",
+        "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+        "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+    }
+
+    response = client.post("/api/client/report_new_clients", json=data)
+    assert response
+    assert response.ok
+
+    # 6. get report with new client
+    response = client.get("/api/client/report_new_clients")
     assert response
     assert response.ok
