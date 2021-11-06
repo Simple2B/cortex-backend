@@ -36,11 +36,11 @@ class ClientService:
     def register(client_data: ClientInfo) -> ClientDB:
         covidTestedPositive = client_data.covidTestedPositive
         covidVaccine = client_data.covidVaccine
-        if covidTestedPositive == None:
+        if not covidTestedPositive:
             covidTestedPositive = "null"
         else:
             covidTestedPositive = client_data.covidTestedPositive.value
-        if covidVaccine == None:
+        if not covidVaccine:
             covidVaccine = "null"
         else:
             covidVaccine = client_data.covidVaccine.value
@@ -124,12 +124,12 @@ class ClientService:
             client.medications = client_data.medications
             client.covid_tested_positive = (
                 "null"
-                if client_data.covidTestedPositive == None
+                if not client_data.covidTestedPositive
                 else client_data.covidTestedPositive.value
             )
             client.covid_vaccine = (
                 "null"
-                if client_data.covidVaccine == None
+                if not client_data.covidVaccine
                 else client_data.covidVaccine.value
             )
             client.stressful_level = client_data.stressfulLevel

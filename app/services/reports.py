@@ -13,6 +13,27 @@ from app.logger import log
 
 
 class ReportService:
+    @staticmethod
+    def get_visits_for_report(all_visits: list, start_time: str, end_time: str) -> list:
+        visits_report = []
+        for visit in all_visits:
+            if visit.end_time:
+                visit_start_time = datetime.datetime.strptime(
+                    visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "%m/%d/%Y, %H:%M:%S",
+                )
+                visit_end_time = datetime.datetime.strptime(
+                    visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "%m/%d/%Y, %H:%M:%S",
+                )
+                if visit_start_time >= datetime.datetime.strptime(
+                    start_time, "%m/%d/%Y, %H:%M:%S"
+                ) and visit_end_time <= datetime.datetime.strptime(
+                    end_time, "%m/%d/%Y, %H:%M:%S"
+                ):
+                    visits_report.append(visit)
+        return visits_report
+
     def filter_data_for_report_of_visit(
         self, client_data: VisitReportReq, doctor: Doctor
     ) -> List[VisitReportRes]:
@@ -43,24 +64,7 @@ class ReportService:
                 "filter_data_for_report_of_visit: all visits count [%d]",
                 len(all_visits),
             )
-            visits_report = []
-
-            for visit in all_visits:
-                if visit.end_time:
-                    visit_start_time = datetime.datetime.strptime(
-                        visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "%m/%d/%Y, %H:%M:%S",
-                    )
-                    visit_end_time = datetime.datetime.strptime(
-                        visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "%m/%d/%Y, %H:%M:%S",
-                    )
-                    if visit_start_time >= datetime.datetime.strptime(
-                        start_time, "%m/%d/%Y, %H:%M:%S"
-                    ) and visit_end_time <= datetime.datetime.strptime(
-                        end_time, "%m/%d/%Y, %H:%M:%S"
-                    ):
-                        visits_report.append(visit)
+            visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
 
             report_of_visits = [visit.visit_info for visit in visits_report]
 
@@ -137,11 +141,7 @@ class ReportService:
                 "filter_data_for_report_of_new_clients: all visits count [%d]",
                 len(all_visits),
             )
-            visits_report = []
-
-            for visit in all_visits:
-                if visit.start_time >= start_time and visit.end_time <= end_time:
-                    visits_report.append(visit)
+            visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
 
             report_of_new_clients = [visit.client for visit in visits_report]
 
