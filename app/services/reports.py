@@ -4,6 +4,7 @@ import csv
 
 from app.schemas import (
     Doctor,
+    Visit as VisitRes,
     VisitReportReq,
     VisitReportRes,
 )
@@ -14,7 +15,9 @@ from app.logger import log
 
 class ReportService:
     @staticmethod
-    def get_visits_for_report(all_visits: list, start_time: str, end_time: str) -> list:
+    def get_visits_for_report(
+        all_visits: List[VisitRes], start_time: str, end_time: str
+    ) -> List[VisitRes]:
         visits_report = []
         for visit in all_visits:
             if visit.end_time:
