@@ -192,7 +192,7 @@ class QueueService:
                 # TODO: rougue_mode
                 # "rougue_mode": member_info,
             }
-            visits = member["client"].client_info["visits"]
+            visits = member_info["visits"]
             if not visits:
                 members_without_complete_visit.append(client_member)
             count_visits = len(visits)
@@ -200,7 +200,7 @@ class QueueService:
             for visit in visits:
                 if visit.date == today and not visit.end_time:  # noqa E712
                     members_without_complete_visit.append(client_member)
-                if visit.date == today and visit.end_time:
+                if visit.end_time:
                     visit_with_end_time.append(visit)
             if (
                 count_visits > 0
