@@ -198,7 +198,7 @@ class QueueService:
             count_visits = len(visits)
             visit_with_end_time = []
             for visit in visits:
-                if visit.date == today and not visit.end_time:  # noqa E712
+                if not visit.end_time:  # noqa E712
                     members_without_complete_visit.append(client_member)
                 if visit.end_time:
                     visit_with_end_time.append(visit)
