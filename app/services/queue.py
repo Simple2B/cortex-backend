@@ -212,10 +212,10 @@ class QueueService:
             elif len(visit_without_end_time) > 0:
                 members_without_complete_visit.append(client_member)
 
-        log(
-            log.INFO,
-            "get_queue: members count [%d] without complete visit",
-            len(members_without_complete_visit),
-        )
+        # log(
+        #     log.INFO,
+        #     "get_queue: members count [%d] without complete visit",
+        #     len(members_without_complete_visit),
+        # )
 
         return [member for member in members_without_complete_visit]
