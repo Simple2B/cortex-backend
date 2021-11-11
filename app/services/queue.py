@@ -197,9 +197,10 @@ class QueueService:
                 members_without_complete_visit.append(client_member)
             count_visits = len(visits)
             visit_with_end_time = []
+            visit_without_end_time = []
             for visit in visits:
                 if not visit.end_time:  # noqa E712
-                    members_without_complete_visit.append(client_member)
+                    visit_without_end_time.append(visit)
                 if visit.end_time:
                     visit_with_end_time.append(visit)
             if (
@@ -207,6 +208,8 @@ class QueueService:
                 and count_visits == len(visit_with_end_time)
                 and member["canceled"] == False  # noqa E712
             ):
+                members_without_complete_visit.append(client_member)
+            elif len(visit_without_end_time) > 0:
                 members_without_complete_visit.append(client_member)
 
         log(
