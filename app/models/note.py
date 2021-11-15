@@ -14,9 +14,11 @@ class Note(Base, ModelMixin):
 
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    visit_id = Column(Integer, ForeignKey("visits.id"))
 
     client = relationship("Client", viewonly=True)
     doctor = relationship("Doctor", viewonly=True)
+    visit = relationship("Visit", viewonly=True)
 
     def __repr__(self):
         return f"<Note:{self.id}: c:{self.client_id}-d:{self.doctor_id}>"

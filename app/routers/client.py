@@ -5,7 +5,7 @@ from typing import List
 from app.schemas.client import ClientInTake
 
 
-from app.services import ClientService, QueueService, ReportService
+from app.services import ClientService, QueueService, ReportService, NoteService
 from app.schemas import (
     ClientInfo,
     Client,
@@ -161,7 +161,9 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     return FileResponse(file_report_path)
 
 
-@router_client.get("/visit", response_class=NoteSchemas, tags=["Client"])
-async def get_visit(doctor: Doctor = Depends(get_current_doctor)):
-    """Get for page reports visits by date"""
-    return
+# note
+@router_client.get("/visit/{api_key}", response_class=NoteSchemas, tags=["Client"])
+async def get_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get for note visit"""
+    service = NoteService()
+    return service.get_visit_for_note(api_key, doctor)

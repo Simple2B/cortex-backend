@@ -7,6 +7,7 @@ class Note(BaseModel):
     notes: str
     client_id: int
     doctor_id: int
+    visit_id: int
 
     class Config:
         orm_mode = True

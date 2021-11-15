@@ -11,7 +11,7 @@ class Visit(Base, ModelMixin):
     __tablename__ = "visits"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, default=datetime.date.today())
+    date = Column(Date, default=datetime.date.today)
     start_time = Column(
         DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
     )
