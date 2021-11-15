@@ -240,7 +240,7 @@ def test_get_queue(client: TestClient):
 def test_get_client_intake_from_kiosk(client: TestClient):
     clientDB: Client = Client.query.first()
     # 1. add patient in queue
-    phone = {"phone": clientDB.phone}
+    phone: object = {"phone": clientDB.phone}
     response = client.post("/api/client/kiosk", json=phone)
     assert response.ok
     # 2. get client for intake

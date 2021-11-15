@@ -408,6 +408,13 @@ class ClientService:
 
         if not visit:
             log(log.INFO, "get_intake: No client visit, client from db")
+            visit = Visit(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
+            log(log.INFO, "get_intake: Created visit [%d]", visit.id)
             return client.client_info
 
         return client.client_info
