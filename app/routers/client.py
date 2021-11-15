@@ -162,6 +162,6 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
 
 
 @router_client.get("/visit", response_class=NoteSchemas, tags=["Client"])
-async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
+async def get_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     return

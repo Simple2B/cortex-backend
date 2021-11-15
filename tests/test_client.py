@@ -509,6 +509,6 @@ def test_complete_client_visit(client: TestClient):
 def test_get_notes(client: TestClient):
     #  get notes for client
 
-    response = client.get(f"/api/client/visit")
+    response = client.get("/api/client/visit")
     assert response
     assert response.ok
