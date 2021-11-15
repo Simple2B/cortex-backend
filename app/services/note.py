@@ -1,17 +1,11 @@
 import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
-from app.schemas import Client, ClientInfo, ClientInTake, Doctor, Note as NoteSchemas
+from app.schemas import Doctor, Note as NoteSchemas
 from app.models import (
     Client as ClientDB,
-    Condition,
-    ClientCondition,
-    Disease,
-    ClientDisease,
-    QueueMember as QueueMemberDB,
     Visit,
     Reception,
-    Note,
 )
 from app.logger import log
 
