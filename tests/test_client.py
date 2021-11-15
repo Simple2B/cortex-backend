@@ -504,3 +504,11 @@ def test_complete_client_visit(client: TestClient):
     response = client.get("/api/client/report_new_clients")
     assert response
     assert response.ok
+
+
+def test_get_notes(client: TestClient):
+    #  get notes for client
+
+    response = client.get(f"/api/client/visit")
+    assert response
+    assert response.ok

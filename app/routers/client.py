@@ -14,6 +14,7 @@ from app.schemas import (
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
+    Note as NoteSchemas,
 )
 from app.models import (
     Client as ClientDB,
@@ -158,3 +159,9 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     file_report_path = "./new_clients_report.csv"
     return FileResponse(file_report_path)
+
+
+@router_client.get("/visit", response_class=NoteSchemas, tags=["Client"])
+async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
+    """Get for page reports visits by date"""
+    return
