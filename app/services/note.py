@@ -1,5 +1,4 @@
 import datetime
-from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
 from app.schemas import Doctor, Note as NoteSchemas
