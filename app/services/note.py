@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
 from app.schemas import Doctor, Note as NoteSchemas
@@ -6,13 +7,16 @@ from app.models import (
     Client as ClientDB,
     Visit,
     Reception,
+    Note,
 )
 from app.logger import log
 
 
 class NoteService:
-    def get_visit_for_note(self, api_key: str, doctor: Doctor) -> NoteSchemas:
-        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+    def write_note(self, data_note: NoteSchemas, doctor: Doctor) -> None:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.id == data_note.client_id
+        ).first()
         if not client:
             log(log.ERROR, "get_visit_for_note: Client [%s] not found", client)
             raise HTTPException(
@@ -30,12 +34,14 @@ class NoteService:
 
         log(log.INFO, "get_visit_for_note: Today reception [%s]", reception)
 
-        visits = Visit.query.filter(
+        visit = Visit.query.filter(
             and_(
                 Visit.date == today,
                 Visit.client_id == client.id,
                 Visit.end_time == None,  # noqa E711
             )
-        ).all()
+        ).first()
 
-        visits
+        note: Note = Note.query.filter(Note.visit_id == visit.id).first()
+        note.notes = data_note.notes
+        note.save()

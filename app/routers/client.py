@@ -162,8 +162,11 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
 
 
 # note
-@router_client.get("/visit/{api_key}", response_class=NoteSchemas, tags=["Client"])
-async def get_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+@router_client.post("/note", response_model=str, tags=["Client"])
+async def write_note(
+    data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
+):
     """Get for note visit"""
     service = NoteService()
-    return service.get_visit_for_note(api_key, doctor)
+    service.write_note(data_note, doctor)
+    return "ok"
