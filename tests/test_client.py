@@ -557,6 +557,8 @@ def test_write_note(client: TestClient):
     }
 
     # get visit for note
-    res = client.post("/api/client/note", json=data_note)
-    assert res
-    assert res.ok
+    response = client.post("/api/client/note", json=data_note)
+    assert response
+    assert response.ok
+    data_note = response.json()
+    assert data_note
