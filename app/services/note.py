@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
 from app.schemas import Doctor, Note as NoteSchemas
@@ -12,28 +13,28 @@ from app.logger import log
 
 
 class NoteService:
-    def write_note(self, data_note: NoteSchemas, doctor: Doctor) -> None:
+    def write_note(self, data_note: NoteSchemas, doctor: Doctor) -> List[NoteSchemas]:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.id == data_note.client_id
         ).first()
         if not client:
-            log(log.ERROR, "get_visit_for_note: Client [%s] not found", client)
+            log(log.ERROR, "write_note: Client [%s] not found", client)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
 
-        log(log.INFO, "get_visit_for_note: Client [%s]", client)
+        log(log.INFO, "write_note: Client [%s]", client)
 
         today = datetime.date.today()
 
         reception = Reception.query.filter(Reception.date == today).first()
         if not reception:
             reception = Reception(date=today, doctor_id=doctor.id).save()
-            log(log.INFO, "get_visit_for_note: Today reception created [%s]", reception)
+            log(log.INFO, "write_note: Today reception created [%s]", reception)
 
-        log(log.INFO, "get_visit_for_note: Today reception [%s]", reception)
+        log(log.INFO, "write_note: Today reception [%s]", reception)
 
-        visit = Visit.query.filter(
+        visit: Visit = Visit.query.filter(
             and_(
                 Visit.date == today,
                 Visit.client_id == client.id,
@@ -41,6 +42,56 @@ class NoteService:
             )
         ).first()
 
-        note: Note = Note.query.filter(Note.visit_id == visit.id).first()
-        note.notes = data_note.notes
-        note.save()
+        if not visit:
+            log(log.INFO, "write_note: client doesn't have visit")
+
+            visit = Visit(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
+
+            log(
+                log.INFO,
+                "write_note: visit [%d] created for client [%d]",
+                visit.id,
+                client.id,
+            )
+
+            note = Note(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+                visit_id=visit.id,
+                notes=data_note.notes,
+            ).save()
+
+            log(
+                log.INFO,
+                "write_note: note [%d] created for visit [%d]",
+                note.id,
+                visit.id,
+            )
+
+        log(log.INFO, "write_note: visit [%d] for note", visit.id)
+
+        note = Note(
+            date=today,
+            client_id=client.id,
+            doctor_id=doctor.id,
+            visit_id=visit.id,
+            notes=data_note.notes,
+        ).save()
+
+        log(
+            log.INFO,
+            "write_note: note [%d] for today visit [%d] created ",
+            note.id,
+            visit.id,
+        )
+
+        return visit.visit_info
+
+    def get_note():
+        pass

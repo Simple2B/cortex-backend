@@ -11,7 +11,6 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Visit,
     Reception,
-    Note,
 )
 from app.logger import log
 
@@ -225,22 +224,8 @@ class ClientService:
                 visit.id,
             )
 
-            note = Note(
-                date=today,
-                client_id=client.id,
-                doctor_id=doctor.id,
-                visit_id=visit.id,
-            ).save()
-
             client_in_queue.visit_id = visit.id
             client_in_queue.save()
-
-            log(
-                log.INFO,
-                "Client Intake: note [%d] for today visit [%d] created ",
-                note.id,
-                visit.id,
-            )
 
         log(
             log.INFO,
@@ -255,22 +240,9 @@ class ClientService:
                 visit.doctor_id = doctor.id
                 visit.save()
 
-                note: Note = Note.query.filter(Note.visit_id == visit.id).first()
-                note.date = today
-                note.client_id = client.id
-                note.doctor_id = doctor.id
-                note.visit_id = visit.id
-                note.save()
-
-                log(
-                    log.INFO,
-                    "Client Intake: Visit [%d] and note [%d] without end_time date updated ",
-                    visit.id,
-                    note.id,
-                )
-
                 client_in_queue.visit_id = visit.id
                 client_in_queue.save()
+
                 log(
                     log.INFO,
                     "Client in queue [%s] go to visit again [%s]",
