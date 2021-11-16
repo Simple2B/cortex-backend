@@ -171,10 +171,8 @@ async def write_note(
     return service.write_note(data_note, doctor)
 
 
-# @router_client.get("/note", response_model=NoteSchemas, tags=["Client"])
-# async def get_note(
-#     data_client: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
-# ):
-#     """Get for note visit"""
-#     service = NoteService()
-#     service.get_note(data_client, doctor)
+@router_client.get("/note/{api_key}", response_model=List[NoteSchemas], tags=["Client"])
+async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get for note visit"""
+    service = NoteService()
+    return service.get_note(api_key, doctor)

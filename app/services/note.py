@@ -93,5 +93,38 @@ class NoteService:
 
         return visit.visit_info
 
-    def get_note():
-        pass
+    def get_note(self, api_key: str, doctor: Doctor) -> List[NoteSchemas]:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+        if not client:
+            log(log.ERROR, "get_note: Client [%s] not found", client)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(log.INFO, "get_note: Client [%s]", client)
+
+        today = datetime.date.today()
+
+        reception = Reception.query.filter(Reception.date == today).first()
+        if not reception:
+            reception = Reception(date=today, doctor_id=doctor.id).save()
+            log(log.INFO, "get_note: Today reception created [%s]", reception)
+
+        log(log.INFO, "get_note: Today reception [%s]", reception)
+
+        visit: Visit = Visit.query.filter(
+            and_(
+                Visit.date == today,
+                Visit.client_id == client.id,
+                Visit.end_time == None,  # noqa E711
+            )
+        ).first()
+
+        if not visit:
+            log(log.INFO, "get_note: client doesn't have visit")
+
+        log(log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id)
+
+        notes = visit.visit_info["notes"]
+
+        return notes
