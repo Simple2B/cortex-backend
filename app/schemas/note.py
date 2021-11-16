@@ -13,3 +13,13 @@ class Note(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class NoteDelete(BaseModel):
+    id: int
+    client_id: int
+    doctor_id: int
+    visit_id: int
+
+    class Config:
+        orm_mode = True

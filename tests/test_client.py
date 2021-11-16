@@ -572,7 +572,6 @@ def test_note(client: TestClient):
 
     data_note_deleted = {
         "id": data_notes[0]["id"],
-        "notes": "New Notes",
         "client_id": visit.client_id,
         "doctor_id": visit.doctor_id,
         "visit_id": visit.id,

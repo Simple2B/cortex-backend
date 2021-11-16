@@ -164,14 +164,11 @@ class NoteService:
 
         log(log.INFO, "delete_note: visit [%s] for client [%d] today", visit, client.id)
 
-        notes = visit.visit_info["notes"]
+        note: Note = Note.query.filter(
+            and_(Note.id == data_note.id, Note.visit_id == visit.id)
+        ).first()
+        note.delete()
 
-        for note in notes:
-            note: Note = Note.query.filter(
-                and_(Note.id == note.id, Note.id == data_note.id)
-            ).first()
-            note.delete()
-
-            log(log.INFO, "delete_note: note [%d] deleted", note.id)
+        log(log.INFO, "delete_note: note [%d] deleted", note.id)
 
         return

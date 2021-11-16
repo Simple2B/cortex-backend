@@ -10,4 +10,4 @@ from .visit import (
     VisitReportRes,
     VisitReportResClients,
 )
-from .note import Note
+from .note import Note, NoteDelete
