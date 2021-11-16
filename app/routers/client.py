@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
 from typing import List
 from app.schemas.client import ClientInTake
+from app.schemas.visit import VisitWithNote
 
 
 from app.services import ClientService, QueueService, ReportService, NoteService
@@ -161,12 +162,19 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     return FileResponse(file_report_path)
 
 
-# note
-@router_client.post("/note", response_model=str, tags=["Client"])
+@router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
 async def write_note(
     data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Get for note visit"""
     service = NoteService()
-    service.write_note(data_note, doctor)
-    return "ok"
+    return service.write_note(data_note, doctor)
+
+
+# @router_client.get("/note", response_model=NoteSchemas, tags=["Client"])
+# async def get_note(
+#     data_client: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Get for note visit"""
+#     service = NoteService()
+#     service.get_note(data_client, doctor)
