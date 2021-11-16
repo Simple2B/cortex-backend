@@ -176,3 +176,13 @@ async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get for note visit"""
     service = NoteService()
     return service.get_note(api_key, doctor)
+
+
+@router_client.post("/note_delete", response_model=str, tags=["Client"])
+async def delete_note(
+    data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get for note visit"""
+    service = NoteService()
+    service.delete_note(data_note, doctor)
+    return "ok"

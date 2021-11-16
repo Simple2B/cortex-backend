@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class Note(BaseModel):
+    id: Optional[int]
     date: Optional[datetime.date]
     notes: str
     client_id: int
