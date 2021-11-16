@@ -562,3 +562,9 @@ def test_write_note(client: TestClient):
     assert response.ok
     data_note = response.json()
     assert data_note
+
+    response = client.get(f"/api/client/note/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    data_notes = response.json()
+    assert data_notes
