@@ -122,12 +122,28 @@ class NoteService:
 
         if not visit:
             log(log.INFO, "get_note: client doesn't have visit")
+            visit: Visit = Visit(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
+            log(
+                log.INFO,
+                "get_note: visit [%s] for client [%d] today created",
+                visit,
+                client.id,
+            )
 
         log(log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id)
 
-        notes = visit.visit_info["notes"]
+        # all_notes = visit.visit_info["notes"]
 
-        return notes
+        notes_client = Note.query.filter(
+            and_(Note.client_id == client.id, Note.date == today)
+        ).all()
+
+        return notes_client
 
     def delete_note(self, data_note: NoteSchemas, doctor: Doctor) -> None:
 

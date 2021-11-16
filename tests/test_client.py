@@ -581,3 +581,13 @@ def test_note(client: TestClient):
     response = client.post("/api/client/note_delete", json=data_note_deleted)
     assert response
     assert response.ok
+
+    client_without_notes_for_today: Client = Client.query.get(5)
+    assert client
+
+    # error! => get no notes for client which doesn't have visit
+    response = client.get(f"/api/client/note/{client_without_notes_for_today.api_key}")
+    assert response
+    assert response.ok
+    data_notes = response.json()
+    assert len(data_notes) == 0
