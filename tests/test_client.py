@@ -505,7 +505,7 @@ def test_complete_client_visit(client: TestClient):
     assert response.ok
 
 
-def test_write_note(client: TestClient):
+def test_note(client: TestClient):
     #  get notes for client
 
     client_intake: Client = Client.query.first()
@@ -556,15 +556,29 @@ def test_write_note(client: TestClient):
         "visit_id": visit.id,
     }
 
-    # get visit for note
+    # create note for today visit
     response = client.post("/api/client/note", json=data_note)
     assert response
     assert response.ok
     data_note = response.json()
     assert data_note
 
+    # get all notes for today visit
     response = client.get(f"/api/client/note/{client_intake.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()
     assert data_notes
+
+    data_note_deleted = {
+        "id": data_notes[0]["id"],
+        "notes": "New Notes",
+        "client_id": visit.client_id,
+        "doctor_id": visit.doctor_id,
+        "visit_id": visit.id,
+    }
+
+    # delete note
+    response = client.post("/api/client/note_delete", json=data_note_deleted)
+    assert response
+    assert response.ok
