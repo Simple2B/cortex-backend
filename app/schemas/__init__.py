@@ -6,6 +6,7 @@ from .queue_member import QueueMember, Queue
 from .visit import (
     Visit,
     VisitWithNote,
+    VisitHistory,
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,

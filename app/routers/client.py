@@ -2,21 +2,27 @@ import datetime
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
 from typing import List
-from app.schemas.client import ClientInTake
 
-
-from app.services import ClientService, QueueService, ReportService, NoteService
+from app.services import (
+    ClientService,
+    QueueService,
+    ReportService,
+    NoteService,
+    VisitService,
+)
 from app.schemas import (
     ClientInfo,
     Client,
     ClientPhone,
     ClientQueue,
+    ClientInTake,
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
     Note as NoteSchemas,
     VisitWithNote,
     NoteDelete,
+    VisitHistory,
 )
 from app.models import (
     Client as ClientDB,
@@ -187,3 +193,12 @@ async def delete_note(
     service = NoteService()
     service.delete_note(data_note, doctor)
     return "ok"
+
+
+@router_client.get(
+    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
+)
+async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get for note visit"""
+    service = VisitService()
+    return service.get_history_visit(api_key, doctor)

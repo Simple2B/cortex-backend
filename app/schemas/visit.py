@@ -29,6 +29,20 @@ class VisitWithNote(BaseModel):
         orm_mode = True
 
 
+class VisitHistory(BaseModel):
+    id: int
+    date: datetime.date
+    start_time: datetime.datetime
+    end_time: Optional[datetime.datetime]
+    client_id: int
+    doctor_id: int
+    rougue_mode: bool
+    visit_info: VisitWithNote
+
+    class Config:
+        orm_mode = True
+
+
 class VisitReportReq(BaseModel):
     type: str
     start_time: str
