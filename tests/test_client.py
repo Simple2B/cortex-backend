@@ -591,3 +591,49 @@ def test_note(client: TestClient):
     assert response.ok
     data_notes = response.json()
     assert len(data_notes) == 0
+
+
+def test_get_history_visit(client: TestClient):
+
+    client_intake: Client = Client.query.first()
+
+    data_client = {
+        "api_key": client_intake.api_key,
+        "id": client_intake.id,
+        "first_name": client_intake.first_name,
+        "last_name": client_intake.last_name,
+        "phone": client_intake.phone,
+        "email": client_intake.email,
+    }
+
+    # 1. doctor add patient in queue
+    response = client.post("/api/client/add_clients_queue", json=data_client)
+    assert response
+    assert response.ok
+
+    doctor = Doctor.query.first()
+    # 2. add 3 visits
+    date = datetime.date.today()
+    time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+    count = 1
+    for i in range(3):
+        Visit(
+            date=date + datetime.timedelta(days=count),
+            start_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=count),
+            end_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=i + 2),
+            client_id=client_intake.id,
+            doctor_id=doctor.id,
+        ).save()
+        count = count + 1
+
+    visits: Client = client_intake.client_info["visits"]
+    assert visits
+
+    # get history visit for client
+    api_key = client_intake.api_key
+
+    response = client.get(f"/api/client/visit_history/{api_key}")
+    assert response
+    assert response.ok
