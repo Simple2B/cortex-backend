@@ -173,14 +173,14 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
 async def write_note(
     data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
 ):
-    """Get for note visit"""
+    """Write note in visit for client"""
     service = NoteService()
     return service.write_note(data_note, doctor)
 
 
 @router_client.get("/note/{api_key}", response_model=List[NoteSchemas], tags=["Client"])
 async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Get for note visit"""
+    """Get notes for client"""
     service = NoteService()
     return service.get_note(api_key, doctor)
 
@@ -189,7 +189,7 @@ async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
 async def delete_note(
     data_note: NoteDelete, doctor: Doctor = Depends(get_current_doctor)
 ):
-    """Get for note visit"""
+    """Delete note"""
     service = NoteService()
     service.delete_note(data_note, doctor)
     return "ok"
@@ -199,6 +199,6 @@ async def delete_note(
     "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
 )
 async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Get for note visit"""
+    """Get all visits for client"""
     service = VisitService()
     return service.get_history_visit(api_key, doctor)
