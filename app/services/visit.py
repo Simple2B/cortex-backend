@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import HTTPException, status
-from app.schemas import Doctor, VisitHistory
+from app.schemas import Doctor, VisitInfoHistory, VisitHistory
 from app.models import Client as ClientDB
 from app.logger import log
 
@@ -15,7 +15,12 @@ class VisitService:
             )
 
         log(log.INFO, "get_history_visit: Client [%s]", client)
-        visits = client.client_info["visits"]
+        visits: VisitInfoHistory = client.client_info["visits"]
 
         log(log.INFO, "get_history_visit: Count [%d] of visits ", len(visits))
-        return visits
+        visits_history = [
+            {"doctor_name": doctor.first_name, "date": visit.date.strftime("%m/%d/%Y")}
+            for visit in visits
+        ]
+
+        return visits_history

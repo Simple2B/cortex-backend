@@ -7,6 +7,7 @@ from .visit import (
     Visit,
     VisitWithNote,
     VisitHistory,
+    VisitInfoHistory,
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
