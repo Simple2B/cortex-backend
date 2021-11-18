@@ -637,3 +637,5 @@ def test_get_history_visit(client: TestClient):
     response = client.get(f"/api/client/visit_history/{api_key}")
     assert response
     assert response.ok
+    data_visits = response.json()
+    assert len(data_visits) == 3
