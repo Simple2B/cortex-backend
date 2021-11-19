@@ -639,3 +639,16 @@ def test_get_history_visit(client: TestClient):
     assert response.ok
     data_visits = response.json()
     assert len(data_visits) == 3
+
+    data = {
+        "api_key": api_key,
+        "start_time": visits[0].start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+        "end_time": visits[1].end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+    }
+
+    # filtered visit for client
+    response = client.post("/api/client/visit_history", json=data)
+    assert response
+    assert response.ok
+    data_filtered_visits = response.json()
+    assert len(data_filtered_visits) == 2
