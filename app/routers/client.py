@@ -66,7 +66,12 @@ async def get_client_with_phone(
     phone: str, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Get client with phone"""
-    return QueueService.get_client_with_phone(phone)
+    client = QueueService.get_client_with_phone(phone)
+    if not client:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+        )
+    return client
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
