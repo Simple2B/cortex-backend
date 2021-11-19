@@ -2,8 +2,10 @@ import datetime
 from typing import Optional
 from pydantic import BaseModel
 
+from .utils import OrmModeModel
 
-class Note(BaseModel):
+
+class Note(OrmModeModel):
     id: Optional[int]
     date: Optional[datetime.date]
     notes: str
@@ -11,15 +13,9 @@ class Note(BaseModel):
     doctor_id: int
     visit_id: int
 
-    class Config:
-        orm_mode = True
 
-
-class NoteDelete(BaseModel):
+class NoteDelete(OrmModeModel):
     id: int
     client_id: int
     doctor_id: int
     visit_id: int
-
-    class Config:
-        orm_mode = True

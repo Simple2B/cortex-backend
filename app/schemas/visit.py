@@ -3,9 +3,10 @@ from typing import Optional
 from pydantic import BaseModel
 
 from .client import ClientInfo
+from .utils import OrmModeModel
 
 
-class Visit(BaseModel):
+class Visit(OrmModeModel):
     date: datetime.date
     start_time: datetime.datetime
     end_time: Optional[datetime.datetime]
@@ -13,11 +14,8 @@ class Visit(BaseModel):
     doctor_id: int
     rougue_mode: bool
 
-    class Config:
-        orm_mode = True
 
-
-class VisitWithNote(BaseModel):
+class VisitWithNote(OrmModeModel):
     id: int
     date: datetime.date
     start_time: datetime.datetime
@@ -25,11 +23,8 @@ class VisitWithNote(BaseModel):
     client_info: ClientInfo
     notes: Optional[list]
 
-    class Config:
-        orm_mode = True
 
-
-class VisitInfoHistory(BaseModel):
+class VisitInfoHistory(OrmModeModel):
     id: int
     date: datetime.date
     start_time: datetime.datetime
@@ -40,40 +35,25 @@ class VisitInfoHistory(BaseModel):
     rougue_mode: bool
     visit_info: VisitWithNote
 
-    class Config:
-        orm_mode = True
 
-
-class VisitHistory(BaseModel):
+class VisitHistory(OrmModeModel):
     date: str
     doctor_name: str
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportReq(BaseModel):
+class VisitReportReq(OrmModeModel):
     type: str
     start_time: str
     end_time: str
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportRes(BaseModel):
+class VisitReportRes(OrmModeModel):
     id: Optional[int]
     date: datetime.date
     start_time: datetime.datetime
     end_time: datetime.datetime
     client_info: ClientInfo
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportResClients(BaseModel):
+class VisitReportResClients(OrmModeModel):
     client_info: ClientInfo
-
-    class Config:
-        orm_mode = True

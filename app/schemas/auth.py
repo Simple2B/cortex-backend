@@ -1,15 +1,14 @@
 from typing import Optional
 from pydantic import BaseModel
 
+from .utils import OrmModeModel
 
-class Doctor(BaseModel):
+
+class Doctor(OrmModeModel):
     id: Optional[int]
     first_name: str
     last_name: str
     email: str
-
-    class Config:
-        orm_mode = True
 
 
 class DoctorLogin(BaseModel):
@@ -17,12 +16,9 @@ class DoctorLogin(BaseModel):
     password: str
 
 
-class DoctorCreate(BaseModel):
+class DoctorCreate(OrmModeModel):
     api_key: str
     password: str
-
-    class Config:
-        orm_mode = True
 
 
 class Token(BaseModel):

@@ -2,6 +2,8 @@ import enum
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+from .utils import OrmModeModel
+
 
 class YesNoNone(enum.Enum):
     YES = "yes"
@@ -9,7 +11,7 @@ class YesNoNone(enum.Enum):
     NONE = "null"
 
 
-class ClientInfo(BaseModel):
+class ClientInfo(OrmModeModel):
     id: Optional[int]
     api_key: Optional[str]
     firstName: str
@@ -33,11 +35,8 @@ class ClientInfo(BaseModel):
     relationshipChild: Optional[str]
     visits: Optional[list]
 
-    class Config:
-        orm_mode = True
 
-
-class Client(BaseModel):
+class Client(OrmModeModel):
     id: Optional[int]
     api_key: Optional[str]
     first_name: str
@@ -46,15 +45,9 @@ class Client(BaseModel):
     email: str
     rougue_mode: Optional[bool]
 
-    class Config:
-        orm_mode = True
-
 
 class ClientQueue(Client):
     place_in_queue: Optional[int]
-
-    class Config:
-        orm_mode = True
 
 
 class ClientInTake(BaseModel):
@@ -63,8 +56,5 @@ class ClientInTake(BaseModel):
     rougue_mode: Optional[bool]
 
 
-class ClientPhone(BaseModel):
+class ClientPhone(OrmModeModel):
     phone: str
-
-    class Config:
-        orm_mode = True
