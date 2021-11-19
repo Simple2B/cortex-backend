@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import HTTPException, status
+
 from app.schemas import Doctor, VisitInfoHistory, VisitHistory
 from app.models import Client as ClientDB
 from app.logger import log
