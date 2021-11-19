@@ -1,8 +1,9 @@
 import datetime
-from typing import List
+from typing import List, Union
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_
+
 from app.schemas import Client, Doctor, ClientPhone, ClientQueue
 from app.models import (
     QueueMember,
@@ -10,7 +11,6 @@ from app.models import (
     Client as ClientDB,
     Doctor as DoctorDB,
 )
-
 from app.logger import log
 
 
@@ -18,7 +18,11 @@ class QueueService:
     def add_client_to_queue(self, client_data: Client, doctor: Doctor):
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
-            log(log.ERROR, "add_client_to_queue: Client doesn't registration")
+            log(
+                log.ERROR,
+                "add_client_to_queue: Client [%s] is not registered",
+                client_data.phone,
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
@@ -65,7 +69,11 @@ class QueueService:
         ).first()
 
         if not client:
-            log(log.ERROR, "delete_client_from_queue: Client doesn't registration")
+            log(
+                log.ERROR,
+                "delete_client_from_queue: Client [%s] is not registered",
+                client_data.phone,
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
@@ -120,26 +128,28 @@ class QueueService:
 
     def identify_client_with_phone(
         self, phone_num: ClientPhone, doctor: Doctor
-    ) -> Client:
+    ) -> Union[Client, None]:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
         client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
         if not client:
             log(
                 log.ERROR,
-                "identify_client_with_phone: No such phone number [%s] Client doesn't registration",
+                "identify_client_with_phone: No such phone number [%s]. Client is not registered",
                 phone_num.phone,
             )
+            return
         self.add_client_to_queue(client, doctor)
         return client
 
-    def get_client_with_phone(phone: str) -> Client:
+    def get_client_with_phone(phone: str) -> Union[Client, None]:
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
             log(
                 log.ERROR,
-                "identify_client_with_phone: No such phone number [%s] Client doesn't registration",
+                "get_client_with_phone: No such phone number [%s]. Client is not registered",
                 phone,
             )
+            return
         return client
 
     def get_queue(self, doctor: Doctor) -> List[ClientQueue]:
