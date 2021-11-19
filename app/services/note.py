@@ -18,7 +18,7 @@ class NoteService:
             ClientDB.id == data_note.client_id
         ).first()
         if not client:
-            log(log.ERROR, "write_note: Client [%s] not found", client)
+            log(log.ERROR, "write_note: Client not found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
@@ -96,7 +96,7 @@ class NoteService:
     def get_note(self, api_key: str, doctor: Doctor) -> List[NoteSchemas]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
         if not client:
-            log(log.ERROR, "get_note: Client [%s] not found", client)
+            log(log.ERROR, "get_note: Client not found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
@@ -151,7 +151,7 @@ class NoteService:
             ClientDB.id == data_note.client_id
         ).first()
         if not client:
-            log(log.ERROR, "delete_note: Client [%s] not found", client)
+            log(log.ERROR, "delete_note: Client not found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )

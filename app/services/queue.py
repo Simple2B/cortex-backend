@@ -85,11 +85,7 @@ class QueueService:
         ).first()
 
         if not reception:
-            log(
-                log.ERROR,
-                "delete_client_from_queue: reception doesn't found [%s]",
-                reception.id,
-            )
+            log(log.ERROR, "delete_client_from_queue: reception doesn't found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Reception not found"
             )

@@ -10,7 +10,7 @@ class VisitService:
     def get_history_visit(self, api_key: str, doctor: Doctor) -> List[VisitHistory]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
         if not client:
-            log(log.ERROR, "get_history_visit: Client [%s] not found", client)
+            log(log.ERROR, "get_history_visit: Client not found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
