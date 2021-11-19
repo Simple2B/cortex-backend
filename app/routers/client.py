@@ -23,6 +23,8 @@ from app.schemas import (
     VisitWithNote,
     NoteDelete,
     VisitHistory,
+    VisitInfoHistory,
+    VisitHistoryFilter,
 )
 from app.models import (
     Client as ClientDB,
@@ -204,9 +206,12 @@ async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_d
     return service.get_history_visit(api_key, doctor)
 
 
-@router_client.post("/visit_history", response_model=str, tags=["Client"])
-async def filter_visits(data: str, doctor: Doctor = Depends(get_current_doctor)):
+@router_client.post(
+    "/visit_history", response_model=List[VisitInfoHistory], tags=["Client"]
+)
+async def filter_visits(
+    data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
+):
     """Filtered history visits"""
-    service = ""
-    service.filter_visits(data, doctor)
-    return "ok"
+    service = VisitService()
+    return service.filter_visits(data, doctor)

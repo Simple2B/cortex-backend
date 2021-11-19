@@ -35,7 +35,7 @@ class VisitInfoHistory(BaseModel):
     start_time: datetime.datetime
     end_time: Optional[datetime.datetime]
     client_id: int
-    doctor_name: str
+    doctor_name: Optional[str]
     doctor_id: int
     rougue_mode: bool
     visit_info: VisitWithNote
@@ -47,6 +47,15 @@ class VisitInfoHistory(BaseModel):
 class VisitHistory(BaseModel):
     date: str
     doctor_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class VisitHistoryFilter(BaseModel):
+    api_key: str
+    start_time: str
+    end_time: str
 
     class Config:
         orm_mode = True
