@@ -140,6 +140,7 @@ class QueueService:
                 "identify_client_with_phone: No such phone number [%s] Client doesn't registration",
                 phone,
             )
+            return
         return client
 
     def get_queue(self, doctor: Doctor) -> List[ClientQueue]:
