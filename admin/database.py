@@ -1,6 +1,7 @@
 # from app import db
 import datetime
 import random
+
 from admin.config import BaseConfig as conf
 from app.models import Doctor, Client
 

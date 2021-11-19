@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import create_engine
+
 from app.config.settings import settings
 from app.logger import log
 

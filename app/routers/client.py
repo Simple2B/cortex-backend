@@ -1,7 +1,8 @@
 import datetime
+from typing import List
+
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
-from typing import List
 
 from app.services import (
     ClientService,

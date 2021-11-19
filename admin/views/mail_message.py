@@ -7,7 +7,6 @@ from admin.config import BaseConfig as conf
 from admin import mail
 from admin.forms import NewDoctorForm
 from app.models import Doctor
-
 from app.logger import log
 
 

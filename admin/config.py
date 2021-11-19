@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+
 from app.logger import log
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

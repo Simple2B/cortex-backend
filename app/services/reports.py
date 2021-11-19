@@ -9,7 +9,6 @@ from app.schemas import (
     VisitReportRes,
 )
 from app.models import Visit
-
 from app.logger import log
 
 

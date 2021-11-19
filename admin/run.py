@@ -4,10 +4,8 @@ import click
 from admin import create_app
 from admin import db
 from app import models
-
 from app.logger import log
 from admin.config import BaseConfig as conf
-
 from admin.database import generate_test_data
 
 log.set_level(conf.LOG_LEVEL)
