@@ -225,7 +225,7 @@ class ClientService:
             )
 
             client_in_queue.visit_id = visit.id
-            client_in_queue.save(True)
+            client_in_queue.save()
 
         log(
             log.INFO,
@@ -240,14 +240,9 @@ class ClientService:
                 visit.doctor_id = doctor.id
                 visit.save()
 
-                log(
-                    log.INFO,
-                    "Client Intake: Visit without end_time date updated [%d]",
-                    visit.id,
-                )
-
                 client_in_queue.visit_id = visit.id
                 client_in_queue.save()
+
                 log(
                     log.INFO,
                     "Client in queue [%s] go to visit again [%s]",
@@ -385,6 +380,13 @@ class ClientService:
 
         if not visit:
             log(log.INFO, "get_intake: No client visit, client from db")
+            visit = Visit(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
+            log(log.INFO, "get_intake: Created visit [%d]", visit.id)
             return client.client_info
 
         return client.client_info

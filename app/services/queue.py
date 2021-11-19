@@ -85,11 +85,7 @@ class QueueService:
         ).first()
 
         if not reception:
-            log(
-                log.ERROR,
-                "delete_client_from_queue: reception doesn't found [%s]",
-                reception.id,
-            )
+            log(log.ERROR, "delete_client_from_queue: reception doesn't found")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Reception not found"
             )
@@ -179,7 +175,7 @@ class QueueService:
             len(members),
         )
 
-        members_without_complete_visit = []
+        members_in_queue = []
         for member in members:
             member_info = member["client"].client_info
             client_member = {
@@ -194,12 +190,13 @@ class QueueService:
             }
             visits = member_info["visits"]
             if not visits:
-                members_without_complete_visit.append(client_member)
+                members_in_queue.append(client_member)
             count_visits = len(visits)
             visit_with_end_time = []
+            visit_without_end_time = []
             for visit in visits:
                 if not visit.end_time:  # noqa E712
-                    members_without_complete_visit.append(client_member)
+                    visit_without_end_time.append(visit)
                 if visit.end_time:
                     visit_with_end_time.append(visit)
             if (
@@ -207,12 +204,14 @@ class QueueService:
                 and count_visits == len(visit_with_end_time)
                 and member["canceled"] == False  # noqa E712
             ):
-                members_without_complete_visit.append(client_member)
+                members_in_queue.append(client_member)
+            elif len(visit_without_end_time) > 0:
+                members_in_queue.append(client_member)
 
         log(
             log.INFO,
             "get_queue: members count [%d] without complete visit",
-            len(members_without_complete_visit),
+            len(members_in_queue),
         )
 
-        return [member for member in members_without_complete_visit]
+        return [member for member in members_in_queue]

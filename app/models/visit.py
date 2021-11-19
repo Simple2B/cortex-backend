@@ -11,12 +11,11 @@ class Visit(Base, ModelMixin):
     __tablename__ = "visits"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, default=datetime.date.today())
+    date = Column(Date, default=datetime.date.today)
     start_time = Column(
         DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
     )
     end_time = Column(DateTime, nullable=True)
-    # ? duration => may be end of visit
     rougue_mode = Column(Boolean, default=False)
 
     client_id = Column(Integer, ForeignKey("clients.id"))
@@ -30,6 +29,9 @@ class Visit(Base, ModelMixin):
 
     @property
     def visit_info(self):
+        from .note import Note
+
+        notes = Note.query.filter(Visit.id == Note.visit_id).all()
 
         return {
             "id": self.id,
@@ -37,6 +39,7 @@ class Visit(Base, ModelMixin):
             "start_time": self.start_time,
             "end_time": self.end_time,
             "client_info": self.client.client_info,
+            "notes": notes,
             # TODO: add doctor when doctor would be not one
             # "doctor": self.doctor,
         }

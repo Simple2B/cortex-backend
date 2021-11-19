@@ -2,18 +2,27 @@ import datetime
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
 from typing import List
-from app.schemas.client import ClientInTake
 
-
-from app.services import ClientService, QueueService, ReportService
+from app.services import (
+    ClientService,
+    QueueService,
+    ReportService,
+    NoteService,
+    VisitService,
+)
 from app.schemas import (
     ClientInfo,
     Client,
     ClientPhone,
     ClientQueue,
+    ClientInTake,
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
+    Note as NoteSchemas,
+    VisitWithNote,
+    NoteDelete,
+    VisitHistory,
 )
 from app.models import (
     Client as ClientDB,
@@ -158,3 +167,38 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     file_report_path = "./new_clients_report.csv"
     return FileResponse(file_report_path)
+
+
+@router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
+async def write_note(
+    data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Write note in visit for client"""
+    service = NoteService()
+    return service.write_note(data_note, doctor)
+
+
+@router_client.get("/note/{api_key}", response_model=List[NoteSchemas], tags=["Client"])
+async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get notes for client"""
+    service = NoteService()
+    return service.get_note(api_key, doctor)
+
+
+@router_client.post("/note_delete", response_model=str, tags=["Client"])
+async def delete_note(
+    data_note: NoteDelete, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Delete note"""
+    service = NoteService()
+    service.delete_note(data_note, doctor)
+    return "ok"
+
+
+@router_client.get(
+    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
+)
+async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get all visits for client"""
+    service = VisitService()
+    return service.get_history_visit(api_key, doctor)
