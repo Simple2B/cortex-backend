@@ -7,3 +7,4 @@ from .reception import Reception
 from .disease import Disease, ClientDisease
 from .condition import Condition, ClientCondition
 from .note import Note
+from .test import Test
