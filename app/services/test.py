@@ -1,9 +1,6 @@
 import datetime
-from typing import List
 
 from fastapi import HTTPException, status
-from sqlalchemy.sql.elements import and_
-
 from app.schemas import Doctor, PostTest, CreateTest
 from app.models import Client as ClientDB, Test
 from app.logger import log

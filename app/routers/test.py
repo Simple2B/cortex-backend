@@ -1,11 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter, HTTPException, Depends, status
 from app.models import Doctor
 from app.schemas import PostTest, CreateTest
 from app.services import TestService
 from app.services.auth import get_current_doctor
-from app.logger import log
 
 
 router_test = APIRouter(prefix="/test")

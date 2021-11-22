@@ -1,5 +1,4 @@
 import pytest
-import datetime
 from typing import Generator
 from fastapi.testclient import TestClient
 
@@ -7,19 +6,9 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import (
-    Client,
-    ClientCondition,
-    ClientDisease,
-    Condition,
-    Disease,
-    Visit,
-    Doctor,
-    Reception,
-    QueueMember,
-)
+from app.models import Client
 
-from .database import generate_test_data, CLIENT_NUMBER
+from .database import generate_test_data
 from .utils import login
 
 
