@@ -20,10 +20,15 @@ class VisitService:
         visits: VisitInfoHistory = client.client_info["visits"]
 
         log(log.INFO, "get_history_visit: Count [%d] of visits ", len(visits))
-        visits_history = [
-            {"doctor_name": doctor.first_name, "date": visit.date.strftime("%m/%d/%Y")}
-            for visit in visits
-        ]
+        visits_history = []
+        for visit in visits:
+            if visit.end_time:
+                visits_history.append(
+                    {
+                        "doctor_name": doctor.first_name,
+                        "date": visit.date.strftime("%m/%d/%Y"),
+                    }
+                )
 
         return visits_history
 
@@ -51,10 +56,11 @@ class VisitService:
                     visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
                     "%m/%d/%Y, %H:%M:%S",
                 )
-                visit_end_time = datetime.datetime.strptime(
-                    visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                    "%m/%d/%Y, %H:%M:%S",
-                )
+                if visit.end_time:
+                    visit_end_time = datetime.datetime.strptime(
+                        visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "%m/%d/%Y, %H:%M:%S",
+                    )
                 if visit_start_time >= datetime.datetime.strptime(
                     data.start_time, "%m/%d/%Y, %H:%M:%S"
                 ) and visit_end_time <= datetime.datetime.strptime(
