@@ -41,5 +41,5 @@ class Visit(Base, ModelMixin):
             "client_info": self.client.client_info,
             "notes": notes,
             # TODO: add doctor when doctor would be not one
-            # "doctor": self.doctor,
+            "doctor": self.doctor,
         }

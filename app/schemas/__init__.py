@@ -8,6 +8,7 @@ from .visit import (
     VisitWithNote,
     VisitHistory,
     VisitInfoHistory,
+    VisitHistoryFilter,
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
