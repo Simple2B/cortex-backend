@@ -60,16 +60,26 @@ class VisitService:
                     visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
                     "%m/%d/%Y, %H:%M:%S",
                 )
-                if visit_start_time >= datetime.datetime.strptime(
+                if (
+                    visit_start_time
+                    >= datetime.datetime.strptime(data.start_time, "%m/%d/%Y, %H:%M:%S")
+                    and visit_end_time
+                    <= datetime.datetime.strptime(data.end_time, "%m/%d/%Y, %H:%M:%S")
+                ) or visit_start_time >= datetime.datetime.strptime(
                     data.start_time, "%m/%d/%Y, %H:%M:%S"
-                ) and visit_end_time <= datetime.datetime.strptime(
-                    data.end_time, "%m/%d/%Y, %H:%M:%S"
                 ):
                     visits_report.append(visit)
 
-        filter_visits = [
-            {"doctor_name": doctor.first_name, "date": visit.date.strftime("%m/%d/%Y")}
-            for visit in visits_report
-        ]
+        if len(visits_report) > 0:
 
-        return filter_visits
+            filter_visits = [
+                {
+                    "doctor_name": doctor.first_name,
+                    "date": visit.date.strftime("%m/%d/%Y"),
+                }
+                for visit in visits_report
+            ]
+            log(log.INFO, "filter_visits: Count of visits [%d]", len(filter_visits))
+
+            return filter_visits
+        return
