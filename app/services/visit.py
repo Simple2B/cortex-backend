@@ -34,7 +34,7 @@ class VisitService:
 
     def filter_visits(
         self, data: VisitHistoryFilter, doctor: Doctor
-    ) -> List[VisitInfoHistory]:
+    ) -> List[VisitHistory]:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
         ).first()
@@ -56,11 +56,10 @@ class VisitService:
                     visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
                     "%m/%d/%Y, %H:%M:%S",
                 )
-                if visit.end_time:
-                    visit_end_time = datetime.datetime.strptime(
-                        visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "%m/%d/%Y, %H:%M:%S",
-                    )
+                visit_end_time = datetime.datetime.strptime(
+                    visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "%m/%d/%Y, %H:%M:%S",
+                )
                 if visit_start_time >= datetime.datetime.strptime(
                     data.start_time, "%m/%d/%Y, %H:%M:%S"
                 ) and visit_end_time <= datetime.datetime.strptime(
@@ -68,4 +67,9 @@ class VisitService:
                 ):
                     visits_report.append(visit)
 
-        return visits_report
+        filter_visits = [
+            {"doctor_name": doctor.first_name, "date": visit.date.strftime("%m/%d/%Y")}
+            for visit in visits_report
+        ]
+
+        return filter_visits

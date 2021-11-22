@@ -212,7 +212,7 @@ async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_d
 
 
 @router_client.post(
-    "/visit_history", response_model=List[VisitInfoHistory], tags=["Client"]
+    "/visit_history", response_model=List[VisitHistory], tags=["Client"]
 )
 async def filter_visits(
     data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
