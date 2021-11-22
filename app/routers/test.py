@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends
 
 from app.models import Doctor
-from app.schemas import PostTest, CreateTest
+from app.schemas import PostTest, CreateTest, GetTest
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
@@ -18,7 +18,7 @@ async def sign_up(data: PostTest, doctor: Doctor = Depends(get_current_doctor)):
 
 
 @router_test.get(
-    "/client_tests/{api_key}", response_model=List[CreateTest], tags=["Client"]
+    "/client_tests/{api_key}", response_model=List[GetTest], tags=["Client"]
 )
 async def get_client_tests(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get all tests for client"""

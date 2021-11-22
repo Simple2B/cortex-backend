@@ -1,7 +1,7 @@
 import datetime
 
 from fastapi import HTTPException, status
-from app.schemas import Doctor, PostTest, CreateTest
+from app.schemas import Doctor, PostTest, CreateTest, GetTest
 from app.models import Client as ClientDB, Test
 from app.logger import log
 
@@ -39,7 +39,7 @@ class TestService:
 
         return create_test
 
-    def get_client_tests(self, api_key: str, doctor: Doctor) -> list[CreateTest]:
+    def get_client_tests(self, api_key: str, doctor: Doctor) -> list[GetTest]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
@@ -52,4 +52,15 @@ class TestService:
 
         tests = Test.query.filter(Test.client_id == client.id).all()
 
-        return tests
+        all_tests = []
+
+        for test in tests:
+            all_tests.append(
+                {
+                    "date": test.date.strftime("%B %d %Y"),
+                    "client_name": client.first_name,
+                    "doctor_name": doctor.first_name,
+                }
+            )
+
+        return all_tests
