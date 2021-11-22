@@ -23,7 +23,6 @@ from app.schemas import (
     VisitWithNote,
     NoteDelete,
     VisitHistory,
-    VisitInfoHistory,
     VisitHistoryFilter,
 )
 from app.models import (
