@@ -6,16 +6,12 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
 
-time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
-
 
 class Test(Base, ModelMixin):
     __tablename__ = "tests"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(
-        DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
-    )
+    date = Column(DateTime, default=datetime.datetime.today)
 
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))

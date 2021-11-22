@@ -31,7 +31,7 @@ class TestService:
 
         log(log.INFO, "Date [%s] for start test", date)
 
-        create_test = Test(
+        create_test: Test = Test(
             date=date,
             client_id=client.id,
             doctor_id=doctor.id,

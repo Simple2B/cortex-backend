@@ -33,7 +33,7 @@ def test_create_start_test(client: TestClient):
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
     }
-    response = client.post("/api/test/test", json=data)
+    response = client.post("/api/test/test_create", json=data)
     assert response
     assert response.ok
     data_start_test = response.json()
