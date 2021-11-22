@@ -28,7 +28,6 @@ def client() -> Generator:
 
 def test_create_start_test(client: TestClient):
     client_intake: Client = Client.query.first()
-    client_intake
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
@@ -39,3 +38,26 @@ def test_create_start_test(client: TestClient):
     data_start_test = response.json()
     assert data_start_test
     assert data_start_test["client_id"] == client_intake.id
+
+
+def test_get_client_tests(client: TestClient):
+    client_intake: Client = Client.query.first()
+
+    dates = ["9/10/2021, 11:43:14", "10/12/2021, 11:43:14", "11/22/2021, 11:43:14"]
+
+    for date in dates:
+
+        data = {
+            "api_key": client_intake.api_key,
+            "date": date,
+        }
+
+        response = client.post("/api/test/test_create", json=data)
+        assert response
+        assert response.ok
+
+    response = client.get(f"/api/test/client_tests/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    data_start_test = response.json()
+    assert len(data_start_test) == 3

@@ -38,3 +38,18 @@ class TestService:
         ).save()
 
         return create_test
+
+    def get_client_tests(self, api_key: str, doctor: Doctor) -> list[CreateTest]:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+
+        if not client:
+            log(log.ERROR, "Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(log.INFO, "Client [%s] for test", client)
+
+        tests = Test.query.filter(Test.client_id == client.id).all()
+
+        return tests
