@@ -2,12 +2,12 @@ import enum
 from uuid import uuid4
 
 from sqlalchemy import Enum
-
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy import func
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import AnonymousUserMixin, UserMixin
+
 from app.database import Base
 from .utils import ModelMixin
 

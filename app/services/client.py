@@ -1,6 +1,8 @@
 import datetime
+
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
+
 from app.schemas import Client, ClientInfo, ClientInTake, Doctor
 from app.models import (
     Client as ClientDB,
@@ -36,14 +38,10 @@ class ClientService:
     def register(client_data: ClientInfo) -> ClientDB:
         covidTestedPositive = client_data.covidTestedPositive
         covidVaccine = client_data.covidVaccine
-        if not covidTestedPositive:
-            covidTestedPositive = "null"
-        else:
-            covidTestedPositive = client_data.covidTestedPositive.value
-        if not covidVaccine:
-            covidVaccine = "null"
-        else:
-            covidVaccine = client_data.covidVaccine.value
+        covidTestedPositive = (
+            client_data.covidTestedPositive.value if covidTestedPositive else "null"
+        )
+        covidVaccine = client_data.covidVaccine.value if covidVaccine else "null"
         client = ClientDB(
             first_name=client_data.firstName,
             last_name=client_data.lastName,

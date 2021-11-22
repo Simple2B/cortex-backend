@@ -1,6 +1,8 @@
 import datetime
+
 from sqlalchemy import Column, ForeignKey, Integer, Date, String
 from sqlalchemy.orm import relationship
+
 from app.database import Base
 from .utils import ModelMixin
 

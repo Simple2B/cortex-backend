@@ -3,6 +3,7 @@ from fastapi import FastAPI
 # from fastapi_pagination import add_pagination
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
+
 from app.routers import router
 from app.config import settings
 

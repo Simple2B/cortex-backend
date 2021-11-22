@@ -1,6 +1,8 @@
 from uuid import uuid4
+
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.sql.sqltypes import Boolean
+
 from app.database import Base
 from .utils import ModelMixin
 
