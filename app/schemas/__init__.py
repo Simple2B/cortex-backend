@@ -14,3 +14,4 @@ from .visit import (
     VisitReportResClients,
 )
 from .note import Note, NoteDelete
+from .test import PostTest, CreateTest
