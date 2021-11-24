@@ -14,6 +14,7 @@ class PostTest(Test):
 
 
 class CreateTest(Test):
+    id: int
     date: datetime.datetime
     client_id: int
     doctor_id: int
