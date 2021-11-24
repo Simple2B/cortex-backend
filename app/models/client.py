@@ -30,7 +30,8 @@ class Client(Base, ModelMixin):
     covid_vaccine = Column(String, default="null")
     stressful_level = Column(Integer)
     consent_minor_child = Column(Boolean, default=False)
-    relationship_child = Column(String, nullable=True, default=None)
+    consent_diagnostic_procedures = Column(Boolean, default=False)
+    # relationship_child = Column(String, nullable=True, default=None)
 
     api_key = Column(String(36), default=gen_uuid)
 
@@ -99,6 +100,7 @@ class Client(Base, ModelMixin):
             "covidVaccine": self.covid_vaccine,
             "stressfulLevel": self.stressful_level,
             "consentMinorChild": self.consent_minor_child,
-            "relationshipChild": self.relationship_child,
+            "diagnosticProcedures": self.consent_diagnostic_procedures,
+            # "relationshipChild": self.relationship_child,
             "visits": visits,
         }
