@@ -15,3 +15,4 @@ from .visit import (
 )
 from .note import Note, NoteDelete
 from .test import PostTest, CreateTest, GetTest
+from .info_care_plan_frequency import InfoCarePlan, InfoFrequency
