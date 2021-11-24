@@ -12,7 +12,7 @@ from app.models import (
     Client as ClientDB,
     Test,
     InfoCarePlan,
-    InfoFrequency,
+    # InfoFrequency,
 )
 from app.logger import log
 
