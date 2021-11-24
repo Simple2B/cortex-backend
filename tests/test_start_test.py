@@ -61,3 +61,31 @@ def test_get_client_tests(client: TestClient):
     assert response.ok
     data_start_test = response.json()
     assert len(data_start_test) == 3
+
+
+def test_write_care_plan_frequency(client: TestClient):
+    client_intake: Client = Client.query.first()
+    data = {
+        "api_key": client_intake.api_key,
+        "date": "11/22/2021, 11:43:14",
+    }
+    response = client.post("/api/test/test_create", json=data)
+    assert response
+    assert response.ok
+    data_start_test = response.json()
+    assert data_start_test
+    assert data_start_test["client_id"] == client_intake.id
+
+    data_for_test = {
+        "test_id": data_start_test["id"],
+        "api_key": client_intake.api_key,
+        "care_plan": "3-month",
+        "frequency": "1-month",
+    }
+    response = client.post("/api/test/care_plan_frequency", json=data_for_test)
+    assert response
+    assert response.ok
+    test_data = response.json()
+    assert test_data
+    assert test_data["care_plan"] == "3-month"
+    assert test_data["frequency"] == "1-month"

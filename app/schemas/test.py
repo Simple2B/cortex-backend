@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -15,9 +16,11 @@ class PostTest(Test):
 
 class CreateTest(Test):
     id: int
-    date: datetime.datetime
+    date: Optional[datetime.datetime]
     client_id: int
     doctor_id: int
+    care_plan: Optional[str]
+    frequency: Optional[str]
 
 
 class GetTest(Test):
@@ -25,3 +28,10 @@ class GetTest(Test):
     date: str
     client_name: str
     doctor_name: str
+
+
+class PostTestCarePlanAndFrequency(Test):
+    test_id: int
+    api_key: str
+    care_plan: str
+    frequency: str

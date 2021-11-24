@@ -1,5 +1,3 @@
-import datetime
-
 from pydantic import BaseModel
 
 
@@ -10,7 +8,3 @@ class Info(BaseModel):
 
 class InfoCarePlan(Info):
     care_plan: str
-
-
-class InfoFrequency(Info):
-    frequency: str
