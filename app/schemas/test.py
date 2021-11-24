@@ -21,6 +21,7 @@ class CreateTest(Test):
 
 
 class GetTest(Test):
+    id: int
     date: str
     client_name: str
     doctor_name: str
