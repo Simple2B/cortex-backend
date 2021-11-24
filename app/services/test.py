@@ -57,6 +57,7 @@ class TestService:
         for test in tests:
             all_tests.append(
                 {
+                    "id": test.id,
                     "date": test.date.strftime("%B %d %Y"),
                     "client_name": client.first_name,
                     "doctor_name": doctor.first_name,
