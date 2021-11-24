@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends
 
 from app.models import Doctor
-from app.schemas import PostTest, CreateTest, GetTest
+from app.schemas import PostTest, CreateTest, GetTest, PostTestCarePlanAndFrequency
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
@@ -11,7 +11,7 @@ router_test = APIRouter(prefix="/test")
 
 
 @router_test.post("/test_create", response_model=CreateTest, tags=["Test"])
-async def sign_up(data: PostTest, doctor: Doctor = Depends(get_current_doctor)):
+async def test_create(data: PostTest, doctor: Doctor = Depends(get_current_doctor)):
     """Create test for client in visit"""
     service = TestService()
     return service.create_test(data, doctor)
@@ -24,3 +24,12 @@ async def get_client_tests(api_key: str, doctor: Doctor = Depends(get_current_do
     """Get all tests for client"""
     service = TestService()
     return service.get_client_tests(api_key, doctor)
+
+
+@router_test.post("/care_plan_frequency", response_model=CreateTest, tags=["Test"])
+async def write_care_plan_frequency(
+    data: PostTestCarePlanAndFrequency, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Add to test care plan and frequency"""
+    service = TestService()
+    return service.write_care_plan_frequency(data, doctor)
