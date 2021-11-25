@@ -1,10 +1,11 @@
 from pydantic import BaseModel
 
 
-class Info(BaseModel):
+class InfoBase(BaseModel):
     class Config:
         orm_mode = True
 
 
-class InfoFrequency(Info):
+class InfoFrequency(InfoBase):
+    id: int
     frequency: str

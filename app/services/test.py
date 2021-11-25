@@ -12,7 +12,7 @@ from app.models import (
     Client as ClientDB,
     Test,
     InfoCarePlan,
-    # InfoFrequency,
+    InfoFrequency,
 )
 from app.logger import log
 
@@ -94,17 +94,17 @@ class TestService:
                 care_plan.id,
             )
 
-        # info_frequency = InfoFrequency(
-        #     InfoFrequency.frequency == data.frequency
-        # ).first()
+        info_frequency = InfoFrequency.query.filter(
+            InfoFrequency.frequency == data.frequency
+        ).first()
 
-        # if not info_frequency:
-        #     info_frequency = InfoFrequency(frequency=data.frequency).save()
-        #     log(
-        #         log.INFO,
-        #         "write_care_plan_frequency: info_frequency [%d] created",
-        #         info_frequency.id,
-        #     )
+        if not info_frequency:
+            info_frequency = InfoFrequency(frequency=data.frequency).save()
+            log(
+                log.INFO,
+                "write_care_plan_frequency: info_frequency [%d] created",
+                info_frequency.id,
+            )
 
         return {
             "id": data.test_id,
@@ -126,7 +126,7 @@ class TestService:
 
         log(log.INFO, "get_client_tests: Client [%s] for test", client)
 
-        tests = Test.query.filter(Test.client_id == client.id).all()
+        tests: Test = Test.query.filter(Test.client_id == client.id).all()
 
         all_tests = []
 
@@ -135,6 +135,8 @@ class TestService:
                 {
                     "id": test.id,
                     "date": test.date.strftime("%B %d %Y"),
+                    "care_plan": test.care_plan,
+                    "frequency": test.frequency,
                     "client_name": client.first_name,
                     "doctor_name": doctor.first_name,
                 }
@@ -143,3 +145,27 @@ class TestService:
         log(log.INFO, "get_client_tests: Count of tests [%d]", len(all_tests))
 
         return all_tests
+
+    def get_care_plan_names(self, doctor: Doctor) -> InfoCarePlan:
+        care_plan_names = InfoCarePlan.query.all()
+        if not care_plan_names:
+            log(log.INFO, "get_care_plan_names: No care plan names")
+            return
+        log(log.INFO, "get_care_plan_names: Count of names [%d]", len(care_plan_names))
+        return care_plan_names
+
+    def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
+        test: Test = Test.query.filter(Test.id == test_id).first()
+        if not test:
+            log(log.INFO, "get_test: No test")
+            return
+        log(log.INFO, "get_test: Test [%d]", test.id)
+
+        return {
+            "id": test.id,
+            "date": test.date.strftime("%B %d %Y"),
+            "client_name": test.client.first_name,
+            "doctor_name": test.doctor.first_name,
+            "care_plan": test.care_plan,
+            "frequency": test.frequency,
+        }

@@ -28,6 +28,8 @@ class GetTest(Test):
     date: str
     client_name: str
     doctor_name: str
+    care_plan: Optional[str]
+    frequency: Optional[str]
 
 
 class PostTestCarePlanAndFrequency(Test):
