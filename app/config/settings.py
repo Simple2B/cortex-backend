@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXP: str = "3600"
     SK_TEST: str = "sk_secret"
-    # PK_TEST: str = "pk_secret"
-    # CORTEX_KEY: str = "rk_secret"
+    PK_TEST: str = "pk_secret"
+    CORTEX_KEY: str = "rk_secret"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -33,8 +33,6 @@ class Settings(BaseSettings):
     LOCAL_DB_SERVER: str = "127.0.0.1"
     FLASK_ENV: str = "production"
     SQLALCHEMY_DATABASE_URL: str = None
-    PK_TEST: str = "pk_secret"
-    CORTEX_KEY: str = "rk_secret"
 
     @validator("SQLALCHEMY_DATABASE_URL", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
@@ -59,8 +57,6 @@ class Settings(BaseSettings):
             scheme="postgresql",
             user=values.get("POSTGRES_USER"),
             password=values.get("POSTGRES_PASSWORD"),
-            PK_TEST=values.get("PK_TEST"),
-            CORTEX_KEY=values.get("CORTEX_KEY"),
             host=host,
             port=port,
             path=f"/{values.get('POSTGRES_DB') or ''}",
