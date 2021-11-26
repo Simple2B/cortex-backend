@@ -2,8 +2,17 @@ import datetime
 from typing import List
 from fastapi import HTTPException, status
 
-from app.schemas import Doctor, VisitInfoHistory, VisitHistory, VisitHistoryFilter
+import stripe
+from app.schemas import (
+    Doctor,
+    VisitInfoHistory,
+    VisitHistory,
+    VisitHistoryFilter,
+    DoctorStripeSecret,
+    ClientInfoStripe,
+)
 from app.models import Client as ClientDB
+from app.config import settings as config
 from app.logger import log
 
 
@@ -101,3 +110,24 @@ class VisitService:
 
             return filter_visits
         return []
+
+    def get_secret(self) -> DoctorStripeSecret:
+
+        return {
+            "pk_test": config.PK_TEST,
+        }
+
+    def create_stripe_session(self, data: ClientInfoStripe) -> str:
+        stripe.api_key = config.CORTEX_KEY
+        try:
+            charge = stripe.Charge.create(
+                amount=data.amount,
+                currency="usd",
+                description=data.description,
+                source="tok_visa",
+                idempotency_key=data.id,
+            )
+            log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
+            return "ok"
+        except stripe.error.StripeError as error:
+            raise error
