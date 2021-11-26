@@ -28,3 +28,10 @@ class DoctorCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class DoctorStripeSecret(BaseModel):
+    pk_test: str
+
+    class Config:
+        orm_mode = True
