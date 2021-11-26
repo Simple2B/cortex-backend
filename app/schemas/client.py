@@ -30,7 +30,8 @@ class ClientInfo(BaseModel):
     covidVaccine: Optional[YesNoNone]
     stressfulLevel: int
     consentMinorChild: Optional[bool]
-    relationshipChild: Optional[str]
+    diagnosticProcedures: Optional[bool]
+    # relationshipChild: Optional[str]
     visits: Optional[list]
 
     class Config:

@@ -82,7 +82,8 @@ def generate_test_data():
             covid_vaccine=[False, True, None][random.randint(0, 2)],
             stressful_level=i,
             consent_minor_child=[True, False][random.randint(0, 1)],
-            relationship_child="relationship child",
+            consent_diagnostic_procedures=[True, False][random.randint(0, 1)],
+            # relationship_child="relationship child",
         )
 
         client.save(True)

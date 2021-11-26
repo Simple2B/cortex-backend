@@ -60,7 +60,8 @@ DATA_FULL_INFO = {
     "covidVaccine": "null",
     "stressfulLevel": 5,
     "consentMinorChild": False,
-    "relationshipChild": "",
+    "diagnosticProcedures": False,
+    # "relationshipChild": "",
 }
 
 DATA_CLIENT = {

@@ -14,3 +14,6 @@ from .visit import (
     VisitReportResClients,
 )
 from .note import Note, NoteDelete
+from .test import PostTest, CreateTest, GetTest, PostTestCarePlanAndFrequency
+from .info_care_plan import InfoCarePlan
+from .info_frequency import InfoFrequency

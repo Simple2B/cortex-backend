@@ -60,7 +60,8 @@ class ClientService:
             covid_vaccine=covidVaccine,
             stressful_level=client_data.stressfulLevel,
             consent_minor_child=client_data.consentMinorChild,
-            relationship_child=client_data.relationshipChild,
+            consent_diagnostic_procedures=client_data.diagnosticProcedures
+            # relationship_child=client_data.relationshipChild,
         ).save(True)
         log(log.INFO, "Client [%s] has been registered", client.first_name)
 
@@ -132,7 +133,8 @@ class ClientService:
             )
             client.stressful_level = client_data.stressfulLevel
             client.consent_minor_child = client_data.consentMinorChild
-            client.relationship_child = client_data.relationshipChild
+            client.consent_diagnostic_procedures = client_data.diagnosticProcedures
+            # client.relationship_child = client_data.relationshipChild
 
             log(log.INFO, "Client [%d] updated [%s]", client.id, client.first_name)
 
