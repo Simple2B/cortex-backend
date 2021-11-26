@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "secret_key"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXP: str = "3600"
-    SK_TEST: str = "secret"
+    SK_TEST: str = "sk_secret"
+    PK_TEST: str = "pk_secret"
+    CORTEX_KEY: str = "rk_secret"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
