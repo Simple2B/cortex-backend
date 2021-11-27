@@ -59,7 +59,7 @@ services:
       - 127.0.0.1:${LOCAL_WEB_PORT}:80
     volumes:
       - ${FRONTEND_PATH}:/usr/share/nginx/html
-      - ${FRONTEND_CONFIG}:/etc/nginx/conf.d/
+      - ${FRONTEND_CONFIG}:/etc/nginx/conf.d/default.conf
     depends_on:
       - api
 
