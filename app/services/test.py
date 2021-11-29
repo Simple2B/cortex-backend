@@ -86,7 +86,9 @@ class TestService:
         ).first()
 
         if not info_care_plan:
-            care_plan = InfoCarePlan(care_plan=data.care_plan).save()
+            care_plan = InfoCarePlan(
+                care_plan=data.care_plan, doctor_id=doctor.id
+            ).save()
 
             log(
                 log.INFO,
@@ -99,7 +101,9 @@ class TestService:
         ).first()
 
         if not info_frequency:
-            info_frequency = InfoFrequency(frequency=data.frequency).save()
+            info_frequency = InfoFrequency(
+                frequency=data.frequency, doctor_id=doctor.id
+            ).save()
             log(
                 log.INFO,
                 "write_care_plan_frequency: info_frequency [%d] created",
