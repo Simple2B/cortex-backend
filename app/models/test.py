@@ -13,7 +13,7 @@ class Test(Base, ModelMixin):
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.today)
 
-    care_plan_id = Column(Integer, ForeignKey("care_plans.id"))
+    care_plan_id = Column(Integer, ForeignKey("careplans.id"))
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 

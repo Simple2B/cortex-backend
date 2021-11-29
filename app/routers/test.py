@@ -8,12 +8,23 @@ from app.schemas import (
     GetTest,
     PostTestCarePlanAndFrequency,
     InfoCarePlan,
+    CarePlanCreate,
+    ClientCarePlan,
 )
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
 
 router_test = APIRouter(prefix="/test")
+
+
+@router_test.post("/care_plan_create", response_model=CarePlanCreate, tags=["Test"])
+async def care_plan_create(
+    data: ClientCarePlan, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Create care_plan for client"""
+    service = TestService()
+    return service.care_plan_create(data, doctor)
 
 
 @router_test.post("/test_create", response_model=CreateTest, tags=["Test"])
