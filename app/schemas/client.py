@@ -69,3 +69,12 @@ class ClientPhone(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ClientInfoStripe(BaseModel):
+    id: str
+    description: str
+    amount: int
+
+    class Config:
+        orm_mode = True

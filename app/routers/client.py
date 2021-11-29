@@ -25,6 +25,8 @@ from app.schemas import (
     NoteDelete,
     VisitHistory,
     VisitHistoryFilter,
+    DoctorStripeSecret,
+    ClientInfoStripe,
 )
 from app.models import (
     Client as ClientDB,
@@ -220,3 +222,22 @@ async def filter_visits(
     """Filtered history visits"""
     service = VisitService()
     return service.filter_visits(data, doctor)
+
+
+# stripe
+@router_client.get("/get_secret", response_model=DoctorStripeSecret, tags=["Client"])
+async def get_secret(doctor: Doctor = Depends(get_current_doctor)):
+    """Get secret stripe keys"""
+    service = VisitService()
+
+    return service.get_secret()
+
+
+@router_client.post("/create_stripe_session", response_model=str, tags=["Client"])
+async def create_stripe_session(
+    data: ClientInfoStripe, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Stripe session"""
+    service = VisitService()
+    service.create_stripe_session(data)
+    return "ok"

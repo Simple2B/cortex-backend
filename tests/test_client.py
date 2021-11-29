@@ -653,3 +653,12 @@ def test_get_history_visit(client: TestClient):
     assert response.ok
     data_filtered_visits = response.json()
     assert len(data_filtered_visits) == 2
+
+
+def test_get_secret(client: TestClient):
+
+    response = client.get("/api/client/get_secret")
+    assert response
+    assert response.ok
+    data = response.json()
+    assert data
