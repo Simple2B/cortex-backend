@@ -26,6 +26,18 @@ def client() -> Generator:
     engine.dispose()
 
 
+def test_create_care_plan(client: TestClient):
+    client_intake: Client = Client.query.first()
+    data = {
+        "api_key": client_intake.api_key,
+    }
+    response = client.post("/api/test/care_plan_create", json=data)
+    assert response
+    assert response.ok
+    data_care_plan = response.json()
+    assert data_care_plan
+
+
 def test_create_start_test(client: TestClient):
     client_intake: Client = Client.query.first()
     data = {
