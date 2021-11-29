@@ -159,7 +159,11 @@ class TestService:
         return care_plan_names
 
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
-        test: Test = Test.query.filter(Test.id == test_id).first()
+        id = int(test_id)
+        if not id:
+            log(log.INFO, "get_test: No test id")
+            return
+        test: Test = Test.query.filter(Test.id == id).first()
         if not test:
             log(log.INFO, "get_test: No test")
             return
