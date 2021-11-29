@@ -78,3 +78,10 @@ class ClientInfoStripe(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ClientCarePlan(BaseModel):
+    api_key: str
+
+    class Config:
+        orm_mode = True

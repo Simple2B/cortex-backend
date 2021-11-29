@@ -7,17 +7,38 @@ from app.schemas import (
     CreateTest,
     GetTest,
     PostTestCarePlanAndFrequency,
+    CarePlanCreate,
 )
-from app.models import (
-    Client as ClientDB,
-    Test,
-    InfoCarePlan,
-    InfoFrequency,
-)
+from app.models import Client as ClientDB, Test, InfoCarePlan, InfoFrequency, CarePlan
 from app.logger import log
 
 
 class TestService:
+    def care_plan_create(self, data: PostTest, doctor: Doctor) -> CarePlanCreate:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data.api_key
+        ).first()
+
+        if not client:
+            log(log.ERROR, "care_plan_create: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="care_plan_create: Client not found",
+            )
+
+        log(log.INFO, "care_plan_create: Client [%s] for test", client)
+
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).first()
+
+        if not care_plan:
+            care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
+            log(log.INFO, "care_plan_create: care plan [%d] created", care_plan.id)
+            return care_plan
+        log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
+        return care_plan
+
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
