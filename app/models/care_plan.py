@@ -8,7 +8,7 @@ from .utils import ModelMixin
 
 
 class CarePlan(Base, ModelMixin):
-    __tablename__ = "care_plans"
+    __tablename__ = "careplans"
 
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.today)
