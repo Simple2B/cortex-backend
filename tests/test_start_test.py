@@ -36,10 +36,24 @@ def test_create_care_plan(client: TestClient):
     assert response.ok
     data_care_plan = response.json()
     assert data_care_plan
+    response = client.get(f"/api/test/care_plan_create/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    care_plan = response.json()
+    assert care_plan
 
 
 def test_create_start_test(client: TestClient):
     client_intake: Client = Client.query.first()
+    data_client = {
+        "api_key": client_intake.api_key,
+    }
+    response = client.post("/api/test/care_plan_create", json=data_client)
+    assert response
+    assert response.ok
+    data_care_plan = response.json()
+    assert data_care_plan
+
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
@@ -49,11 +63,18 @@ def test_create_start_test(client: TestClient):
     assert response.ok
     data_start_test = response.json()
     assert data_start_test
-    assert data_start_test["client_id"] == client_intake.id
 
 
 def test_get_client_tests(client: TestClient):
     client_intake: Client = Client.query.first()
+    data_client = {
+        "api_key": client_intake.api_key,
+    }
+    response = client.post("/api/test/care_plan_create", json=data_client)
+    assert response
+    assert response.ok
+    data_care_plan = response.json()
+    assert data_care_plan
 
     dates = ["9/10/2021, 11:43:14", "10/12/2021, 11:43:14", "11/22/2021, 11:43:14"]
 
@@ -76,12 +97,22 @@ def test_get_client_tests(client: TestClient):
 
 
 def test_write_care_plan_frequency(client: TestClient):
+    # 1. create care plan for client
     client_intake: Client = Client.query.first()
+    data_client = {
+        "api_key": client_intake.api_key,
+    }
+    response = client.post("/api/test/care_plan_create", json=data_client)
+    assert response
+    assert response.ok
+    data_care_plan = response.json()
+    assert data_care_plan
+
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
     }
-    # 1. create test for client
+    # 2. create test for client
     response = client.post("/api/test/test_create", json=data)
     assert response
     assert response.ok
@@ -95,16 +126,16 @@ def test_write_care_plan_frequency(client: TestClient):
         "care_plan": "3-month",
         "frequency": "1-month",
     }
-    # 2. write care plan to created test
+    # 3. write care plan to created test
     response = client.post("/api/test/care_plan_frequency", json=data_for_test)
     assert response
     assert response.ok
-    test_data = response.json()
-    assert test_data
-    assert test_data["care_plan"] == "3-month"
-    assert test_data["frequency"] == "1-month"
+    care_plan_data = response.json()
+    assert care_plan_data
+    assert care_plan_data["care_plan"] == "3-month"
+    assert care_plan_data["frequency"] == "1-month"
 
-    # 3. get all names of care plan
+    # 4. get all names of care plan
     response = client.get("/api/test/care_plan_names")
     assert response
     assert response.ok
@@ -113,16 +144,18 @@ def test_write_care_plan_frequency(client: TestClient):
     assert len(data_names_care_plan) == 1
     assert data_names_care_plan[0]["care_plan"] == "3-month"
 
-    #  4. get tests with care plan
+    #  5. get tests with care plan
     response = client.get(f"/api/test/client_tests/{client_intake.api_key}")
     assert response
     assert response.ok
     data_test_with_care_plan = response.json()
     assert data_test_with_care_plan
 
-    test_id = test_data["id"]
+    test_id = data_for_test["test_id"]
 
-    # 5. get test with test_id
+    # 6. get test with test_id
     response = client.get(f"/api/test/test/{test_id}")
     assert response
     assert response.ok
+    test = response.json()
+    assert test
