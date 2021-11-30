@@ -17,10 +17,9 @@ class PostTest(Test):
 class CreateTest(Test):
     id: int
     date: Optional[datetime.datetime]
+    care_plan_id: int
     client_id: int
     doctor_id: int
-    care_plan: Optional[str]
-    frequency: Optional[str]
 
 
 class GetTest(Test):
@@ -28,8 +27,7 @@ class GetTest(Test):
     date: str
     client_name: str
     doctor_name: str
-    care_plan: Optional[str]
-    frequency: Optional[str]
+    care_plan_id: Optional[int]
 
 
 class PostTestCarePlanAndFrequency(Test):
