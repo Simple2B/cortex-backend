@@ -176,7 +176,7 @@ class TestService:
 
         if len(week_data_frequency) > 0:
             num_frequency = re.findall(r"\d+", data.frequency)
-            data_frequency = num_frequency[0] + "-" + "month"
+            data_frequency = num_frequency[0] + "-" + "week"
 
         log(log.INFO, "write_care_plan_frequency: data_frequency [%s]", data_frequency)
 
@@ -295,10 +295,21 @@ class TestService:
             return
         log(log.INFO, "get_test: Test [%d]", test.id)
 
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.id == test.care_plan_id
+        ).first()
+
+        if not care_plan:
+            log(log.INFO, "get_test: care plan doesn't created")
+
+        log(log.INFO, "get_test: care plan [%d] for test [%d]", care_plan.id, test.id)
+
         return {
             "id": test.id,
             "date": test.date.strftime("%B %d %Y"),
             "client_name": test.client.first_name,
             "doctor_name": test.doctor.first_name,
             "care_plan_id": test.care_plan_id,
+            "care_plan": care_plan.care_plan,
+            "frequency": care_plan.frequency,
         }
