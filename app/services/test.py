@@ -9,7 +9,14 @@ from app.schemas import (
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
 )
-from app.models import Client as ClientDB, Test, InfoCarePlan, InfoFrequency, CarePlan
+from app.models import (
+    Client as ClientDB,
+    Test,
+    InfoCarePlan,
+    InfoFrequency,
+    CarePlan,
+    care_plan,
+)
 from app.logger import log
 
 
@@ -39,6 +46,27 @@ class TestService:
         log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
         return care_plan
 
+    def get_care_plan(self, api_key: str, doctor: Doctor) -> CarePlanCreate:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+
+        if not client:
+            log(log.ERROR, "get_care_plan: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="get_care_plan: Client not found",
+            )
+
+        log(log.INFO, "get_care_plan: Client [%s] for test", client)
+
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).first()
+
+        if not care_plan:
+            log(log.INFO, "get_care_plan: care plan not found")
+            return
+        return care_plan
+
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
@@ -64,17 +92,28 @@ class TestService:
 
         log(log.INFO, "create_test: Date [%s] for start test", date)
 
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).first()
+
+        if not care_plan:
+            log(log.INFO, "create_test: care plan not created")
+            return
+        log(log.INFO, "create_test: care plan [%s]", care_plan)
+
         create_test: Test = Test(
             date=date,
+            care_plan_id=care_plan.id,
             client_id=client.id,
             doctor_id=doctor.id,
-        ).save()
+        )
+        create_test.save()
 
         return create_test
 
     def write_care_plan_frequency(
         self, data: PostTestCarePlanAndFrequency, doctor: Doctor
-    ) -> CreateTest:
+    ) -> CarePlanCreate:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
         ).first()
@@ -87,34 +126,48 @@ class TestService:
             )
 
         log(log.INFO, "write_care_plan_frequency: Client [%s] for test", client)
-        test: Test = Test.query.filter(Test.id == data.test_id).first()
 
-        if not test:
-            log(log.ERROR, "write_care_plan_frequency: Test not created")
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).first()
+        # test: Test = Test.query.filter(Test.id == data.test_id).first()
+
+        if not care_plan:
+            log(log.ERROR, "write_care_plan_frequency: care plan not created")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="write_care_plan_frequency: Test not created",
+                detail="write_care_plan_frequency: care plan not created",
             )
 
-        log(log.INFO, "write_care_plan_frequency: Test [%d] found", test.id)
+        log(log.INFO, "write_care_plan_frequency: care plan [%d] found", care_plan.id)
 
-        test.care_plan = data.care_plan
-        test.frequency = data.frequency
-        test.save()
+        care_plan.care_plan = data.care_plan
+        care_plan.frequency = data.frequency
+        care_plan.client_id = client.id
+        care_plan.doctor_id = doctor.id
+        care_plan.save()
+
+        log(
+            log.INFO,
+            "write_care_plan_frequency: care plan [%d] with care_plan [%s] and frequency[%s] saved",
+            care_plan.id,
+            care_plan.care_plan,
+            care_plan.frequency,
+        )
 
         info_care_plan = InfoCarePlan.query.filter(
             InfoCarePlan.care_plan == data.care_plan
         ).first()
 
         if not info_care_plan:
-            care_plan = InfoCarePlan(
+            info_care_plan = InfoCarePlan(
                 care_plan=data.care_plan, doctor_id=doctor.id
             ).save()
 
             log(
                 log.INFO,
-                "write_care_plan_frequency: care_plan [%d] created",
-                care_plan.id,
+                "write_care_plan_frequency: info_care_plan [%d] created",
+                info_care_plan.id,
             )
 
         info_frequency = InfoFrequency.query.filter(
@@ -131,13 +184,7 @@ class TestService:
                 info_frequency.id,
             )
 
-        return {
-            "id": data.test_id,
-            "client_id": client.id,
-            "doctor_id": doctor.id,
-            "care_plan": data.care_plan,
-            "frequency": data.frequency,
-        }
+        return care_plan
 
     def get_client_tests(self, api_key: str, doctor: Doctor) -> list[GetTest]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
@@ -160,8 +207,7 @@ class TestService:
                 {
                     "id": test.id,
                     "date": test.date.strftime("%B %d %Y"),
-                    "care_plan": test.care_plan,
-                    "frequency": test.frequency,
+                    "care_plan_id": test.care_plan_id,
                     "client_name": client.first_name,
                     "doctor_name": doctor.first_name,
                 }
@@ -195,6 +241,5 @@ class TestService:
             "date": test.date.strftime("%B %d %Y"),
             "client_name": test.client.first_name,
             "doctor_name": test.doctor.first_name,
-            "care_plan": test.care_plan,
-            "frequency": test.frequency,
+            "care_plan_id": test.care_plan_id,
         }
