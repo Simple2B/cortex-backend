@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from fastapi import HTTPException, status
 from app.schemas import (
@@ -140,8 +141,56 @@ class TestService:
 
         log(log.INFO, "write_care_plan_frequency: care plan [%d] found", care_plan.id)
 
-        care_plan.care_plan = data.care_plan
-        care_plan.frequency = data.frequency
+        if data.care_plan == "" or data.frequency == "":
+            log(
+                log.INFO,
+                "write_care_plan_frequency: care_plan [%s] or frequency [%s] not filled",
+                data.care_plan,
+                data.frequency,
+            )
+            return care_plan
+
+        data_care_plan = ""
+
+        month_data_care_plan = re.findall("m", data.care_plan)
+        week_data_care_plan = re.findall("w", data.care_plan)
+
+        if len(month_data_care_plan) > 0:
+            num_care_plan = re.findall(r"\d+", data.care_plan)
+            data_care_plan = num_care_plan[0] + "-" + "month"
+
+        if len(week_data_care_plan) > 0:
+            num_care_plan = re.findall(r"\d+", data.care_plan)
+            data_care_plan = num_care_plan[0] + "-" + "week"
+
+        log(log.INFO, "write_care_plan_frequency: data_care_plan [%s]", data_care_plan)
+
+        data_frequency = ""
+
+        month_data_frequency = re.findall("m", data.frequency)
+        week_data_frequency = re.findall("w", data.frequency)
+
+        if len(month_data_frequency) > 0:
+            num_frequency = re.findall(r"\d+", data.frequency)
+            data_frequency = num_frequency[0] + "-" + "month"
+
+        if len(week_data_frequency) > 0:
+            num_frequency = re.findall(r"\d+", data.frequency)
+            data_frequency = num_frequency[0] + "-" + "month"
+
+        log(log.INFO, "write_care_plan_frequency: data_frequency [%s]", data_frequency)
+
+        if data_care_plan == "" or data_frequency == "":
+            log(
+                log.INFO,
+                "write_care_plan_frequency: data_care_plan [%s] or data_frequency [%s] not filled",
+                data.care_plan,
+                data.frequency,
+            )
+            return care_plan
+
+        care_plan.care_plan = data_care_plan
+        care_plan.frequency = data_frequency
         care_plan.client_id = client.id
         care_plan.doctor_id = doctor.id
         care_plan.save()
@@ -155,12 +204,12 @@ class TestService:
         )
 
         info_care_plan = InfoCarePlan.query.filter(
-            InfoCarePlan.care_plan == data.care_plan
+            InfoCarePlan.care_plan == data_care_plan
         ).first()
 
         if not info_care_plan:
             info_care_plan = InfoCarePlan(
-                care_plan=data.care_plan, doctor_id=doctor.id
+                care_plan=data_care_plan, doctor_id=doctor.id
             ).save()
 
             log(
@@ -170,19 +219,18 @@ class TestService:
             )
 
         info_frequency = InfoFrequency.query.filter(
-            InfoFrequency.frequency == data.frequency
+            InfoFrequency.frequency == data_frequency
         ).first()
 
         if not info_frequency:
             info_frequency = InfoFrequency(
-                frequency=data.frequency, doctor_id=doctor.id
+                frequency=data_frequency, doctor_id=doctor.id
             ).save()
             log(
                 log.INFO,
                 "write_care_plan_frequency: info_frequency [%d] created",
                 info_frequency.id,
             )
-
         return care_plan
 
     def get_client_tests(self, api_key: str, doctor: Doctor) -> list[GetTest]:
@@ -223,6 +271,18 @@ class TestService:
             return
         log(log.INFO, "get_care_plan_names: Count of names [%d]", len(care_plan_names))
         return care_plan_names
+
+    def get_frequency_names(self, doctor: Doctor) -> InfoFrequency:
+        frequency_plan_names = InfoFrequency.query.all()
+        if not frequency_plan_names:
+            log(log.INFO, "get_frequency_names: No care plan names")
+            return
+        log(
+            log.INFO,
+            "get_frequency_names: Count of frequency names [%d]",
+            len(frequency_plan_names),
+        )
+        return frequency_plan_names
 
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
         id = int(test_id)

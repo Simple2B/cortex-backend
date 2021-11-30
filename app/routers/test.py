@@ -8,6 +8,7 @@ from app.schemas import (
     GetTest,
     PostTestCarePlanAndFrequency,
     InfoCarePlan,
+    InfoFrequency,
     CarePlanCreate,
     ClientCarePlan,
 )
@@ -59,6 +60,15 @@ async def write_care_plan_frequency(
     """Add to test care plan and frequency"""
     service = TestService()
     return service.write_care_plan_frequency(data, doctor)
+
+
+@router_test.get(
+    "/frequency_names", response_model=List[InfoFrequency], tags=["Client"]
+)
+async def get_frequency_names(doctor: Doctor = Depends(get_current_doctor)):
+    """Get all frequency name"""
+    service = TestService()
+    return service.get_frequency_names(doctor)
 
 
 @router_test.get("/care_plan_names", response_model=List[InfoCarePlan], tags=["Client"])
