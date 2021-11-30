@@ -144,7 +144,16 @@ def test_write_care_plan_frequency(client: TestClient):
     assert len(data_names_care_plan) == 1
     assert data_names_care_plan[0]["care_plan"] == "3-month"
 
-    #  5. get tests with care plan
+    # 5. get all names of frequency
+    response = client.get("/api/test/frequency_names")
+    assert response
+    assert response.ok
+    data_names_frequency = response.json()
+    assert data_names_frequency
+    assert len(data_names_frequency) == 1
+    assert data_names_frequency[0]["frequency"] == "1-month"
+
+    # 6. get tests with care plan
     response = client.get(f"/api/test/client_tests/{client_intake.api_key}")
     assert response
     assert response.ok
