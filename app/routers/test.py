@@ -27,6 +27,15 @@ async def care_plan_create(
     return service.care_plan_create(data, doctor)
 
 
+@router_test.get(
+    "/care_plan_create/{api_key}", response_model=CarePlanCreate, tags=["Test"]
+)
+async def get_care_plan(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get care_plan for test"""
+    service = TestService()
+    return service.get_care_plan(api_key, doctor)
+
+
 @router_test.post("/test_create", response_model=CreateTest, tags=["Test"])
 async def test_create(data: PostTest, doctor: Doctor = Depends(get_current_doctor)):
     """Create test for client in visit"""
@@ -43,7 +52,7 @@ async def get_client_tests(api_key: str, doctor: Doctor = Depends(get_current_do
     return service.get_client_tests(api_key, doctor)
 
 
-@router_test.post("/care_plan_frequency", response_model=CreateTest, tags=["Test"])
+@router_test.post("/care_plan_frequency", response_model=CarePlanCreate, tags=["Test"])
 async def write_care_plan_frequency(
     data: PostTestCarePlanAndFrequency, doctor: Doctor = Depends(get_current_doctor)
 ):
