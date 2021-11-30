@@ -15,7 +15,6 @@ from app.models import (
     InfoCarePlan,
     InfoFrequency,
     CarePlan,
-    care_plan,
 )
 from app.logger import log
 
