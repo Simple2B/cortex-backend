@@ -393,14 +393,30 @@ class TestService:
         care_plan_length = None
         visit_frequency = None
         next_visit = None
+        care_plan_length = None
+        visit_frequency = None
+        next_visit = None
         if not care_plan:
-            care_plan_length = "-"
-            visit_frequency = "-"
-            next_visit = "-"
+            return {
+                "care_plan_length": "-",
+                "visit_frequency": "-",
+                "next_visit": "-",
+                "care_plan_length": "-",
+                "visit_frequency": "-",
+                "next_visit": "-",
+                "expiration": "-",
+            }
 
         care_plan_length = care_plan.care_plan
+        if not care_plan_length:
+            care_plan_length = "-"
+
         visit_frequency = care_plan.frequency
+        if not visit_frequency:
+            visit_frequency = "-"
         next_visit = care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+        if not next_visit:
+            next_visit = "-"
 
         return {
             "first_visit": first_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
