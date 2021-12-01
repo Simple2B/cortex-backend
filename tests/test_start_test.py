@@ -123,6 +123,7 @@ def test_write_care_plan_frequency(client: TestClient):
     data_for_test = {
         "test_id": data_start_test["id"],
         "api_key": client_intake.api_key,
+        "progress_date": "9/10/2021, 11:43:14",
         "care_plan": "3-month",
         "frequency": "1-month",
     }
