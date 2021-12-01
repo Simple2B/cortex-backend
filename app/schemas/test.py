@@ -35,5 +35,6 @@ class GetTest(Test):
 class PostTestCarePlanAndFrequency(Test):
     test_id: int
     api_key: str
+    progress_date: Optional[str]
     care_plan: str
     frequency: str

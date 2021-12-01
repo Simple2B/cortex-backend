@@ -11,6 +11,7 @@ class CarePlan(BaseModel):
 
 class CarePlanCreate(CarePlan):
     date: Optional[datetime.datetime]
+    progress_date: Optional[str]
     care_plan: Optional[str]
     frequency: Optional[str]
     client_id: int
