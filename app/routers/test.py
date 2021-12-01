@@ -11,6 +11,7 @@ from app.schemas import (
     InfoFrequency,
     CarePlanCreate,
     ClientCarePlan,
+    CarePlanPatientInfo,
 )
 from app.services import TestService
 from app.services.auth import get_current_doctor
@@ -83,3 +84,16 @@ async def get_test(test_id: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get test with id"""
     service = TestService()
     return service.get_test(test_id, doctor)
+
+
+@router_test.get(
+    "/info_for_care_plan_page/{api_key}",
+    response_model=CarePlanPatientInfo,
+    tags=["Client"],
+)
+async def get_info_for_care_plan_page(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get care plan info for patient"""
+    service = TestService()
+    return service.get_info_for_care_plan_page(api_key, doctor)
