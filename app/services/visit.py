@@ -131,3 +131,5 @@ class VisitService:
             return "ok"
         except stripe.error.StripeError as error:
             raise error
+        except stripe.error.InvalidRequestError as error:
+            raise error
