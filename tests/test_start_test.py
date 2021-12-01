@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from typing import Generator
 from fastapi.testclient import TestClient
@@ -6,7 +7,7 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import Client
+from app.models import Client, Doctor, Visit
 
 from .database import generate_test_data
 from .utils import login
@@ -169,3 +170,30 @@ def test_write_care_plan_frequency(client: TestClient):
     assert response.ok
     test = response.json()
     assert test
+
+    doctor = Doctor.query.first()
+    # 2. add 3 visits
+    date = datetime.date.today()
+    time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+    count = 1
+    for i in range(3):
+        Visit(
+            date=date + datetime.timedelta(days=count),
+            start_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=count),
+            end_time=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+            + datetime.timedelta(days=i + 2),
+            client_id=client_intake.id,
+            doctor_id=doctor.id,
+        ).save()
+        count = count + 1
+
+    visits: Client = client_intake.client_info["visits"]
+    assert visits
+
+    # get care plan for client
+    response = client.get(f"/api/test/info_for_care_plan_page/{client_intake.api_key}")
+    assert response
+    assert response.ok
+    care_plan_info = response.json()
+    assert care_plan_info
