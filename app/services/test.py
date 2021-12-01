@@ -9,6 +9,7 @@ from app.schemas import (
     GetTest,
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
+    CarePlanPatientInfo,
 )
 from app.models import (
     Client as ClientDB,
@@ -365,4 +366,48 @@ class TestService:
             "care_plan_id": test.care_plan_id,
             "care_plan": care_plan.care_plan,
             "frequency": care_plan.frequency,
+        }
+
+    def get_info_for_care_plan_page(
+        self, api_key: str, doctor: Doctor
+    ) -> CarePlanPatientInfo:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+
+        if not client:
+            log(log.ERROR, "get_info_for_care_plan_page: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="get_info_for_care_plan_page: Client not found",
+            )
+
+        log(log.INFO, "get_info_for_care_plan_page: Client [%s] for test", client)
+
+        visits = client.client_info["visits"]
+        if len(visits):
+            first_visit = visits[0]
+            last_visit = visits[-1]
+
+        care_plan: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).first()
+        care_plan_length = None
+        visit_frequency = None
+        next_visit = None
+        if not care_plan:
+            care_plan_length = "-"
+            visit_frequency = "-"
+            next_visit = "-"
+
+        care_plan_length = care_plan.care_plan
+        visit_frequency = care_plan.frequency
+        next_visit = care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+
+        return {
+            "first_visit": first_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+            "last_visit": last_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+            "total_visits": len(visits),
+            "care_plan_length": care_plan_length,
+            "visit_frequency": visit_frequency,
+            "next_visit": next_visit,
+            "expiration": "",
         }
