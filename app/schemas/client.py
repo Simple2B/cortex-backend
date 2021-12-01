@@ -73,7 +73,7 @@ class ClientPhone(BaseModel):
 
 class ClientInfoStripe(BaseModel):
     id: str
-    description: str
+    description: Optional[str]
     amount: int
 
     class Config:
