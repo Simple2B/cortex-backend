@@ -111,6 +111,68 @@ class TestService:
 
         return create_test
 
+    @staticmethod
+    def formed_care_plan_with_progress_test_date(
+        care_plan,
+        data_care_plan: str,
+        data_frequency: str,
+        progress_date,
+        client,
+        doctor,
+    ) -> CarePlanCreate:
+        care_plan.care_plan = data_care_plan
+        care_plan.frequency = data_frequency
+        care_plan.progress_date = progress_date
+        care_plan.client_id = client.id
+        care_plan.doctor_id = doctor.id
+        care_plan.save()
+        log(
+            log.INFO,
+            "write_care_plan_frequency: care plan [%d] with care_plan [%s] and frequency[%s] saved",
+            care_plan.id,
+            care_plan.care_plan,
+            care_plan.frequency,
+        )
+
+        info_care_plan = InfoCarePlan.query.filter(
+            InfoCarePlan.care_plan == data_care_plan
+        ).first()
+
+        if not info_care_plan:
+            info_care_plan = InfoCarePlan(
+                care_plan=data_care_plan, doctor_id=doctor.id
+            ).save()
+
+            log(
+                log.INFO,
+                "write_care_plan_frequency: info_care_plan [%d] created",
+                info_care_plan.id,
+            )
+
+        info_frequency = InfoFrequency.query.filter(
+            InfoFrequency.frequency == data_frequency
+        ).first()
+
+        if not info_frequency:
+            info_frequency = InfoFrequency(
+                frequency=data_frequency, doctor_id=doctor.id
+            ).save()
+            log(
+                log.INFO,
+                "write_care_plan_frequency: info_frequency [%d] created",
+                info_frequency.id,
+            )
+
+        res_care_plan = {
+            "date": care_plan.date,
+            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S"),
+            "care_plan": care_plan.care_plan,
+            "frequency": care_plan.frequency,
+            "client_id": care_plan.client_id,
+            "doctor_id": care_plan.doctor_id,
+        }
+        return res_care_plan
+
     def write_care_plan_frequency(
         self, data: PostTestCarePlanAndFrequency, doctor: Doctor
     ) -> CarePlanCreate:
@@ -130,7 +192,6 @@ class TestService:
         care_plan: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
         ).first()
-        # test: Test = Test.query.filter(Test.id == data.test_id).first()
 
         if not care_plan:
             log(log.ERROR, "write_care_plan_frequency: care plan not created")
@@ -180,57 +241,49 @@ class TestService:
 
         log(log.INFO, "write_care_plan_frequency: data_frequency [%s]", data_frequency)
 
-        if data_care_plan == "" or data_frequency == "":
-            log(
-                log.INFO,
-                "write_care_plan_frequency: data_care_plan [%s] or data_frequency [%s] not filled",
-                data.care_plan,
-                data.frequency,
-            )
-            return care_plan
+        progress_date = None
+        # if the progress_date is not filled,
+        # the next test date should occur 6 weeks(42 days) after the patient's last test
+        if not data.progress_date:
+            tests = care_plan.care_plan_info
+            if len(tests) > 0:
+                last_test = tests[-1]
+                progress_date = last_test.date + datetime.timedelta(days=42)
+                log(
+                    log.INFO,
+                    "write_care_plan_frequency: progress_date [%s] from last test",
+                    progress_date,
+                )
 
-        care_plan.care_plan = data_care_plan
-        care_plan.frequency = data_frequency
-        care_plan.client_id = client.id
-        care_plan.doctor_id = doctor.id
-        care_plan.save()
+                care_plan = self.formed_care_plan_with_progress_test_date(
+                    care_plan,
+                    data_care_plan,
+                    data_frequency,
+                    progress_date,
+                    client,
+                    doctor,
+                )
+                return care_plan
+
+        progress_date = datetime.datetime.strptime(
+            data.progress_date, "%m/%d/%Y, %H:%M:%S"
+        )
 
         log(
             log.INFO,
-            "write_care_plan_frequency: care plan [%d] with care_plan [%s] and frequency[%s] saved",
-            care_plan.id,
-            care_plan.care_plan,
-            care_plan.frequency,
+            "write_care_plan_frequency: progress_date [%s] from doctor",
+            progress_date,
         )
 
-        info_care_plan = InfoCarePlan.query.filter(
-            InfoCarePlan.care_plan == data_care_plan
-        ).first()
+        care_plan = self.formed_care_plan_with_progress_test_date(
+            care_plan,
+            data_care_plan,
+            data_frequency,
+            progress_date,
+            client,
+            doctor,
+        )
 
-        if not info_care_plan:
-            info_care_plan = InfoCarePlan(
-                care_plan=data_care_plan, doctor_id=doctor.id
-            ).save()
-
-            log(
-                log.INFO,
-                "write_care_plan_frequency: info_care_plan [%d] created",
-                info_care_plan.id,
-            )
-
-        info_frequency = InfoFrequency.query.filter(
-            InfoFrequency.frequency == data_frequency
-        ).first()
-
-        if not info_frequency:
-            info_frequency = InfoFrequency(
-                frequency=data_frequency, doctor_id=doctor.id
-            ).save()
-            log(
-                log.INFO,
-                "write_care_plan_frequency: info_frequency [%d] created",
-                info_frequency.id,
-            )
         return care_plan
 
     def get_client_tests(self, api_key: str, doctor: Doctor) -> list[GetTest]:
@@ -287,7 +340,7 @@ class TestService:
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
         id = int(test_id)
         if not id:
-            log(log.INFO, "get_test: No test id")
+            log(log.INFO, "get_test: No id")
             return
         test: Test = Test.query.filter(Test.id == id).first()
         if not test:
