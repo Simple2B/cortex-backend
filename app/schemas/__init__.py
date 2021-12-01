@@ -25,4 +25,4 @@ from .note import Note, NoteDelete
 from .test import PostTest, CreateTest, GetTest, PostTestCarePlanAndFrequency
 from .info_care_plan import InfoCarePlan
 from .info_frequency import InfoFrequency
-from .care_plan import CarePlanCreate
+from .care_plan import CarePlanCreate, CarePlanPatientInfo

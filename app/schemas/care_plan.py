@@ -16,3 +16,13 @@ class CarePlanCreate(CarePlan):
     frequency: Optional[str]
     client_id: int
     doctor_id: int
+
+
+class CarePlanPatientInfo(CarePlan):
+    first_visit: Optional[str]
+    last_visit: Optional[str]
+    total_visits: Optional[str]
+    care_plan_length: Optional[str]
+    visit_frequency: Optional[str]
+    next_visit: Optional[str]
+    expiration: Optional[str]
