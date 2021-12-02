@@ -8,12 +8,35 @@ from app.schemas import (
     GetTest,
     PostTestCarePlanAndFrequency,
     InfoCarePlan,
+    InfoFrequency,
+    CarePlanCreate,
+    ClientCarePlan,
+    CarePlanPatientInfo,
 )
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
 
 router_test = APIRouter(prefix="/test")
+
+
+@router_test.post("/care_plan_create", response_model=str, tags=["Test"])
+async def care_plan_create(
+    data: ClientCarePlan, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Create care_plan for client"""
+    service = TestService()
+    service.care_plan_create(data, doctor)
+    return "ok"
+
+
+@router_test.get(
+    "/care_plan_create/{api_key}", response_model=CarePlanCreate, tags=["Test"]
+)
+async def get_care_plan(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get care_plan for test"""
+    service = TestService()
+    return service.get_care_plan(api_key, doctor)
 
 
 @router_test.post("/test_create", response_model=CreateTest, tags=["Test"])
@@ -32,13 +55,22 @@ async def get_client_tests(api_key: str, doctor: Doctor = Depends(get_current_do
     return service.get_client_tests(api_key, doctor)
 
 
-@router_test.post("/care_plan_frequency", response_model=CreateTest, tags=["Test"])
+@router_test.post("/care_plan_frequency", response_model=CarePlanCreate, tags=["Test"])
 async def write_care_plan_frequency(
     data: PostTestCarePlanAndFrequency, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Add to test care plan and frequency"""
     service = TestService()
     return service.write_care_plan_frequency(data, doctor)
+
+
+@router_test.get(
+    "/frequency_names", response_model=List[InfoFrequency], tags=["Client"]
+)
+async def get_frequency_names(doctor: Doctor = Depends(get_current_doctor)):
+    """Get all frequency name"""
+    service = TestService()
+    return service.get_frequency_names(doctor)
 
 
 @router_test.get("/care_plan_names", response_model=List[InfoCarePlan], tags=["Client"])
@@ -53,3 +85,16 @@ async def get_test(test_id: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get test with id"""
     service = TestService()
     return service.get_test(test_id, doctor)
+
+
+@router_test.get(
+    "/info_for_care_plan_page/{api_key}",
+    response_model=CarePlanPatientInfo,
+    tags=["Client"],
+)
+async def get_info_for_care_plan_page(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get care plan info for patient"""
+    service = TestService()
+    return service.get_info_for_care_plan_page(api_key, doctor)

@@ -32,6 +32,8 @@ class Token(BaseModel):
 
 class DoctorStripeSecret(BaseModel):
     pk_test: str
+    sk_test: str
+    cortex_key: str
 
     class Config:
         orm_mode = True
