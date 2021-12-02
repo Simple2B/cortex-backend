@@ -239,9 +239,6 @@ async def create_stripe_session(
 ):
     """Stripe session"""
     service = VisitService()
-    try:
-        service.create_stripe_session(data)
-    except:
-        return "not ok"
+    service.create_stripe_session(data)
 
     return "ok"
