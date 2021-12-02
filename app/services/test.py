@@ -1,5 +1,6 @@
 import datetime
 import re
+from dateutil.relativedelta import relativedelta
 
 from fastapi import HTTPException, status
 from app.schemas import (
@@ -22,7 +23,7 @@ from app.logger import log
 
 
 class TestService:
-    def care_plan_create(self, data: PostTest, doctor: Doctor) -> CarePlanCreate:
+    def care_plan_create(self, data: PostTest, doctor: Doctor) -> None:
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
         ).first()
@@ -43,9 +44,18 @@ class TestService:
         if not care_plan:
             care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
             log(log.INFO, "care_plan_create: care plan [%d] created", care_plan.id)
-            return care_plan
+            return
+
+        num_care_plan = re.findall(r"\d+", care_plan.care_plan)
+        end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
+        log(log.INFO, "care_plan_create: end_time [%s]", end_time)
+        care_plan.end_time = end_time
+        care_plan.save()
+
+        log(log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id)
+
         log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
-        return care_plan
+        return
 
     def get_care_plan(self, api_key: str, doctor: Doctor) -> CarePlanCreate:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
@@ -66,7 +76,24 @@ class TestService:
         if not care_plan:
             log(log.INFO, "get_care_plan: care plan not found")
             return
-        return care_plan
+
+        today = datetime.datetime.now()
+
+        if care_plan.end_time < today:
+            care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
+            log(log.INFO, "get_care_plan: care plan [%d] created", care_plan.id)
+            return care_plan
+
+        plan = {
+            "date": care_plan.date,
+            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S"),
+            "care_plan": care_plan.care_plan,
+            "frequency": care_plan.frequency,
+            "client_id": client.id,
+            "doctor_id": doctor.id,
+        }
+
+        return plan
 
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
         client: ClientDB = ClientDB.query.filter(
@@ -398,9 +425,9 @@ class TestService:
         next_visit = None
         if not care_plan:
             return {
-                "care_plan_length": "-",
-                "visit_frequency": "-",
-                "next_visit": "-",
+                "first_visit": "-",
+                "last_visit": "-",
+                "total_visits": "-",
                 "care_plan_length": "-",
                 "visit_frequency": "-",
                 "next_visit": "-",
