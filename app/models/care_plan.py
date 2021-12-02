@@ -6,12 +6,20 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
 
+time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+
 
 class CarePlan(Base, ModelMixin):
     __tablename__ = "careplans"
 
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.today)
+
+    start_time = Column(
+        DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+    )
+    end_time = Column(DateTime, nullable=True)
+
     care_plan = Column(String(128), nullable=True)
     frequency = Column(String(128), nullable=True)
     progress_date = Column(DateTime, nullable=True)
