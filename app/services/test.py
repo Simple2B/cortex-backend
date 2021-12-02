@@ -441,13 +441,15 @@ class TestService:
         visit_frequency = care_plan.frequency
         if not visit_frequency:
             visit_frequency = "-"
-        next_visit = care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+
+        # "%m/%d/%Y, %H:%M:%S"
+        next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
         if not next_visit:
             next_visit = "-"
 
         return {
-            "first_visit": first_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-            "last_visit": last_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+            "first_visit": first_visit.start_time.strftime("%m/%d/%Y"),
+            "last_visit": last_visit.start_time.strftime("%m/%d/%Y"),
             "total_visits": len(visits),
             "care_plan_length": care_plan_length,
             "visit_frequency": visit_frequency,
