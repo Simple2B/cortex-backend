@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, DateTime, String
+from sqlalchemy import Column, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -13,12 +13,11 @@ class Test(Base, ModelMixin):
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.today)
 
+    care_plan_id = Column(Integer, ForeignKey("careplans.id"))
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
-    care_plan = Column(String(128), nullable=True)
-    frequency = Column(String(128), nullable=True)
-
+    care_plan = relationship("CarePlan", viewonly=True)
     client = relationship("Client", viewonly=True)
     doctor = relationship("Doctor", viewonly=True)
 

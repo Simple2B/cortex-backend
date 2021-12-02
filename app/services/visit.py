@@ -115,6 +115,8 @@ class VisitService:
 
         return {
             "pk_test": config.PK_TEST,
+            "sk_test": config.SK_TEST,
+            "cortex_key": config.CORTEX_KEY,
         }
 
     def create_stripe_session(self, data: ClientInfoStripe) -> str:
