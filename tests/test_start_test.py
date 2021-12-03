@@ -301,3 +301,10 @@ def test_get_care_plan_and_frequency_names(client: TestClient):
     assert response.ok
     data_names_care_plan = response.json()
     assert data_names_care_plan
+
+    # 5. get all names of frequency (magnification filtering)
+    response = client.get("/api/test/frequency_names")
+    assert response
+    assert response.ok
+    data_names_frequency = response.json()
+    assert data_names_frequency
