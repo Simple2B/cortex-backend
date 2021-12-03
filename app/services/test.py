@@ -351,7 +351,14 @@ class TestService:
             log(log.INFO, "get_care_plan_names: No care plan names")
             return
         log(log.INFO, "get_care_plan_names: Count of names [%d]", len(care_plan_names))
-        return care_plan_names
+        names = []
+        for name in care_plan_names:
+            num_name = re.findall(r"\d+", name.care_plan)
+            names.append({"number": int(num_name[0]), "care_plan": name.care_plan})
+
+        sorted_names = sorted(names, key=lambda k: k["number"])
+
+        return sorted_names
 
     def get_frequency_names(self, doctor: Doctor) -> InfoFrequency:
         frequency_plan_names = InfoFrequency.query.all()
@@ -363,7 +370,14 @@ class TestService:
             "get_frequency_names: Count of frequency names [%d]",
             len(frequency_plan_names),
         )
-        return frequency_plan_names
+        names = []
+        for name in frequency_plan_names:
+            num_name = re.findall(r"\d+", name.frequency)
+            names.append({"number": int(num_name[0]), "frequency": name.frequency})
+
+        sorted_names = sorted(names, key=lambda k: k["number"])
+
+        return sorted_names
 
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
         id = int(test_id)
@@ -441,13 +455,15 @@ class TestService:
         visit_frequency = care_plan.frequency
         if not visit_frequency:
             visit_frequency = "-"
-        next_visit = care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+
+        # "%m/%d/%Y, %H:%M:%S"
+        next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
         if not next_visit:
             next_visit = "-"
 
         return {
-            "first_visit": first_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-            "last_visit": last_visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+            "first_visit": first_visit.start_time.strftime("%m/%d/%Y"),
+            "last_visit": last_visit.start_time.strftime("%m/%d/%Y"),
             "total_visits": len(visits),
             "care_plan_length": care_plan_length,
             "visit_frequency": visit_frequency,
