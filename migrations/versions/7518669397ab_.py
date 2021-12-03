@@ -1,17 +1,17 @@
 """empty message
 
 Revision ID: 7518669397ab
-Revises: f2e93fd1a1f6
-Create Date: 2021-12-03 15:16:26.839213
+Revises: eafb4867e271
+Create Date: 2021-12-03 15:53:12.049763
 
 """
-from alembic import op  # noqa F401
-import sqlalchemy as sa  # noqa F401
+from alembic import op
+import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "7518669397ab"
-down_revision = "f2e93fd1a1f6"
+revision = '7518669397ab'
+down_revision = 'eafb4867e271'
 branch_labels = None
 depends_on = None
 

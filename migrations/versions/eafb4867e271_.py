@@ -1,16 +1,16 @@
 """empty message
 
-Revision ID: 206bd8a5995e
-Revises:
-Create Date: 2021-12-03 12:07:39.614480
+Revision ID: eafb4867e271
+Revises: 
+Create Date: 2021-12-03 15:51:37.384724
 
 """
-from alembic import op  # noqa F401
-import sqlalchemy as sa  # noqa F401
+from alembic import op
+import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "206bd8a5995e"
+revision = 'eafb4867e271'
 down_revision = None
 branch_labels = None
 depends_on = None
