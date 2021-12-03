@@ -370,7 +370,14 @@ class TestService:
             "get_frequency_names: Count of frequency names [%d]",
             len(frequency_plan_names),
         )
-        return frequency_plan_names
+        names = []
+        for name in frequency_plan_names:
+            num_name = re.findall(r"\d+", name.frequency)
+            names.append({"number": int(num_name[0]), "frequency": name.frequency})
+
+        sorted_names = sorted(names, key=lambda k: k["number"])
+
+        return sorted_names
 
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
         id = int(test_id)
