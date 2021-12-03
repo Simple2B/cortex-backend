@@ -7,5 +7,5 @@ class InfoBase(BaseModel):
 
 
 class InfoFrequency(InfoBase):
-    id: int
+    number: int
     frequency: str

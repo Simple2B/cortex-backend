@@ -7,5 +7,5 @@ class Info(BaseModel):
 
 
 class InfoCarePlan(Info):
-    id: int
+    number: int
     care_plan: str

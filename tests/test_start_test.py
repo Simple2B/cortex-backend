@@ -251,3 +251,60 @@ def test_write_care_plan_frequency(client: TestClient):
     assert response.ok
     care_plan_info = response.json()
     assert care_plan_info
+
+
+def test_get_care_plan_and_frequency_names(client: TestClient):
+    # 1. create care plan for client
+    client_intake: Client = Client.query.first()
+    data_client = {
+        "api_key": client_intake.api_key,
+    }
+    response = client.post("/api/test/care_plan_create", json=data_client)
+    assert response
+    assert response.ok
+    data_care_plan = response.json()
+    assert data_care_plan
+
+    data = {
+        "api_key": client_intake.api_key,
+        "date": "11/22/2021, 11:43:14",
+    }
+    # 2. create test for client
+    response = client.post("/api/test/test_create", json=data)
+    assert response
+    assert response.ok
+    data_start_test = response.json()
+    assert data_start_test
+    assert data_start_test["client_id"] == client_intake.id
+
+    care_plan_names = ["2-month", "3-month", "1-month", "10-month"]
+    frequency_names = ["6-week", "12-week", "1-week", "10-week"]
+
+    for i in range(4):
+
+        data_for_test = {
+            "test_id": data_start_test["id"],
+            "api_key": client_intake.api_key,
+            "progress_date": "",
+            "care_plan": care_plan_names[i],
+            "frequency": frequency_names[i],
+        }
+
+        # 3. write to care plan names of care plan and frequency
+        response = client.post("/api/test/care_plan_frequency", json=data_for_test)
+        assert response
+        assert response.ok
+
+    # 4. get all names of care plan (magnification filtering)
+    response = client.get("/api/test/care_plan_names")
+    assert response
+    assert response.ok
+    data_names_care_plan = response.json()
+    assert data_names_care_plan
+
+    # 5. get all names of frequency (magnification filtering)
+    response = client.get("/api/test/frequency_names")
+    assert response
+    assert response.ok
+    data_names_frequency = response.json()
+    assert data_names_frequency
