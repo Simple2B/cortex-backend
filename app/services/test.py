@@ -46,16 +46,19 @@ class TestService:
             log(log.INFO, "care_plan_create: care plan [%d] created", care_plan.id)
             return
 
-        num_care_plan = re.findall(r"\d+", care_plan.care_plan)
-        end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
-        log(log.INFO, "care_plan_create: end_time [%s]", end_time)
-        care_plan.end_time = end_time
-        care_plan.save()
+        if care_plan.care_plan:
+            num_care_plan = re.findall(r"\d+", care_plan.care_plan)
+            end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
+            log(log.INFO, "care_plan_create: end_time [%s]", end_time)
+            care_plan.end_time = end_time
+            care_plan.save()
 
-        log(log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id)
+            log(
+                log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id
+            )
 
-        log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
-        return
+            log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
+            return
 
     def get_care_plan(self, api_key: str, doctor: Doctor) -> CarePlanCreate:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
@@ -457,8 +460,9 @@ class TestService:
             visit_frequency = "-"
 
         # "%m/%d/%Y, %H:%M:%S"
-        next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
-        if not next_visit:
+        if care_plan.progress_date:
+            next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
+        else:
             next_visit = "-"
 
         return {
