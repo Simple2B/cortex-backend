@@ -11,6 +11,8 @@ from app.schemas import (
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
     CarePlanPatientInfo,
+    InfoCarePlan as typeInfoCarePlan,
+    InfoFrequency as typeInfoFrequency,
 )
 from app.models import (
     Client as ClientDB,
@@ -348,11 +350,11 @@ class TestService:
 
         return all_tests
 
-    def get_care_plan_names(self, doctor: Doctor) -> InfoCarePlan:
+    def get_care_plan_names(self, doctor: Doctor) -> typeInfoCarePlan:
         care_plan_names = InfoCarePlan.query.all()
         if not care_plan_names:
             log(log.INFO, "get_care_plan_names: No care plan names")
-            return
+            return [{"number": 0, "care_plan": ""}]
         log(log.INFO, "get_care_plan_names: Count of names [%d]", len(care_plan_names))
         names = []
         for name in care_plan_names:
@@ -363,11 +365,11 @@ class TestService:
 
         return sorted_names
 
-    def get_frequency_names(self, doctor: Doctor) -> InfoFrequency:
+    def get_frequency_names(self, doctor: Doctor) -> typeInfoFrequency:
         frequency_plan_names = InfoFrequency.query.all()
         if not frequency_plan_names:
             log(log.INFO, "get_frequency_names: No care plan names")
-            return
+            return [{"number": 0, "frequency": ""}]
         log(
             log.INFO,
             "get_frequency_names: Count of frequency names [%d]",
