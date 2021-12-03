@@ -5,13 +5,13 @@ Revises: 9026e79eae25
 Create Date: 2021-12-03 10:53:51.005444
 
 """
-from alembic import op
-import sqlalchemy as sa
+from alembic import op  # noqa F401
+import sqlalchemy as sa  # noqa F401
 
 
 # revision identifiers, used by Alembic.
-revision = 'e11ce87fe4e0'
-down_revision = '9026e79eae25'
+revision = "e11ce87fe4e0"
+down_revision = "9026e79eae25"
 branch_labels = None
 depends_on = None
 
