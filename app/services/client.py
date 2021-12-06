@@ -17,7 +17,6 @@ from app.models import (
     CarePlan,
 )
 from app.logger import log
-from app.schemas.client import ClientCarePlan
 
 
 class ClientService:
