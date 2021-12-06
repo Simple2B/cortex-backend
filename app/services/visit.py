@@ -161,9 +161,63 @@ class VisitService:
                 client.first_name,
             )
 
-            return client_billing
+            billing = {
+                "date": client_billing.date.strftime("%m/%d/%Y"),
+                "description": client_billing.description,
+                "amount": client_billing.amount,
+                "client_name": client.first_name + " " + client.last_name,
+                "doctor_name": doctor.first_name + " " + doctor.last_name,
+            }
+
+            return billing
         except stripe.error.StripeError as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 detail=str(error.args),
             )
+
+    def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+
+        if not client:
+            log(log.ERROR, "get_billing_history: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(log.INFO, "get_billing_history: Client [%s]", client)
+
+        client_billings: Billing = Billing.query.filter(
+            Billing.client_id == client.id
+        ).all()
+
+        log(
+            log.INFO,
+            "get_billing_history: Client [%s] count of billings [%d]",
+            client,
+            len(client_billings),
+        )
+        billing = []
+        if len(client_billings) > 0:
+            for client_billing in client_billings:
+                billing.append(
+                    {
+                        "date": client_billing.date.strftime("%m/%d/%Y"),
+                        "description": client_billing.description,
+                        "amount": client_billing.amount,
+                        "client_name": client.first_name + " " + client.last_name,
+                        "doctor_name": doctor.first_name + " " + doctor.last_name,
+                    }
+                )
+        if len(billing) > 0:
+            return billing
+
+        return [
+            {
+                "date": "",
+                "description": "",
+                "amount": None,
+                "client_name": "",
+                "doctor_name": "",
+            }
+        ]
