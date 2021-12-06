@@ -10,7 +10,8 @@ class Billing(BaseModel):
 
 
 class BillingBase(Billing):
+    date: str
     description: Optional[str]
-    amount: int
-    client_id: int
-    doctor_id: int
+    amount: Optional[int]
+    client_name: str
+    doctor_name: str
