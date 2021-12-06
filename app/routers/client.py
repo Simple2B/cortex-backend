@@ -244,3 +244,15 @@ async def create_stripe_session(
     service = VisitService()
 
     return service.create_stripe_session(data, doctor)
+
+
+@router_client.get(
+    "/billing_history/{api_key}", response_model=List[BillingBase], tags=["Client"]
+)
+async def get_billing_history(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get secret stripe keys"""
+    service = VisitService()
+
+    return service.get_billing_history(api_key, doctor)

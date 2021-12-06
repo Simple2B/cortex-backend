@@ -3,18 +3,13 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 
-class BaseClient(BaseModel):
-    class Config:
-        orm_mode = True
-
-
 class YesNoNone(enum.Enum):
     YES = "yes"
     NO = "no"
     NONE = "null"
 
 
-class ClientInfo(BaseClient):
+class ClientInfo(BaseModel):
     id: Optional[int]
     api_key: Optional[str]
     firstName: str
@@ -39,8 +34,11 @@ class ClientInfo(BaseClient):
     # relationshipChild: Optional[str]
     visits: Optional[list]
 
+    class Config:
+        orm_mode = True
 
-class Client(BaseClient):
+
+class Client(BaseModel):
     id: Optional[int]
     api_key: Optional[str]
     first_name: str
@@ -49,27 +47,42 @@ class Client(BaseClient):
     email: str
     rougue_mode: Optional[bool]
 
+    class Config:
+        orm_mode = True
+
 
 class ClientQueue(Client):
     place_in_queue: Optional[int]
 
+    class Config:
+        orm_mode = True
 
-class ClientInTake(BaseClient):
+
+class ClientInTake(BaseModel):
     api_key: str
     place_in_queue: Optional[int]
     rougue_mode: Optional[bool]
 
 
-class ClientPhone(BaseClient):
+class ClientPhone(BaseModel):
     phone: str
 
+    class Config:
+        orm_mode = True
 
-class ClientInfoStripe(BaseClient):
+
+class ClientInfoStripe(BaseModel):
     id: str
     description: Optional[str]
     amount: int
     api_key: str
 
+    class Config:
+        orm_mode = True
 
-class ClientCarePlan(BaseClient):
+
+class ClientCarePlan(BaseModel):
     api_key: str
+
+    class Config:
+        orm_mode = True
