@@ -10,8 +10,9 @@ from app.schemas import (
     VisitHistoryFilter,
     DoctorStripeSecret,
     ClientInfoStripe,
+    BillingBase,
 )
-from app.models import Client as ClientDB
+from app.models import Client as ClientDB, Billing
 from app.config import settings as config
 from app.logger import log
 
@@ -119,7 +120,9 @@ class VisitService:
             "cortex_key": config.CORTEX_KEY,
         }
 
-    def create_stripe_session(self, data: ClientInfoStripe) -> str:
+    def create_stripe_session(
+        self, data: ClientInfoStripe, doctor: Doctor
+    ) -> BillingBase:
         stripe.api_key = config.CORTEX_KEY
         try:
             charge = stripe.Charge.create(
@@ -130,7 +133,35 @@ class VisitService:
                 idempotency_key=data.id,
             )
             log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
-            return "ok"
+
+            client: ClientDB = ClientDB.query.filter(
+                ClientDB.api_key == data.api_key
+            ).first()
+
+            if not client:
+                log(log.ERROR, "create_stripe_session: Client not found")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+                )
+
+            log(log.INFO, "create_stripe_session: Client [%s]", client)
+
+            client_billing = Billing(
+                description=data.description,
+                amount=data.amount / 100,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            ).save()
+
+            log(
+                log.INFO,
+                "create_stripe_session: billing [%d] saved for client [%d] [%s]",
+                client_billing.id,
+                client.id,
+                client.first_name,
+            )
+
+            return client_billing
         except stripe.error.StripeError as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
