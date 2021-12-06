@@ -197,7 +197,9 @@ class VisitService:
             client,
             len(client_billings),
         )
+
         billing = []
+
         if len(client_billings) > 0:
             for client_billing in client_billings:
                 billing.append(
