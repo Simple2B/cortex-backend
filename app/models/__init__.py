@@ -11,3 +11,4 @@ from .test import Test
 from .info_care_plan import InfoCarePlan
 from .info_frequency import InfoFrequency
 from .care_plan import CarePlan
+from .billing import Billing
