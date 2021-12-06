@@ -234,16 +234,14 @@ async def get_secret(doctor: Doctor = Depends(get_current_doctor)):
     return service.get_secret()
 
 
-@router_client.post(
-    "/create_stripe_session", response_model=BillingBase, tags=["Client"]
-)
+@router_client.post("/create_stripe_session", response_model=str, tags=["Client"])
 async def create_stripe_session(
     data: ClientInfoStripe, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Stripe session"""
     service = VisitService()
-
-    return service.create_stripe_session(data, doctor)
+    service.create_stripe_session(data, doctor)
+    return "ok"
 
 
 @router_client.get(

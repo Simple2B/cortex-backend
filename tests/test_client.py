@@ -683,8 +683,8 @@ def test_create_billing(client: TestClient):
         )
         assert response
         assert response.ok
-        data = response.json()
-        assert data
+        # data = response.json()
+        # assert data
 
     res = client.get(f"/api/client/billing_history/{client_intake.api_key}")
     assert res

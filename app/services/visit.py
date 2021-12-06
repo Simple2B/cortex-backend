@@ -120,9 +120,7 @@ class VisitService:
             "cortex_key": config.CORTEX_KEY,
         }
 
-    def create_stripe_session(
-        self, data: ClientInfoStripe, doctor: Doctor
-    ) -> BillingBase:
+    def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> None:
         stripe.api_key = config.CORTEX_KEY
         try:
             charge = stripe.Charge.create(
@@ -161,15 +159,6 @@ class VisitService:
                 client.first_name,
             )
 
-            billing = {
-                "date": client_billing.date.strftime("%m/%d/%Y"),
-                "description": client_billing.description,
-                "amount": client_billing.amount,
-                "client_name": client.first_name + " " + client.last_name,
-                "doctor_name": doctor.first_name + " " + doctor.last_name,
-            }
-
-            return billing
         except stripe.error.StripeError as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
