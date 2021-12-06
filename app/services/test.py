@@ -11,6 +11,8 @@ from app.schemas import (
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
     CarePlanPatientInfo,
+    InfoCarePlan as typeInfoCarePlan,
+    InfoFrequency as typeInfoFrequency,
 )
 from app.models import (
     Client as ClientDB,
@@ -46,16 +48,19 @@ class TestService:
             log(log.INFO, "care_plan_create: care plan [%d] created", care_plan.id)
             return
 
-        num_care_plan = re.findall(r"\d+", care_plan.care_plan)
-        end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
-        log(log.INFO, "care_plan_create: end_time [%s]", end_time)
-        care_plan.end_time = end_time
-        care_plan.save()
+        if care_plan.care_plan:
+            num_care_plan = re.findall(r"\d+", care_plan.care_plan)
+            end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
+            log(log.INFO, "care_plan_create: end_time [%s]", end_time)
+            care_plan.end_time = end_time
+            care_plan.save()
 
-        log(log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id)
+            log(
+                log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id
+            )
 
-        log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
-        return
+            log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
+            return
 
     def get_care_plan(self, api_key: str, doctor: Doctor) -> CarePlanCreate:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
@@ -345,11 +350,11 @@ class TestService:
 
         return all_tests
 
-    def get_care_plan_names(self, doctor: Doctor) -> InfoCarePlan:
+    def get_care_plan_names(self, doctor: Doctor) -> typeInfoCarePlan:
         care_plan_names = InfoCarePlan.query.all()
         if not care_plan_names:
             log(log.INFO, "get_care_plan_names: No care plan names")
-            return
+            return [{"number": 0, "care_plan": ""}]
         log(log.INFO, "get_care_plan_names: Count of names [%d]", len(care_plan_names))
         names = []
         for name in care_plan_names:
@@ -360,11 +365,11 @@ class TestService:
 
         return sorted_names
 
-    def get_frequency_names(self, doctor: Doctor) -> InfoFrequency:
+    def get_frequency_names(self, doctor: Doctor) -> typeInfoFrequency:
         frequency_plan_names = InfoFrequency.query.all()
         if not frequency_plan_names:
             log(log.INFO, "get_frequency_names: No care plan names")
-            return
+            return [{"number": 0, "frequency": ""}]
         log(
             log.INFO,
             "get_frequency_names: Count of frequency names [%d]",
@@ -457,8 +462,9 @@ class TestService:
             visit_frequency = "-"
 
         # "%m/%d/%Y, %H:%M:%S"
-        next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
-        if not next_visit:
+        if care_plan.progress_date:
+            next_visit = care_plan.progress_date.strftime("%m/%d/%Y")
+        else:
             next_visit = "-"
 
         return {

@@ -79,12 +79,18 @@ class Client(Base, ModelMixin):
         else:
             "null"
 
+        birthday = ""
+        if not self.birthday:
+            birthday = ""
+        else:
+            birthday = self.birthday.strftime("%m/%d/%Y")
+
         return {
             "id": self.id,
             "api_key": self.api_key,
             "firstName": self.first_name,
             "lastName": self.last_name,
-            "birthday": self.birthday.strftime("%m/%d/%Y"),
+            "birthday": birthday,
             "address": self.address,
             "city": self.city,
             "state": self.state,

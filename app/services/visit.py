@@ -132,4 +132,7 @@ class VisitService:
             log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
             return "ok"
         except stripe.error.StripeError as error:
-            raise error
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail=str(error.args),
+            )

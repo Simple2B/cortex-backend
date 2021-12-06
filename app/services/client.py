@@ -2,6 +2,7 @@ import datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
+from app.models.test import Test
 
 from app.schemas import Client, ClientInfo, ClientInTake, Doctor
 from app.models import (
@@ -13,6 +14,7 @@ from app.models import (
     QueueMember as QueueMemberDB,
     Visit,
     Reception,
+    CarePlan,
 )
 from app.logger import log
 
@@ -86,6 +88,17 @@ class ClientService:
                 ClientDB.email == client_data.email
             ).first()
             if client_with_email:
+
+                care_plan: CarePlan = CarePlan.query.filter(
+                    CarePlan.client_id == client_with_email.id
+                ).first()
+
+                if not care_plan:
+                    log(log.INFO, "Client [%s] with email doesn't have care plan")
+                else:
+                    Test.query.filter(Test.care_plan_id == care_plan.id).delete()
+                    care_plan.delete()
+
                 ClientCondition.query.filter(
                     ClientCondition.client_id == client_with_email.id
                 ).delete()
