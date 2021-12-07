@@ -2,6 +2,7 @@ import datetime
 from typing import List
 import csv
 
+from app.config.settings import Settings
 from app.schemas import (
     Doctor,
     Visit as VisitRes,
@@ -76,7 +77,7 @@ class ReportService:
                 len(report_of_visits),
             )
 
-            with open("./visits_report.csv", "w", newline="") as report_file:
+            with open(Settings.VISITS_REPORT_PATH, "w", newline="") as report_file:
                 report = csv.writer(report_file)
                 data = [["visit", "client", "start of visit", "end of visit"]]
                 for visit_report in report_of_visits:
@@ -153,7 +154,7 @@ class ReportService:
                 len(report_of_new_clients),
             )
 
-            with open("./new_clients_report.csv", "w", newline="") as report_file:
+            with open(Settings.CLIENTS_REPORT_PATH, "w", newline="") as report_file:
                 report = csv.writer(report_file)
 
                 data = [

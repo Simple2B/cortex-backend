@@ -2,6 +2,7 @@
 __pycache__/
 
 /.venv/
+/reports/
 
 
 # Unit test / coverage reports
@@ -16,6 +17,3 @@ __pycache__/
 Pipfile
 
 database-*.sqlite3
-
-visits_report.csv
-new_clients_report.csv

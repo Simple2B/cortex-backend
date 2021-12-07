@@ -3,6 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
+from app.config.settings import Settings
 
 from app.services import (
     ClientService,
@@ -156,8 +157,7 @@ def formed_report_visit(
 @router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
 async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    file_report_path = "./visits_report.csv"
-    return FileResponse(file_report_path)
+    return FileResponse(Settings.VISITS_REPORT_PATH)
 
 
 @router_client.post(
@@ -174,8 +174,7 @@ def formed_report_new_clients(
 @router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
 async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    file_report_path = "./new_clients_report.csv"
-    return FileResponse(file_report_path)
+    return FileResponse(Settings.CLIENTS_REPORT_PATH)
 
 
 @router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
