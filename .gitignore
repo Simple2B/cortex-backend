@@ -17,3 +17,4 @@ __pycache__/
 Pipfile
 
 database-*.sqlite3
+*.csv

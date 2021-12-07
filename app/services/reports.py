@@ -1,3 +1,4 @@
+from os import path
 import datetime
 from typing import List
 import csv
@@ -11,6 +12,8 @@ from app.schemas import (
 )
 from app.models import Visit
 from app.logger import log
+
+settings = Settings()
 
 
 class ReportService:
@@ -77,7 +80,11 @@ class ReportService:
                 len(report_of_visits),
             )
 
-            with open(Settings.VISITS_REPORT_PATH, "w", newline="") as report_file:
+            with open(
+                path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE),
+                "w",
+                newline="",
+            ) as report_file:
                 report = csv.writer(report_file)
                 data = [["visit", "client", "start of visit", "end of visit"]]
                 for visit_report in report_of_visits:
@@ -154,7 +161,11 @@ class ReportService:
                 len(report_of_new_clients),
             )
 
-            with open(Settings.CLIENTS_REPORT_PATH, "w", newline="") as report_file:
+            with open(
+                path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE),
+                "w",
+                newline="",
+            ) as report_file:
                 report = csv.writer(report_file)
 
                 data = [

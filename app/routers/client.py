@@ -1,3 +1,4 @@
+from os import path
 import datetime
 from typing import List
 
@@ -37,6 +38,7 @@ from app.models import (
 from app.services.auth import get_current_doctor
 from app.logger import log
 
+settings = Settings()
 router_client = APIRouter(prefix="/client")
 
 
@@ -157,7 +159,7 @@ def formed_report_visit(
 @router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
 async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    return FileResponse(Settings.VISITS_REPORT_PATH)
+    return FileResponse(path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE))
 
 
 @router_client.post(
@@ -174,7 +176,7 @@ def formed_report_new_clients(
 @router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
 async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    return FileResponse(Settings.CLIENTS_REPORT_PATH)
+    return FileResponse(path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE))
 
 
 @router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
