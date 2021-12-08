@@ -1,4 +1,4 @@
-from os import path
+import os
 import datetime
 from typing import List
 import csv
@@ -81,7 +81,7 @@ class ReportService:
             )
 
             with open(
-                path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE),
+                os.path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE),
                 "w",
                 newline="",
             ) as report_file:
@@ -162,7 +162,7 @@ class ReportService:
             )
 
             with open(
-                path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE),
+                os.path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE),
                 "w",
                 newline="",
             ) as report_file:

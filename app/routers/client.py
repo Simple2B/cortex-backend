@@ -1,4 +1,4 @@
-from os import path
+import os
 import datetime
 from typing import List
 
@@ -159,7 +159,7 @@ def formed_report_visit(
 @router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
 async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    return FileResponse(path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE))
+    return FileResponse(os.path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE))
 
 
 @router_client.post(
@@ -176,7 +176,9 @@ def formed_report_new_clients(
 @router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
 async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
-    return FileResponse(path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE))
+    return FileResponse(
+        os.path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE)
+    )
 
 
 @router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
