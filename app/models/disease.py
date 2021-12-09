@@ -23,3 +23,6 @@ class ClientDisease(Base, ModelMixin):
     disease_id = Column(Integer, ForeignKey("diseases.id"))
 
     disease = relationship("Disease", viewonly=True)
+
+    def __str__(self) -> str:
+        return f"{self.id}"

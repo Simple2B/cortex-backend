@@ -23,3 +23,6 @@ class ClientCondition(Base, ModelMixin):
     condition_id = Column(Integer, ForeignKey("conditions.id"))
 
     condition = relationship("Condition", viewonly=True)
+
+    def __str__(self) -> str:
+        return f"{self.id}"

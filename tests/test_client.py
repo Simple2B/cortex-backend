@@ -662,3 +662,32 @@ def test_get_secret(client: TestClient):
     assert response.ok
     data = response.json()
     assert data
+
+
+def test_create_billing(client: TestClient):
+    client_intake: Client = Client.query.first()
+
+    amounts = [2400, 4500, 8700]
+    description = ["description-1", "description-2", "description-3"]
+
+    for i in range(3):
+        billing_client_data = {
+            "id": "",
+            "description": description[i],
+            "amount": amounts[i],
+            "api_key": client_intake.api_key,
+        }
+        response = client.post(
+            "/api/client/create_stripe_session",
+            json=billing_client_data,
+        )
+        assert response
+        assert response.ok
+        # data = response.json()
+        # assert data
+
+    res = client.get(f"/api/client/billing_history/{client_intake.api_key}")
+    assert res
+    assert res.ok
+    data_billing = res.json()
+    assert data_billing

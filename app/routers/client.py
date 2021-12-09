@@ -27,6 +27,7 @@ from app.schemas import (
     VisitHistoryFilter,
     DoctorStripeSecret,
     ClientInfoStripe,
+    BillingBase,
 )
 from app.models import (
     Client as ClientDB,
@@ -239,6 +240,17 @@ async def create_stripe_session(
 ):
     """Stripe session"""
     service = VisitService()
-    service.create_stripe_session(data)
-
+    service.create_stripe_session(data, doctor)
     return "ok"
+
+
+@router_client.get(
+    "/billing_history/{api_key}", response_model=List[BillingBase], tags=["Client"]
+)
+async def get_billing_history(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get secret stripe keys"""
+    service = VisitService()
+
+    return service.get_billing_history(api_key, doctor)
