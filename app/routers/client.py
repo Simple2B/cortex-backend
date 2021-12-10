@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
-from fastapi_pagination import Page as BasePage, Params, paginate
+from fastapi_pagination import Page as BasePage, paginate
 
 from app.services import (
     ClientService,
