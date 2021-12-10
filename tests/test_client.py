@@ -81,7 +81,7 @@ def test_registration_client(client: TestClient):
         assert response.ok
         data = response.json()
         assert data
-        return len(data)
+        return len(data["items"])
 
     clients_number_before = get_clients_number()
 

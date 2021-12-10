@@ -3,6 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status
 from starlette.responses import FileResponse
+from fastapi_pagination import Page as BasePage, paginate
 
 from app.services import (
     ClientService,
@@ -38,6 +39,8 @@ from app.services.auth import get_current_doctor
 from app.logger import log
 
 router_client = APIRouter(prefix="/client")
+
+Page = BasePage.with_custom_options(size=6)
 
 
 @router_client.post("/registration", response_model=Client, tags=["Client"])
@@ -77,7 +80,7 @@ async def get_client_with_phone(
     return client
 
 
-@router_client.get("/clients", response_model=List[Client], tags=["Client"])
+@router_client.get("/clients", response_model=Page[Client], tags=["Client"])
 def get_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
     today = datetime.date.today()
@@ -86,7 +89,8 @@ def get_clients(doctor: Doctor = Depends(get_current_doctor)):
         log(log.INFO, "get_clients: reception didn't created")
         reception = Reception(date=today, doctor_id=doctor.id).save()
         log(log.INFO, "get_clients: Today reception created [%s]", reception)
-    return ClientDB.query.all()
+    clients = ClientDB.query.all()
+    return paginate(clients)
 
 
 @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
