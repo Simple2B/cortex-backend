@@ -23,6 +23,13 @@ CLIENT_FIRST_NAME = [
     "Poll",
     "Leon",
     "Sara",
+    "Donna",
+    "Grzegorz",
+    "Stepanida",
+    "Albina",
+    "Amina",
+    "Marta",
+    "Kalle",
 ]
 
 CLIENT_LAST_NAME = [
@@ -36,6 +43,13 @@ CLIENT_LAST_NAME = [
     "Kennedy",
     "Pearsone",
     "Franclin",
+    "W.Hewitt",
+    "Sokołowski",
+    "Shubina",
+    "Gerasimova",
+    "Johansen",
+    "Flatebø",
+    "Hellström",
 ]
 
 CLIENT_EMAIL = "email_{}@email.com"
