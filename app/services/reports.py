@@ -115,7 +115,7 @@ class ReportService:
 
     def filter_data_for_report_of_new_clients(
         self, client_data: VisitReportReq, doctor: Doctor
-    ) -> List[VisitReportRes]:
+    ) -> None:
         log(
             log.INFO,
             "filter_data_for_report_of_new_clients: client_data [%s]",
@@ -145,79 +145,107 @@ class ReportService:
             )
             visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
 
-            report_of_new_clients = [visit.client for visit in visits_report]
+            if len(visits_report) > 0:
 
-            log(
-                log.INFO,
-                "filter_data_for_report_of_new_clients: report of count [%d] new clients",
-                len(report_of_new_clients),
-            )
-
-            with open("./new_clients_report.csv", "w", newline="") as report_file:
-                report = csv.writer(report_file)
-
-                data = [
-                    [
-                        "client",
-                        "birthday",
-                        "email",
-                        "phone",
-                        "state",
-                        "city",
-                        "address",
-                        "covid_tested_positive",
-                        "covid_vaccine",
-                        "conditions",
-                        "diseases",
-                        "medications",
-                        "count of visits",
-                    ]
+                report_of_new_clients = [
+                    {"client_id": visit.client_id, "visit_info": visit.visit_info}
+                    for visit in visits_report
                 ]
 
-                for visit_report in report_of_new_clients:
-                    full_name = visit_report.first_name + " " + visit_report.last_name
-                    birthday = visit_report.birthday.strftime("%b %d %Y")
-                    email = visit_report.client_info["email"]
-                    phone = visit_report.phone
-                    state = visit_report.state
-                    city = visit_report.city
-                    address = visit_report.address
-                    covid_tested_positive = visit_report.covid_tested_positive
-                    covid_vaccine = visit_report.covid_vaccine
-                    conditions = visit_report.client_info["conditions"]
-                    diseases = visit_report.client_info["diseases"]
-                    medications = visit_report.client_info["medications"]
-                    visits = len(visit_report.client_info["visits"])
+                # report_of_new_clients = [visit.visit_info for visit in visits_report]
 
-                    data.append(
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: report count [%d] new clients",
+                    len(report_of_new_clients),
+                )
+
+                unique_client_id = []
+                unique_report_of_new_clients = []
+
+                for visit in report_of_new_clients:
+                    if visit["client_id"] not in unique_client_id:
+                        unique_client_id.append(visit["client_id"])
+                        unique_report_of_new_clients.append(visit)
+
+                sorted_report_of_new_clients = sorted(
+                    unique_report_of_new_clients, key=lambda k: k["visit_info"]["id"]
+                )
+
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: unique sorted by id reports count [%d] new clients",
+                    len(sorted_report_of_new_clients),
+                )
+
+                with open("./new_clients_report.csv", "w", newline="") as report_file:
+                    report = csv.writer(report_file)
+
+                    data = [
                         [
-                            full_name,
-                            birthday,
-                            email,
-                            phone,
-                            state,
-                            city,
-                            address,
-                            covid_tested_positive,
-                            covid_vaccine,
-                            conditions,
-                            diseases,
-                            medications,
-                            visits,
-                        ],
+                            "client",
+                            "birthday",
+                            "email",
+                            "phone",
+                            "state",
+                            "city",
+                            "address",
+                            "covid_tested_positive",
+                            "covid_vaccine",
+                            "conditions",
+                            "diseases",
+                            "medications",
+                            "count of visits",
+                        ]
+                    ]
+
+                    for visit_report in sorted_report_of_new_clients:
+                        client_info = visit_report["visit_info"]["client_info"]
+                        full_name = (
+                            client_info["firstName"] + " " + client_info["lastName"]
+                        )
+                        birthday = client_info["birthday"]
+                        email = client_info["email"]
+                        phone = client_info["phone"]
+                        state = client_info["state"]
+                        city = client_info["city"]
+                        address = client_info["address"]
+                        covid_tested_positive = client_info["covidTestedPositive"]
+                        covid_vaccine = client_info["covidVaccine"]
+                        conditions = ", ".join(client_info["conditions"])
+                        diseases = ", ".join(client_info["diseases"])
+                        medications = client_info["medications"]
+                        visits = len(client_info["visits"])
+
+                        data.append(
+                            [
+                                full_name,
+                                birthday,
+                                email,
+                                phone,
+                                state,
+                                city,
+                                address,
+                                covid_tested_positive,
+                                covid_vaccine,
+                                conditions,
+                                diseases,
+                                medications,
+                                visits,
+                            ],
+                        )
+                    log(
+                        log.INFO,
+                        "filter_data_for_report_of_new_clients: create report data [%s]",
+                        data,
                     )
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_new_clients: create report data [%s]",
-                    data,
-                )
+                    data
+                    report.writerows(data)
+
+                    log(
+                        log.INFO,
+                        "filter_data_for_report_of_new_clients: write data (count of new clients in data [%d]) to csv file",
+                        len(data),
+                    )
+
                 data
-                report.writerows(data)
-
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_new_clients: write data (count of new clients in data [%d]) to csv file",
-                    len(data),
-                )
-
-            return report_of_new_clients
