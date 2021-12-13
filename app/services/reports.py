@@ -265,7 +265,8 @@ class ReportService:
 
                     log(
                         log.INFO,
-                        "filter_data_for_report_of_new_clients: write data (count of new clients in data [%d]) to csv file",
+                        "filter_data_for_report_of_new_clients: write data"
+                        + "(count of new clients in data [%d]) to csv file",
                         len(data),
                     )
 
