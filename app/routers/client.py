@@ -19,7 +19,6 @@ from app.schemas import (
     ClientInTake,
     VisitReportReq,
     VisitReportRes,
-    VisitReportResClients,
     Note as NoteSchemas,
     VisitWithNote,
     NoteDelete,
