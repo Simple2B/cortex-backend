@@ -161,15 +161,14 @@ async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     return FileResponse(file_report_path)
 
 
-@router_client.post(
-    "/report_new_clients", response_model=List[VisitReportResClients], tags=["Client"]
-)
+@router_client.post("/report_new_clients", response_model=str, tags=["Client"])
 def formed_report_new_clients(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Filter for page reports new clients by date"""
     service = ReportService()
-    return service.filter_data_for_report_of_new_clients(client_data, doctor)
+    service.filter_data_for_report_of_new_clients(client_data, doctor)
+    return "ok"
 
 
 @router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
