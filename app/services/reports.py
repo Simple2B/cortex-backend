@@ -248,5 +248,3 @@ class ReportService:
                         + "write data (count of new clients in data [%d]) to csv file",
                         len(data),
                     )
-
-                data
