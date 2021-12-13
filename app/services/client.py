@@ -15,6 +15,7 @@ from app.models import (
     Visit,
     Reception,
     CarePlan,
+    Billing,
 )
 from app.logger import log
 
@@ -98,6 +99,8 @@ class ClientService:
                 else:
                     Test.query.filter(Test.care_plan_id == care_plan.id).delete()
                     care_plan.delete()
+
+                Billing.query.filter(Billing.client_id == client_with_email.id).delete()
 
                 ClientCondition.query.filter(
                     ClientCondition.client_id == client_with_email.id
