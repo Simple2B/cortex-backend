@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     PK_TEST: str = "pk_secret"
     CORTEX_KEY: str = "rk_secret"
 
+    REPORTS_DIR: str = "reports/"
+    CLIENTS_REPORT_FILE: str = "new_clients_report.csv"
+    VISITS_REPORT_FILE: str = "visits_report.csv"
+
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
