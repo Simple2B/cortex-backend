@@ -474,7 +474,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 6. get visits for report
     data = {
-        "type": "visit",
+        "type": "visits",
         "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
@@ -491,7 +491,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 9. get new clients for report
     data = {
-        "type": "new clients",
+        "type": "new_clients",
         "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }

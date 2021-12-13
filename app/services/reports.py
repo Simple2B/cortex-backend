@@ -199,7 +199,11 @@ class ReportService:
                     len(sorted_report_of_new_clients),
                 )
 
-                with open("./new_clients_report.csv", "w", newline="") as report_file:
+                with open(
+                    os.path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE),
+                    "w",
+                    newline="",
+                ) as report_file:
                     report = csv.writer(report_file)
 
                     data = [
