@@ -29,6 +29,7 @@ from app.schemas import (
     DoctorStripeSecret,
     ClientInfoStripe,
     BillingBase,
+    ClientStripeSubscription,
 )
 from app.models import (
     Client as ClientDB,
@@ -242,6 +243,16 @@ async def create_stripe_session(
     """Stripe session"""
     service = VisitService()
     service.create_stripe_session(data, doctor)
+    return "ok"
+
+
+@router_client.post("/create_stripe_subscription", response_model=str, tags=["Client"])
+async def stripe_subscription(
+    data: ClientStripeSubscription, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Stripe session"""
+    service = VisitService()
+    service.stripe_subscription(data, doctor)
     return "ok"
 
 
