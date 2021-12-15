@@ -3,7 +3,6 @@ from typing import List
 from fastapi import HTTPException, status
 
 import stripe
-from stripe.api_resources import payment_method
 from app.schemas import (
     Doctor,
     VisitInfoHistory,
