@@ -3,6 +3,7 @@ from typing import List
 from fastapi import HTTPException, status
 
 import stripe
+from stripe.api_resources import payment_method
 from app.schemas import (
     Doctor,
     VisitInfoHistory,
@@ -11,6 +12,7 @@ from app.schemas import (
     DoctorStripeSecret,
     ClientInfoStripe,
     BillingBase,
+    ClientStripeSubscription,
 )
 from app.models import Client as ClientDB, Billing
 from app.config import settings as config
@@ -164,6 +166,115 @@ class VisitService:
                 status.HTTP_400_BAD_REQUEST,
                 detail=str(error.args),
             )
+
+    def stripe_subscription(
+        self, data: ClientStripeSubscription, doctor: Doctor
+    ) -> None:
+        stripe.api_key = config.SK_TEST
+        product = config.PRODUCT_WEEKLY
+        product2 = config.PRODUCT_MONTHLY
+
+        create_customer = stripe.Customer.create(
+            description="customer",
+            email=data.email,
+            payment_method=data.payment_method,
+            name=data.name,
+        )
+
+        customer = stripe.Customer.retrieve(create_customer.stripe_id)
+        create_plan = None
+        if data.interval == "week":
+            create_plan = stripe.Plan.create(
+                amount=data.amount,
+                currency="usd",
+                interval=data.interval,
+                product=product,
+                interval_count=int(data.interval_count),
+            )
+        if data.interval == "month":
+            create_plan = stripe.Plan.create(
+                amount=data.amount,
+                currency="usd",
+                interval=data.interval,
+                product=product2,
+                interval_count=int(data.interval_count),
+            )
+
+        plan = stripe.Plan.retrieve(
+            create_plan["id"],
+        )
+
+        payment_method = stripe.PaymentMethod.attach(
+            data.payment_method,
+            customer=customer.stripe_id,
+        )
+        # Set the default payment method on the customer
+        stripe.Customer.modify(
+            customer.stripe_id,
+            invoice_settings={
+                "default_payment_method": payment_method.stripe_id,
+            },
+        )
+
+        # invoice = stripe.Invoice.retrieve(
+        #     data['invoiceId'],
+        #     expand=['payment_intent'],
+        # )
+
+        subscription_create = stripe.Subscription.create(
+            customer=customer.stripe_id,
+            items=[
+                # {"price": price.stripe_id},
+                {
+                    "price": plan.stripe_id,
+                    "quantity": 5,
+                },
+            ],
+        )
+
+        subscription_create
+
+        # status = subscription_create["latest_invoice"]["payment_intent"]["status"]
+        # client_secret = ["latest_invoice"]["payment_intent"]["client_secret"]
+
+        # create_payment = stripe.PaymentMethod.create(
+        #     type="card",
+        #     card={
+        #         "number": data.number,
+        #         "exp_month": data.exp_month,
+        #         "exp_year": data.exp_year,
+        #         "cvc": data.cvc,
+        #     },
+        # )
+
+        # payment = stripe.PaymentMethod.retrieve(
+        #     create_payment.stripe_id,
+        # )
+
+        # attach = stripe.PaymentMethod.attach(
+        #     payment.stripe_id,
+        #     customer=customer.stripe_id,
+        # )
+
+        # attach
+
+        # create_product = stripe.Product.create(name="product")
+
+        # price = stripe.Price.create(
+        #     unit_amount=int(data.amount),
+        #     currency="usd",
+        #     recurring={"interval": data.interval},
+        #     product=create_product.stripe_id,
+        # )
+
+        # subscription = stripe.Subscription.retrieve(
+        #     "sub_1K6dIBI7HDNT50q3pT7qzW2o",
+        # )
+
+        # retrieve = stripe.Plan.retrieve(
+        #     plan.stripe_id,
+        # )
+        # retrieve
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
