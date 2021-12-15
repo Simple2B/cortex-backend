@@ -9,6 +9,7 @@ from .client import (
     ClientQueue,
     ClientInfoStripe,
     ClientCarePlan,
+    ClientStripeSubscription,
 )
 from .queue_member import QueueMember, Queue
 from .visit import (
