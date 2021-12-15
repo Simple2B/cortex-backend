@@ -78,6 +78,8 @@ class ClientInfoStripe(BaseModel):
     description: Optional[str]
     amount: int
     api_key: str
+    email: str
+    name: str
 
     class Config:
         orm_mode = True

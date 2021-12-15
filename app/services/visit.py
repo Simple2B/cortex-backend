@@ -124,12 +124,15 @@ class VisitService:
     def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> None:
         stripe.api_key = config.CORTEX_KEY
         try:
+
             charge = stripe.Charge.create(
                 amount=data.amount,
                 currency="usd",
                 description=data.description,
                 source="tok_visa",
                 idempotency_key=data.id,
+                receipt_email=data.email
+                # customer
             )
             log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
 
@@ -173,107 +176,65 @@ class VisitService:
         product = config.PRODUCT_WEEKLY
         product2 = config.PRODUCT_MONTHLY
 
-        create_customer = stripe.Customer.create(
-            description="customer",
-            email=data.email,
-            payment_method=data.payment_method,
-            name=data.name,
-        )
-
-        customer = stripe.Customer.retrieve(create_customer.stripe_id)
-        create_plan = None
-        if data.interval == "week":
-            create_plan = stripe.Plan.create(
-                amount=data.amount,
-                currency="usd",
-                interval=data.interval,
-                product=product,
-                interval_count=int(data.interval_count),
-            )
-        if data.interval == "month":
-            create_plan = stripe.Plan.create(
-                amount=data.amount,
-                currency="usd",
-                interval=data.interval,
-                product=product2,
-                interval_count=int(data.interval_count),
+        try:
+            create_customer = stripe.Customer.create(
+                description=data.name,
+                email=data.email,
+                payment_method=data.payment_method,
+                name=data.name,
             )
 
-        plan = stripe.Plan.retrieve(
-            create_plan["id"],
-        )
+            customer = stripe.Customer.retrieve(create_customer.stripe_id)
+            create_plan = None
+            if data.interval == "2-week":
+                create_plan = stripe.Plan.create(
+                    amount=data.amount,
+                    currency="usd",
+                    interval=data.interval.split("-")[1],
+                    product=product,
+                    interval_count=data.interval.split("-")[0],
+                )
+            if data.interval == "1-month":
+                create_plan = stripe.Plan.create(
+                    amount=data.amount,
+                    currency="usd",
+                    interval=data.interval.split("-")[1],
+                    product=product2,
+                    interval_count=data.interval.split("-")[0],
+                )
 
-        payment_method = stripe.PaymentMethod.attach(
-            data.payment_method,
-            customer=customer.stripe_id,
-        )
-        # Set the default payment method on the customer
-        stripe.Customer.modify(
-            customer.stripe_id,
-            invoice_settings={
-                "default_payment_method": payment_method.stripe_id,
-            },
-        )
+            plan = stripe.Plan.retrieve(
+                create_plan["id"],
+            )
 
-        # invoice = stripe.Invoice.retrieve(
-        #     data['invoiceId'],
-        #     expand=['payment_intent'],
-        # )
-
-        subscription_create = stripe.Subscription.create(
-            customer=customer.stripe_id,
-            items=[
-                # {"price": price.stripe_id},
-                {
-                    "price": plan.stripe_id,
-                    "quantity": 5,
+            payment_method = stripe.PaymentMethod.attach(
+                data.payment_method,
+                customer=customer.stripe_id,
+            )
+            # Set the default payment method on the customer
+            stripe.Customer.modify(
+                customer.stripe_id,
+                invoice_settings={
+                    "default_payment_method": payment_method.stripe_id,
                 },
-            ],
-        )
+            )
 
-        subscription_create
-
-        # status = subscription_create["latest_invoice"]["payment_intent"]["status"]
-        # client_secret = ["latest_invoice"]["payment_intent"]["client_secret"]
-
-        # create_payment = stripe.PaymentMethod.create(
-        #     type="card",
-        #     card={
-        #         "number": data.number,
-        #         "exp_month": data.exp_month,
-        #         "exp_year": data.exp_year,
-        #         "cvc": data.cvc,
-        #     },
-        # )
-
-        # payment = stripe.PaymentMethod.retrieve(
-        #     create_payment.stripe_id,
-        # )
-
-        # attach = stripe.PaymentMethod.attach(
-        #     payment.stripe_id,
-        #     customer=customer.stripe_id,
-        # )
-
-        # attach
-
-        # create_product = stripe.Product.create(name="product")
-
-        # price = stripe.Price.create(
-        #     unit_amount=int(data.amount),
-        #     currency="usd",
-        #     recurring={"interval": data.interval},
-        #     product=create_product.stripe_id,
-        # )
-
-        # subscription = stripe.Subscription.retrieve(
-        #     "sub_1K6dIBI7HDNT50q3pT7qzW2o",
-        # )
-
-        # retrieve = stripe.Plan.retrieve(
-        #     plan.stripe_id,
-        # )
-        # retrieve
+            stripe.Subscription.create(
+                customer=customer.stripe_id,
+                items=[
+                    {
+                        "price": plan.stripe_id,
+                        "quantity": int(data.interval_count)
+                        if len(data.interval_count) > 0
+                        else 1,
+                    },
+                ],
+            )
+        except stripe.error.StripeError as error:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail=str(error.args),
+            )
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()

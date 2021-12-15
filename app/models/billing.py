@@ -16,6 +16,8 @@ class Billing(Base, ModelMixin):
     description = Column(String(128), nullable=True)
     amount = Column(Integer, nullable=False)
 
+    # subscription_id = Column(String(128), nullable=True)
+
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
 
