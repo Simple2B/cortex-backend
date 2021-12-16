@@ -173,40 +173,23 @@ class VisitService:
         self, data: ClientStripeSubscription, doctor: Doctor
     ) -> None:
         stripe.api_key = config.SK_TEST
-        product = config.PRODUCT_WEEKLY
-        product2 = config.PRODUCT_MONTHLY
+        product = config.CORTEX_PRODUCT_ID
 
         try:
-            create_customer = stripe.Customer.create(
+            customer = stripe.Customer.create(
                 description=data.name,
                 email=data.email,
                 payment_method=data.payment_method,
                 name=data.name,
             )
 
-            customer = stripe.Customer.retrieve(create_customer.stripe_id)
-            create_plan = None
-            if data.interval == "2-week":
-                create_plan = stripe.Plan.create(
-                    amount=data.amount,
-                    currency="usd",
-                    interval=data.interval.split("-")[1],
-                    product=product,
-                    interval_count=data.interval.split("-")[0],
-                )
-            if data.interval == "1-month":
-                create_plan = stripe.Plan.create(
-                    amount=data.amount,
-                    currency="usd",
-                    interval=data.interval.split("-")[1],
-                    product=product2,
-                    interval_count=data.interval.split("-")[0],
-                )
-
-            plan = stripe.Plan.retrieve(
-                create_plan["id"],
+            plan = stripe.Plan.create(
+                amount=data.amount,
+                currency="usd",
+                interval=data.interval.split("-")[1],
+                product=product,
+                interval_count=data.interval.split("-")[0],
             )
-
             payment_method = stripe.PaymentMethod.attach(
                 data.payment_method,
                 customer=customer.stripe_id,

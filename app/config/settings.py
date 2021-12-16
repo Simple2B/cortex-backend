@@ -15,9 +15,7 @@ class Settings(BaseSettings):
     SK_TEST: str = "sk_secret"
     PK_TEST: str = "pk_secret"
     CORTEX_KEY: str = "rk_secret"
-    PRODUCT_WEEKLY: str = "prod_secret"
-    PRODUCT_MONTHLY: str = "prod_secret"
-
+    CORTEX_PRODUCT_ID: str = "prod_secret"
     REPORTS_DIR: str = "reports/"
     CLIENTS_REPORT_FILE: str = "new_clients_report.csv"
     VISITS_REPORT_FILE: str = "visits_report.csv"
