@@ -187,112 +187,112 @@ class VisitService:
 
         log(log.INFO, "stripe_subscription: Client [%s]", client)
 
-        try:
-            customer = stripe.Customer.create(
-                description=data.name,
-                email=data.email,
-                payment_method=data.payment_method,
-                name=data.name,
-            )
+        # try:
+        customer = stripe.Customer.create(
+            description=data.name,
+            email=data.email,
+            payment_method=data.payment_method,
+            name=data.name,
+        )
 
-            log(
-                log.INFO,
-                "stripe_subscription: created customer [%s]",
-                customer.stripe_id,
-            )
+        log(
+            log.INFO,
+            "stripe_subscription: created customer [%s]",
+            customer.stripe_id,
+        )
 
-            price = stripe.Price.create(
-                unit_amount=data.amount,
-                currency="usd",
-                recurring={
-                    "interval": data.interval.split("-")[1],
-                    "interval_count": data.interval.split("-")[0],
+        price = stripe.Price.create(
+            unit_amount=data.amount,
+            currency="usd",
+            recurring={
+                "interval": data.interval.split("-")[1],
+                "interval_count": data.interval.split("-")[0],
+            },
+            product=product,
+        )
+
+        log(
+            log.INFO,
+            "stripe_subscription: created price [%s]",
+            price.stripe_id,
+        )
+
+        payment_method = stripe.PaymentMethod.attach(
+            data.payment_method,
+            customer=customer.stripe_id,
+        )
+
+        log(
+            log.INFO,
+            "stripe_subscription: created payment_method [%s]",
+            payment_method.stripe_id,
+        )
+
+        # Set the default payment method on the customer
+        stripe.Customer.modify(
+            customer.stripe_id,
+            invoice_settings={
+                "default_payment_method": payment_method.stripe_id,
+            },
+        )
+
+        quantity = int(data.interval_count) if len(data.interval_count) > 0 else 1
+
+        subscription = stripe.Subscription.create(
+            customer=customer.stripe_id,
+            items=[
+                {
+                    "price": price.stripe_id,
+                    "quantity": quantity,
                 },
-                product=product,
-            )
+            ],
+        )
 
-            log(
-                log.INFO,
-                "stripe_subscription: created price [%s]",
-                price.stripe_id,
-            )
+        log(
+            log.INFO,
+            "stripe_subscription: created subscription [%s]",
+            subscription.stripe_id,
+        )
 
-            payment_method = stripe.PaymentMethod.attach(
-                data.payment_method,
-                customer=customer.stripe_id,
-            )
+        modify_subscription = stripe.Subscription.modify(
+            subscription.stripe_id,
+            billing_cycle_anchor="now",
+            proration_behavior="always_invoice",
+        )
 
-            log(
-                log.INFO,
-                "stripe_subscription: created payment_method [%s]",
-                payment_method.stripe_id,
-            )
+        log(
+            log.INFO,
+            "stripe_subscription: subscription [%s] modify successfully ",
+            modify_subscription,
+        )
 
-            # Set the default payment method on the customer
-            stripe.Customer.modify(
-                customer.stripe_id,
-                invoice_settings={
-                    "default_payment_method": payment_method.stripe_id,
-                },
-            )
+        billing = Billing(
+            description=data.description,
+            amount=data.amount / 100,
+            customer_stripe_id=customer.stripe_id,
+            subscription_id=subscription.stripe_id,
+            subscription_quantity=int(data.interval_count)
+            if len(data.interval_count) > 0
+            else 1,
+            subscription_interval=data.interval.split("-")[1],
+            subscription_interval_count=data.interval.split("-")[0],
+            payment_method=data.payment_method,
+            client_id=client.id,
+            doctor_id=doctor.id,
+        ).save()
 
-            quantity = int(data.interval_count) if len(data.interval_count) > 0 else 1
+        log(
+            log.INFO,
+            "stripe_subscription: created new billing [%d] for client [%d]",
+            billing.id,
+            client.id,
+        )
 
-            subscription = stripe.Subscription.create(
-                customer=customer.stripe_id,
-                items=[
-                    {
-                        "price": price.stripe_id,
-                        "quantity": quantity,
-                    },
-                ],
-            )
-
-            log(
-                log.INFO,
-                "stripe_subscription: created subscription [%s]",
-                subscription.stripe_id,
-            )
-
-            modify_subscription = stripe.Subscription.modify(
-                subscription.stripe_id,
-                billing_cycle_anchor="now",
-                proration_behavior="always_invoice",
-            )
-
-            log(
-                log.INFO,
-                "stripe_subscription: subscription [%s] modify successfully ",
-                modify_subscription,
-            )
-
-            billing = Billing(
-                description=data.description,
-                amount=data.amount / 100,
-                customer_stripe_id=customer.stripe_id,
-                subscription_id=subscription.stripe_id,
-                subscription_quantity=int(data.interval_count)
-                if len(data.interval_count) > 0
-                else 1,
-                subscription_interval=data.interval.split("-")[1],
-                subscription_interval_count=data.interval.split("-")[0],
-                payment_method=data.payment_method,
-                client_id=client.id,
-                doctor_id=doctor.id,
-            ).save()
-
-            log(
-                log.INFO,
-                "stripe_subscription: created new billing [%d] for client [%d]",
-                billing.id,
-                client.id,
-            )
-
-        except stripe.error.StripeError as error:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail=str(error.args),
-            )
+        # except stripe.error.StripeError as error:
+        #     raise HTTPException(
+        #         status.HTTP_400_BAD_REQUEST,
+        #         detail=str(error.args),
+        #     )
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
         stripe.api_key = config.SK_TEST
