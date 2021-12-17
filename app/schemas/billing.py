@@ -15,7 +15,6 @@ class BillingBase(Billing):
     subscription_interval: Optional[str]
     pay_period: Optional[str]
     subscription_quantity: Optional[str]
-    payment_method: Optional[str]
     client_name: str
     doctor_name: str
     paid: Optional[bool]

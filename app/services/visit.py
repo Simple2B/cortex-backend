@@ -383,7 +383,6 @@ class VisitService:
                         "subscription_interval": client_billing.subscription_interval,
                         "pay_period": pay_period,
                         "subscription_quantity": subscription_quantity,
-                        "payment_method": payment_method,
                         "client_name": client.first_name + " " + client.last_name,
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
                         "paid": paid,
@@ -405,6 +404,5 @@ class VisitService:
                 "doctor_name": "",
                 "paid": None,
                 "date_next_payment_attempt": None,
-                "payment_method": None,
             }
         ]
