@@ -99,6 +99,7 @@ class ClientStripeSubscription(BaseModel):
     exp_month: Optional[int]
     exp_year: Optional[int]
     cvc: Optional[int]
+    payment_method: Optional[str]
 
     class Config:
         orm_mode = True
