@@ -676,6 +676,8 @@ def test_create_billing(client: TestClient):
             "description": description[i],
             "amount": amounts[i],
             "api_key": client_intake.api_key,
+            "email": "email@mail.com",
+            "name": "Jon Conore",
         }
         response = client.post(
             "/api/client/create_stripe_session",
