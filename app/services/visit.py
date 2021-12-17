@@ -175,6 +175,18 @@ class VisitService:
         stripe.api_key = config.SK_TEST
         product = config.CORTEX_PRODUCT_ID
 
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data.api_key
+        ).first()
+
+        if not client:
+            log(log.ERROR, "stripe_subscription: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(log.INFO, "stripe_subscription: Client [%s]", client)
+
         try:
             customer = stripe.Customer.create(
                 description=data.name,
@@ -183,17 +195,39 @@ class VisitService:
                 name=data.name,
             )
 
-            plan = stripe.Plan.create(
-                amount=data.amount,
-                currency="usd",
-                interval=data.interval.split("-")[1],
-                product=product,
-                interval_count=data.interval.split("-")[0],
+            log(
+                log.INFO,
+                "stripe_subscription: created customer [%s]",
+                customer.stripe_id,
             )
+
+            price = stripe.Price.create(
+                unit_amount=data.amount,
+                currency="usd",
+                recurring={
+                    "interval": data.interval.split("-")[1],
+                    "interval_count": data.interval.split("-")[0],
+                },
+                product=product,
+            )
+
+            log(
+                log.INFO,
+                "stripe_subscription: created price [%s]",
+                price.stripe_id,
+            )
+
             payment_method = stripe.PaymentMethod.attach(
                 data.payment_method,
                 customer=customer.stripe_id,
             )
+
+            log(
+                log.INFO,
+                "stripe_subscription: created payment_method [%s]",
+                payment_method.stripe_id,
+            )
+
             # Set the default payment method on the customer
             stripe.Customer.modify(
                 customer.stripe_id,
@@ -202,17 +236,58 @@ class VisitService:
                 },
             )
 
-            stripe.Subscription.create(
+            quantity = int(data.interval_count) if len(data.interval_count) > 0 else 1
+
+            subscription = stripe.Subscription.create(
                 customer=customer.stripe_id,
                 items=[
                     {
-                        "price": plan.stripe_id,
-                        "quantity": int(data.interval_count)
-                        if len(data.interval_count) > 0
-                        else 1,
+                        "price": price.stripe_id,
+                        "quantity": quantity,
                     },
                 ],
             )
+
+            log(
+                log.INFO,
+                "stripe_subscription: created subscription [%s]",
+                subscription.stripe_id,
+            )
+
+            modify_subscription = stripe.Subscription.modify(
+                subscription.stripe_id,
+                billing_cycle_anchor="now",
+                proration_behavior="always_invoice",
+            )
+
+            log(
+                log.INFO,
+                "stripe_subscription: subscription [%s] modify successfully ",
+                modify_subscription,
+            )
+
+            billing = Billing(
+                description=data.description,
+                amount=data.amount / 100,
+                customer_stripe_id=customer.stripe_id,
+                subscription_id=subscription.stripe_id,
+                subscription_quantity=int(data.interval_count)
+                if len(data.interval_count) > 0
+                else 1,
+                subscription_interval=data.interval.split("-")[1],
+                subscription_interval_count=data.interval.split("-")[0],
+                payment_method=data.payment_method,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            ).save()
+
+            log(
+                log.INFO,
+                "stripe_subscription: created new billing [%d] for client [%d]",
+                billing.id,
+                client.id,
+            )
+
         except stripe.error.StripeError as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
@@ -220,6 +295,7 @@ class VisitService:
             )
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
+        stripe.api_key = config.SK_TEST
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
@@ -245,13 +321,73 @@ class VisitService:
 
         if len(client_billings) > 0:
             for client_billing in client_billings:
+                payment_method = None
+                if client_billing.payment_method:
+                    payment_method = client_billing.payment_method
+
+                    info_payment_method = stripe.PaymentMethod.retrieve(
+                        payment_method,
+                    )
+
+                    info_payment_method
+
+                customer_stripe_id: Billing = client_billing.customer_stripe_id
+                date_next_payment_attempt = None
+                paid = None
+                if client_billing.subscription_id:
+                    log(
+                        log.INFO,
+                        "get_billing_history: client subscription [%s]",
+                        client_billing.subscription_id,
+                    )
+
+                    invoice = stripe.Invoice.upcoming(
+                        customer=customer_stripe_id,
+                    )
+
+                    log(
+                        log.INFO,
+                        "get_billing_history: subscription data [%s]",
+                        invoice,
+                    )
+
+                    next_payment_attempt = invoice["next_payment_attempt"]
+
+                    date_next_payment_attempt = datetime.datetime.fromtimestamp(
+                        next_payment_attempt
+                    ).strftime("%m/%d/%Y")
+
+                    log(
+                        log.INFO,
+                        "get_billing_history: next payment date [%s]",
+                        date_next_payment_attempt,
+                    )
+
+                    paid = invoice["paid"]
+
+                    log(
+                        log.INFO,
+                        "get_billing_history: paid [%s]",
+                        paid,
+                    )
+
+                client_amount = str(client_billing.amount)
+                pay_period = str(client_billing.subscription_interval_count)
+                subscription_quantity = str(client_billing.subscription_quantity)
+
                 billing.append(
                     {
                         "date": client_billing.date.strftime("%m/%d/%Y"),
                         "description": client_billing.description,
-                        "amount": client_billing.amount,
+                        "amount": client_amount,
+                        "subscription_interval": client_billing.subscription_interval,
+                        "pay_period": pay_period,
+                        "subscription_quantity": subscription_quantity,
+                        "payment_method": payment_method,
                         "client_name": client.first_name + " " + client.last_name,
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
+                        "paid": paid,
+                        "date_next_payment_attempt": date_next_payment_attempt,
                     }
                 )
         if len(billing) > 0:
@@ -262,7 +398,13 @@ class VisitService:
                 "date": "",
                 "description": "",
                 "amount": None,
+                "subscription_interval": "",
+                "pay_period": "",
+                "subscription_quantity": "",
                 "client_name": "",
                 "doctor_name": "",
+                "paid": None,
+                "date_next_payment_attempt": None,
+                "payment_method": None,
             }
         ]

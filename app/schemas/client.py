@@ -88,6 +88,8 @@ class ClientInfoStripe(BaseModel):
 class ClientStripeSubscription(BaseModel):
     payment_method: str
     email: str
+    description: str
+    api_key: str
     amount: Optional[int]
     interval: Optional[str]
     interval_count: Optional[str]

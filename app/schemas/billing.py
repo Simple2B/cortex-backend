@@ -11,6 +11,12 @@ class Billing(BaseModel):
 class BillingBase(Billing):
     date: str
     description: Optional[str]
-    amount: Optional[int]
+    amount: Optional[str]
+    subscription_interval: Optional[str]
+    pay_period: Optional[str]
+    subscription_quantity: Optional[str]
+    payment_method: Optional[str]
     client_name: str
     doctor_name: str
+    paid: Optional[bool]
+    date_next_payment_attempt: Optional[str]
