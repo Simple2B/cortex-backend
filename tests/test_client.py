@@ -474,7 +474,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 6. get visits for report
     data = {
-        "type": "visit",
+        "type": "visits",
         "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
@@ -491,7 +491,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 9. get new clients for report
     data = {
-        "type": "new clients",
+        "type": "new_clients",
         "start_time": visit1.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
@@ -676,6 +676,8 @@ def test_create_billing(client: TestClient):
             "description": description[i],
             "amount": amounts[i],
             "api_key": client_intake.api_key,
+            "email": "email@mail.com",
+            "name": "Jon Conore",
         }
         response = client.post(
             "/api/client/create_stripe_session",
@@ -691,3 +693,24 @@ def test_create_billing(client: TestClient):
     assert res.ok
     data_billing = res.json()
     assert data_billing
+
+
+# def test_create_stripe_plan(client: TestClient):
+#     data = {
+#         "payment_method": "pm_1K6wcwI7HDNT50q31mzkhtQE",
+#         "email": "email_7@email.com",
+#         "amount": 500,
+#         "interval": "month",
+#         "interval_count": "3",
+#         "email": "customer@email.com",
+#         "name": "Poll Kennedy",
+#         "number": "4242424242424242",
+#         "exp_month": 12,
+#         "exp_year": 2022,
+#         "cvc": "314",
+#     }
+#     response = client.post("/api/client/create_stripe_subscription", json=data)
+#     assert response
+#     assert response.ok
+# data = response.json()
+# assert data

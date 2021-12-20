@@ -58,68 +58,66 @@ class ReportService:
             end_time,
         )
 
-        if client_data.type == "visits":
-            log(
-                log.INFO,
-                "filter_data_for_report_of_visit: client_data type [%s]",
-                client_data.type,
-            )
-            all_visits: Visit = Visit.query.all()
-            log(
-                log.INFO,
-                "filter_data_for_report_of_visit: all visits count [%d]",
-                len(all_visits),
-            )
-            visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
+        # if client_data.type == "visits":
+        log(
+            log.INFO,
+            "filter_data_for_report_of_visit: client_data type [%s]",
+            client_data.type,
+        )
+        all_visits: Visit = Visit.query.all()
+        log(
+            log.INFO,
+            "filter_data_for_report_of_visit: all visits count [%d]",
+            len(all_visits),
+        )
+        visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
 
-            report_of_visits = [visit.visit_info for visit in visits_report]
+        report_of_visits = [visit.visit_info for visit in visits_report]
 
-            log(
-                log.INFO,
-                "filter_data_for_report_of_visit: report of count [%d] visits",
-                len(report_of_visits),
-            )
+        log(
+            log.INFO,
+            "filter_data_for_report_of_visit: report of count [%d] visits",
+            len(report_of_visits),
+        )
 
-            with open(
-                os.path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE),
-                "w",
-                newline="",
-            ) as report_file:
-                report = csv.writer(report_file)
-                data = [["visit", "client", "start of visit", "end of visit"]]
-                for visit_report in report_of_visits:
-                    visit_id = visit_report["id"]
-                    full_name = (
-                        visit_report["client_info"]["firstName"]
-                        + " "
-                        + visit_report["client_info"]["lastName"]
-                    )
-                    visit_start = visit_report["start_time"].strftime(
-                        "%H:%M:%S %b %d %Y"
-                    )
-                    visit_end = visit_report["end_time"].strftime("%H:%M:%S %b %d %Y")
-                    data.append(
-                        [
-                            visit_id,
-                            full_name,
-                            visit_start,
-                            visit_end,
-                        ],
-                    )
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_visit: create report data [%s]",
-                    data,
+        with open(
+            os.path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE),
+            "w",
+            newline="",
+        ) as report_file:
+            report = csv.writer(report_file)
+            data = [["visit", "client", "start of visit", "end of visit"]]
+            for visit_report in report_of_visits:
+                visit_id = visit_report["id"]
+                full_name = (
+                    visit_report["client_info"]["firstName"]
+                    + " "
+                    + visit_report["client_info"]["lastName"]
                 )
-                report.writerows(data)
-
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_visit: write data (count of visit in data [%d]) to csv file",
-                    len(data),
+                visit_start = visit_report["start_time"].strftime("%H:%M:%S %b %d %Y")
+                visit_end = visit_report["end_time"].strftime("%H:%M:%S %b %d %Y")
+                data.append(
+                    [
+                        visit_id,
+                        full_name,
+                        visit_start,
+                        visit_end,
+                    ],
                 )
+            log(
+                log.INFO,
+                "filter_data_for_report_of_visit: create report data [%s]",
+                data,
+            )
+            report.writerows(data)
 
-            return report_of_visits
+            log(
+                log.INFO,
+                "filter_data_for_report_of_visit: write data (count of visit in data [%d]) to csv file",
+                len(data),
+            )
+
+        return report_of_visits
 
     def filter_data_for_report_of_new_clients(
         self, client_data: VisitReportReq, doctor: Doctor
@@ -139,26 +137,64 @@ class ReportService:
             end_time,
         )
 
-        if client_data.type == "new_clients":
-            log(
-                log.INFO,
-                "filter_data_for_report_of_new_clients: client_data type [%s]",
-                client_data.type,
-            )
-            all_visits: Visit = Visit.query.all()
-            log(
-                log.INFO,
-                "filter_data_for_report_of_new_clients: all visits count [%d]",
-                len(all_visits),
-            )
-            visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
+        # if client_data.type == "new_clients":
+        log(
+            log.INFO,
+            "filter_data_for_report_of_new_clients: client_data type [%s]",
+            client_data.type,
+        )
+        all_visits: Visit = Visit.query.all()
+        log(
+            log.INFO,
+            "filter_data_for_report_of_new_clients: all visits count [%d]",
+            len(all_visits),
+        )
+        visits_report = self.get_visits_for_report(all_visits, start_time, end_time)
 
-            report_of_new_clients = [visit.client for visit in visits_report]
+        report_of_new_clients = [visit.client for visit in visits_report]
+
+        log(
+            log.INFO,
+            "filter_data_for_report_of_new_clients: report of count [%d] new clients",
+            len(report_of_new_clients),
+        )
+
+        with open(
+            os.path.join(settings.REPORTS_DIR, settings.CLIENTS_REPORT_FILE),
+            "w",
+            newline="",
+        ) as report_file:
+            report = csv.writer(report_file)
+
+            report_of_new_clients = [
+                {"client_id": visit.client_id, "visit_info": visit.visit_info}
+                for visit in visits_report
+            ]
+
+            # report_of_new_clients = [visit.visit_info for visit in visits_report]
 
             log(
                 log.INFO,
-                "filter_data_for_report_of_new_clients: report of count [%d] new clients",
+                "filter_data_for_report_of_new_clients: report count [%d] new clients",
                 len(report_of_new_clients),
+            )
+
+            unique_client_id = []
+            unique_report_of_new_clients = []
+
+            for visit in report_of_new_clients:
+                if visit["client_id"] not in unique_client_id:
+                    unique_client_id.append(visit["client_id"])
+                    unique_report_of_new_clients.append(visit)
+
+            sorted_report_of_new_clients = sorted(
+                unique_report_of_new_clients, key=lambda k: k["visit_info"]["id"]
+            )
+
+            log(
+                log.INFO,
+                "filter_data_for_report_of_new_clients: unique sorted by id reports count [%d] new clients",
+                len(sorted_report_of_new_clients),
             )
 
             with open(
@@ -168,106 +204,68 @@ class ReportService:
             ) as report_file:
                 report = csv.writer(report_file)
 
-                report_of_new_clients = [
-                    {"client_id": visit.client_id, "visit_info": visit.visit_info}
-                    for visit in visits_report
+                data = [
+                    [
+                        "client",
+                        "birthday",
+                        "email",
+                        "phone",
+                        "state",
+                        "city",
+                        "address",
+                        "covid_tested_positive",
+                        "covid_vaccine",
+                        "conditions",
+                        "diseases",
+                        "medications",
+                        "count of visits",
+                    ]
                 ]
 
-                # report_of_new_clients = [visit.visit_info for visit in visits_report]
+                for visit_report in sorted_report_of_new_clients:
+                    client_info = visit_report["visit_info"]["client_info"]
+                    full_name = client_info["firstName"] + " " + client_info["lastName"]
+                    birthday = client_info["birthday"]
+                    email = client_info["email"]
+                    phone = client_info["phone"]
+                    state = client_info["state"]
+                    city = client_info["city"]
+                    address = client_info["address"]
+                    covid_tested_positive = client_info["covidTestedPositive"]
+                    covid_vaccine = client_info["covidVaccine"]
+                    conditions = ", ".join(client_info["conditions"])
+                    diseases = ", ".join(client_info["diseases"])
+                    medications = client_info["medications"]
+                    visits = len(client_info["visits"])
 
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_new_clients: report count [%d] new clients",
-                    len(report_of_new_clients),
-                )
-
-                unique_client_id = []
-                unique_report_of_new_clients = []
-
-                for visit in report_of_new_clients:
-                    if visit["client_id"] not in unique_client_id:
-                        unique_client_id.append(visit["client_id"])
-                        unique_report_of_new_clients.append(visit)
-
-                sorted_report_of_new_clients = sorted(
-                    unique_report_of_new_clients, key=lambda k: k["visit_info"]["id"]
-                )
-
-                log(
-                    log.INFO,
-                    "filter_data_for_report_of_new_clients: unique sorted by id reports count [%d] new clients",
-                    len(sorted_report_of_new_clients),
-                )
-
-                with open("./new_clients_report.csv", "w", newline="") as report_file:
-                    report = csv.writer(report_file)
-
-                    data = [
+                    data.append(
                         [
-                            "client",
-                            "birthday",
-                            "email",
-                            "phone",
-                            "state",
-                            "city",
-                            "address",
-                            "covid_tested_positive",
-                            "covid_vaccine",
-                            "conditions",
-                            "diseases",
-                            "medications",
-                            "count of visits",
-                        ]
-                    ]
-
-                    for visit_report in sorted_report_of_new_clients:
-                        client_info = visit_report["visit_info"]["client_info"]
-                        full_name = (
-                            client_info["firstName"] + " " + client_info["lastName"]
-                        )
-                        birthday = client_info["birthday"]
-                        email = client_info["email"]
-                        phone = client_info["phone"]
-                        state = client_info["state"]
-                        city = client_info["city"]
-                        address = client_info["address"]
-                        covid_tested_positive = client_info["covidTestedPositive"]
-                        covid_vaccine = client_info["covidVaccine"]
-                        conditions = ", ".join(client_info["conditions"])
-                        diseases = ", ".join(client_info["diseases"])
-                        medications = client_info["medications"]
-                        visits = len(client_info["visits"])
-
-                        data.append(
-                            [
-                                full_name,
-                                birthday,
-                                email,
-                                phone,
-                                state,
-                                city,
-                                address,
-                                covid_tested_positive,
-                                covid_vaccine,
-                                conditions,
-                                diseases,
-                                medications,
-                                visits,
-                            ],
-                        )
-                    log(
-                        log.INFO,
-                        "filter_data_for_report_of_new_clients: create report data [%s]",
-                        data,
+                            full_name,
+                            birthday,
+                            email,
+                            phone,
+                            state,
+                            city,
+                            address,
+                            covid_tested_positive,
+                            covid_vaccine,
+                            conditions,
+                            diseases,
+                            medications,
+                            visits,
+                        ],
                     )
-                    data
-                    report.writerows(data)
-
-                    log(
-                        log.INFO,
-                        "filter_data_for_report_of_new_clients: write data"
-                        + "(count of new clients in data [%d]) to csv file",
-                        len(data),
-                    )
-
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: create report data [%s]",
+                    data,
+                )
                 data
+                report.writerows(data)
+
+                log(
+                    log.INFO,
+                    "filter_data_for_report_of_new_clients: write data"
+                    + "(count of new clients in data [%d]) to csv file",
+                    len(data),
+                )

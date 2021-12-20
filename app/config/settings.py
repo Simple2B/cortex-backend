@@ -11,11 +11,11 @@ class Settings(BaseSettings):
 
     JWT_SECRET: str = "secret_key"
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXP: str = "3600"
+    JWT_EXP: str = "31536000"
     SK_TEST: str = "sk_secret"
     PK_TEST: str = "pk_secret"
     CORTEX_KEY: str = "rk_secret"
-
+    CORTEX_PRODUCT_ID: str = "prod_secret"
     REPORTS_DIR: str = "reports/"
     CLIENTS_REPORT_FILE: str = "new_clients_report.csv"
     VISITS_REPORT_FILE: str = "visits_report.csv"

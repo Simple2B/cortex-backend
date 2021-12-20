@@ -2,6 +2,8 @@ import enum
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+# from stripe.api_resources import payment_method
+
 
 class YesNoNone(enum.Enum):
     YES = "yes"
@@ -76,6 +78,27 @@ class ClientInfoStripe(BaseModel):
     description: Optional[str]
     amount: int
     api_key: str
+    email: str
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
+class ClientStripeSubscription(BaseModel):
+    payment_method: str
+    email: str
+    description: str
+    api_key: str
+    amount: Optional[int]
+    interval: Optional[str]
+    interval_count: Optional[str]
+    email: Optional[str]
+    name: Optional[str]
+    number: Optional[str]
+    exp_month: Optional[int]
+    exp_year: Optional[int]
+    cvc: Optional[int]
 
     class Config:
         orm_mode = True
