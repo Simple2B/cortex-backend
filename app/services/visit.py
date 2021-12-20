@@ -1,6 +1,6 @@
 import datetime
 from typing import List
-from fastapi import HTTPException, status, Request, Header
+from fastapi import HTTPException, status, Request
 import stripe
 
 from app.schemas import (
@@ -306,6 +306,7 @@ class VisitService:
         try:
             event = stripe.Webhook.construct_event(payload=data, secret=webhook_secret)
             event_data = event["data"]
+            event_data
         except Exception as e:
             return {"error": str(e)}
 
@@ -351,11 +352,11 @@ class VisitService:
                 if client_billing.payment_method:
                     payment_method = client_billing.payment_method
 
-                    # info_payment_method = stripe.PaymentMethod.retrieve(
-                    #     payment_method,
-                    # )
+                    info_payment_method = stripe.PaymentMethod.retrieve(
+                        payment_method,
+                    )
 
-                    # info_payment_method
+                    info_payment_method
 
                 customer_stripe_id: Billing = client_billing.customer_stripe_id
                 date_next_payment_attempt = None

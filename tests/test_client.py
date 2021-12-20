@@ -716,7 +716,7 @@ def test_create_billing(client: TestClient):
 # assert data
 
 
-def test_create_checkout_session(client: TestClient):
+# def test_create_checkout_session(client: TestClient):
 
-    response = client.post("/api/client/create_checkout_session", data={})
-    assert response
+#     response = client.post("/api/client/create_checkout_session", data={})
+#     assert response

@@ -1,11 +1,13 @@
 import os
 import datetime
 from typing import List
-import stripe
+
+# import stripe
 
 from fastapi import APIRouter, HTTPException, Depends, status, Request
 from starlette.responses import FileResponse
-from stripe.api_resources import line_item, payment_method
+
+# from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
 
 from app.services import (
@@ -40,7 +42,8 @@ from app.models import (
 )
 from app.services.auth import get_current_doctor
 from app.logger import log
-from app.config import settings as config
+
+# from app.config import settings as config
 
 settings = Settings()
 router_client = APIRouter(prefix="/client")
