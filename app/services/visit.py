@@ -1,8 +1,8 @@
 import datetime
 from typing import List
-from fastapi import HTTPException, status
-
+from fastapi import HTTPException, status, Request, Header
 import stripe
+
 from app.schemas import (
     Doctor,
     VisitInfoHistory,
@@ -266,6 +266,12 @@ class VisitService:
             modify_subscription,
         )
 
+        info_payment_method = stripe.PaymentMethod.retrieve(
+            payment_method,
+        )
+
+        info_payment_method
+
         billing = Billing(
             description=data.description,
             amount=data.amount / 100,
@@ -293,6 +299,26 @@ class VisitService:
         #         status.HTTP_400_BAD_REQUEST,
         #         detail=str(error.args),
         #     )
+
+    async def webhook(self, request: Request):
+        webhook_secret = config.STRIPE_WEBHOOK_SECRET
+        data = await request.body()
+        try:
+            event = stripe.Webhook.construct_event(payload=data, secret=webhook_secret)
+            event_data = event["data"]
+        except Exception as e:
+            return {"error": str(e)}
+
+        event_type = event["type"]
+        if event_type == "checkout.session.completed":
+            print("checkout session completed")
+        elif event_type == "invoice.paid":
+            print("invoice paid")
+        elif event_type == "invoice.payment_failed":
+            print("invoice payment failed")
+        else:
+            print(f"unhandled event: {event_type}")
+        return {"status": "success"}
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
         stripe.api_key = config.SK_TEST
@@ -325,11 +351,11 @@ class VisitService:
                 if client_billing.payment_method:
                     payment_method = client_billing.payment_method
 
-                    info_payment_method = stripe.PaymentMethod.retrieve(
-                        payment_method,
-                    )
+                    # info_payment_method = stripe.PaymentMethod.retrieve(
+                    #     payment_method,
+                    # )
 
-                    info_payment_method
+                    # info_payment_method
 
                 customer_stripe_id: Billing = client_billing.customer_stripe_id
                 date_next_payment_attempt = None

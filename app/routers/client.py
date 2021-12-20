@@ -1,9 +1,11 @@
 import os
 import datetime
 from typing import List
+import stripe
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from starlette.responses import FileResponse
+from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
 
 from app.services import (
@@ -38,6 +40,7 @@ from app.models import (
 )
 from app.services.auth import get_current_doctor
 from app.logger import log
+from app.config import settings as config
 
 settings = Settings()
 router_client = APIRouter(prefix="/client")
@@ -253,6 +256,14 @@ async def stripe_subscription(
     """Stripe session"""
     service = VisitService()
     service.stripe_subscription(data, doctor)
+    return "ok"
+
+
+@router_client.post("/webhook ", response_model=str, tags=["Client"])
+async def webhook(request: Request, doctor: Doctor = Depends(get_current_doctor)):
+    """Stripe webhook"""
+    service = VisitService()
+    service.webhook(request)
     return "ok"
 
 
