@@ -32,9 +32,13 @@ class ReportService:
                     visit.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
                     "%m/%d/%Y, %H:%M:%S",
                 )
-                if visit_start_time >= datetime.datetime.strptime(
+                if datetime.datetime.strptime(
+                    visit_start_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
+                ) >= datetime.datetime.strptime(
                     start_time, "%m/%d/%Y, %H:%M:%S"
-                ) and visit_end_time <= datetime.datetime.strptime(
+                ) and datetime.datetime.strptime(
+                    visit_end_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
+                ) <= datetime.datetime.strptime(
                     end_time, "%m/%d/%Y, %H:%M:%S"
                 ):
                     visits_report.append(visit)
