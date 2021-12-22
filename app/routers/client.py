@@ -4,7 +4,7 @@ from typing import List
 
 # import stripe
 
-from fastapi import APIRouter, HTTPException, Depends, status, Request
+from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
 from starlette.responses import FileResponse
 
 # from stripe.api_resources import line_item, payment_method
@@ -263,10 +263,14 @@ async def stripe_subscription(
 
 
 @router_client.post("/webhook ", response_model=str, tags=["Client"])
-async def webhook(request: Request, doctor: Doctor = Depends(get_current_doctor)):
+async def webhook(
+    request: Request,
+    stripe_signature: str = Header(str),
+    doctor: Doctor = Depends(get_current_doctor),
+):
     """Stripe webhook"""
     service = VisitService()
-    service.webhook(request)
+    service.webhook(request, stripe_signature)
     return "ok"
 
 
