@@ -122,52 +122,75 @@ class VisitService:
         }
 
     def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> None:
-        stripe.api_key = config.CORTEX_KEY
-        try:
+        stripe.api_key = config.SK_TEST
+        # try:
 
-            charge = stripe.Charge.create(
-                amount=data.amount,
-                currency="usd",
-                description=data.description,
-                source="tok_visa",
-                idempotency_key=data.id,
-                receipt_email=data.email
-                # customer
-            )
-            log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
+        # customer = stripe.Customer.create(
+        #     email=data.email,
+        # )
 
-            client: ClientDB = ClientDB.query.filter(
-                ClientDB.api_key == data.api_key
-            ).first()
+        # log(
+        #     log.INFO, "create_stripe_session: customer created [%s]", customer.stripe_id
+        # )
 
-            if not client:
-                log(log.ERROR, "create_stripe_session: Client not found")
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
-                )
+        # payment_intent = stripe.PaymentIntent.create(
+        #     amount=data.amount,
+        #     currency="usd",
+        #     payment_method_types=["card"],
+        #     customer=customer.stripe_id,
+        # )
 
-            log(log.INFO, "create_stripe_session: Client [%s]", client)
+        # log(
+        #     log.INFO,
+        #     "create_stripe_session: payment intent created [%s]",
+        #     payment_intent.stripe_id,
+        # )
 
-            client_billing = Billing(
-                description=data.description,
-                amount=data.amount / 100,
-                client_id=client.id,
-                doctor_id=doctor.id,
-            ).save()
+        charge = stripe.Charge.create(
+            amount=data.amount,
+            currency="usd",
+            description=data.description,
+            source="tok_visa",
+            idempotency_key=data.id,
+            receipt_email=data.email,
+            # customer=customer.stripe_id,
+        )
+        log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
 
-            log(
-                log.INFO,
-                "create_stripe_session: billing [%d] saved for client [%d] [%s]",
-                client_billing.id,
-                client.id,
-                client.first_name,
-            )
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data.api_key
+        ).first()
 
-        except stripe.error.StripeError as error:
+        if not client:
+            log(log.ERROR, "create_stripe_session: Client not found")
             raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail=str(error.args),
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
+
+        log(log.INFO, "create_stripe_session: Client [%s]", client)
+
+        client_billing = Billing(
+            description=data.description,
+            amount=data.amount / 100,
+            client_id=client.id,
+            doctor_id=doctor.id,
+            payment_method=data.id,
+            status=charge["status"],
+        ).save()
+
+        log(
+            log.INFO,
+            "create_stripe_session: billing [%d] saved for client [%d] [%s]",
+            client_billing.id,
+            client.id,
+            client.first_name,
+        )
+
+        # except stripe.error.StripeError as error:
+        #     raise HTTPException(
+        #         status.HTTP_400_BAD_REQUEST,
+        #         detail=str(error.args),
+        #     )
 
     def stripe_subscription(
         self, data: ClientStripeSubscription, doctor: Doctor
@@ -200,6 +223,12 @@ class VisitService:
             "stripe_subscription: created customer [%s]",
             customer.stripe_id,
         )
+
+        # session = stripe.billing_portal.Session.create(
+        #     customer=customer.stripe_id,
+        # )
+
+        # session
 
         price = stripe.Price.create(
             unit_amount=data.amount,
@@ -263,7 +292,7 @@ class VisitService:
         log(
             log.INFO,
             "stripe_subscription: subscription [%s] modify successfully ",
-            modify_subscription,
+            modify_subscription.stripe_id,
         )
 
         info_payment_method = stripe.PaymentMethod.retrieve(
@@ -283,6 +312,7 @@ class VisitService:
             subscription_interval=data.interval.split("-")[1],
             subscription_interval_count=data.interval.split("-")[0],
             payment_method=data.payment_method,
+            status=subscription["status"],
             client_id=client.id,
             doctor_id=doctor.id,
         ).save()
@@ -300,11 +330,13 @@ class VisitService:
         #         detail=str(error.args),
         #     )
 
-    async def webhook(self, request: Request):
+    async def webhook(self, request: Request, stripe_signature: str):
         webhook_secret = config.STRIPE_WEBHOOK_SECRET
         data = await request.body()
         try:
-            event = stripe.Webhook.construct_event(payload=data, secret=webhook_secret)
+            event = stripe.Webhook.construct_event(
+                payload=data, secret=webhook_secret, sig_header=stripe_signature
+            )
             event_data = event["data"]
             event_data
         except Exception as e:
@@ -317,6 +349,8 @@ class VisitService:
             print("invoice paid")
         elif event_type == "invoice.payment_failed":
             print("invoice payment failed")
+        elif event_type == "charge.succeeded":
+            print("charge succeeded")
         else:
             print(f"unhandled event: {event_type}")
         return {"status": "success"}
