@@ -22,6 +22,7 @@ class Billing(Base, ModelMixin):
     subscription_interval = Column(String(128), nullable=True)
     subscription_interval_count = Column(Integer, nullable=True)
     payment_method = Column(String(128), nullable=True)
+    status = Column(String(32), nullable=True)
 
     client_id = Column(Integer, ForeignKey("clients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
