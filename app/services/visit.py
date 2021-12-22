@@ -267,7 +267,7 @@ class VisitService:
         )
 
         info_payment_method = stripe.PaymentMethod.retrieve(
-            payment_method,
+            payment_method.stripe_id,
         )
 
         info_payment_method
