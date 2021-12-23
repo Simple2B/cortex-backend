@@ -248,8 +248,7 @@ async def create_stripe_session(
 ):
     """Stripe session"""
     service = VisitService()
-    service.create_stripe_session(data, doctor)
-    return "ok"
+    return service.create_stripe_session(data, doctor)
 
 
 @router_client.post("/create_stripe_subscription", response_model=str, tags=["Client"])
@@ -258,8 +257,7 @@ async def stripe_subscription(
 ):
     """Stripe session"""
     service = VisitService()
-    service.stripe_subscription(data, doctor)
-    return "ok"
+    return service.stripe_subscription(data, doctor)
 
 
 @router_client.post("/webhook ", response_model=str, tags=["Client"])
