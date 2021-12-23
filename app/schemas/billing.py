@@ -18,4 +18,5 @@ class BillingBase(Billing):
     client_name: str
     doctor_name: str
     paid: Optional[bool]
+    status: Optional[str]
     date_next_payment_attempt: Optional[str]
