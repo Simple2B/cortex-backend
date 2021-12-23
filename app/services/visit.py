@@ -121,30 +121,14 @@ class VisitService:
             "cortex_key": config.CORTEX_KEY,
         }
 
-    def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> None:
+    def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> str:
         stripe.api_key = config.SK_TEST
-        # try:
-
-        # customer = stripe.Customer.create(
-        #     email=data.email,
-        # )
-
-        # log(
-        #     log.INFO, "create_stripe_session: customer created [%s]", customer.stripe_id
-        # )
-
-        # payment_intent = stripe.PaymentIntent.create(
-        #     amount=data.amount,
-        #     currency="usd",
-        #     payment_method_types=["card"],
-        #     customer=customer.stripe_id,
-        # )
-
-        # log(
-        #     log.INFO,
-        #     "create_stripe_session: payment intent created [%s]",
-        #     payment_intent.stripe_id,
-        # )
+        customer = stripe.Customer.create(
+            email=data.email,
+        )
+        log(
+            log.INFO, "create_stripe_session: customer created [%s]", customer.stripe_id
+        )
 
         charge = stripe.Charge.create(
             amount=data.amount,
@@ -156,6 +140,15 @@ class VisitService:
             # customer=customer.stripe_id,
         )
         log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
+
+        payment_intent = stripe.PaymentIntent.create(
+            amount=data.amount,
+            currency="usd",
+            payment_method_types=["card"],
+            customer=customer.stripe_id,
+        )
+
+        payment_intent
 
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
@@ -186,15 +179,11 @@ class VisitService:
             client.first_name,
         )
 
-        # except stripe.error.StripeError as error:
-        #     raise HTTPException(
-        #         status.HTTP_400_BAD_REQUEST,
-        #         detail=str(error.args),
-        #     )
+        return "ok"
 
     def stripe_subscription(
         self, data: ClientStripeSubscription, doctor: Doctor
-    ) -> None:
+    ) -> str:
         stripe.api_key = config.SK_TEST
         product = config.CORTEX_PRODUCT_ID
 
@@ -210,7 +199,6 @@ class VisitService:
 
         log(log.INFO, "stripe_subscription: Client [%s]", client)
 
-        # try:
         customer = stripe.Customer.create(
             description=data.name,
             email=data.email,
@@ -218,17 +206,14 @@ class VisitService:
             name=data.name,
         )
 
+        if not customer:
+            log(log.ERROR, "stripe_subscription: customer didn't create")
+
         log(
             log.INFO,
             "stripe_subscription: created customer [%s]",
             customer.stripe_id,
         )
-
-        # session = stripe.billing_portal.Session.create(
-        #     customer=customer.stripe_id,
-        # )
-
-        # session
 
         price = stripe.Price.create(
             unit_amount=data.amount,
@@ -299,8 +284,6 @@ class VisitService:
             payment_method.stripe_id,
         )
 
-        info_payment_method
-
         billing = Billing(
             description=data.description,
             amount=data.amount / 100,
@@ -324,11 +307,7 @@ class VisitService:
             client.id,
         )
 
-        # except stripe.error.StripeError as error:
-        #     raise HTTPException(
-        #         status.HTTP_400_BAD_REQUEST,
-        #         detail=str(error.args),
-        #     )
+        return "ok"
 
     async def webhook(self, request: Request, stripe_signature: str):
         webhook_secret = config.STRIPE_WEBHOOK_SECRET
@@ -406,11 +385,11 @@ class VisitService:
                         customer=customer_stripe_id,
                     )
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: subscription data [%s]",
-                        invoice,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: subscription data [%s]",
+                    #     invoice,
+                    # )
 
                     next_payment_attempt = invoice["next_payment_attempt"]
 
@@ -418,19 +397,19 @@ class VisitService:
                         next_payment_attempt
                     ).strftime("%m/%d/%Y")
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: next payment date [%s]",
-                        date_next_payment_attempt,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: next payment date [%s]",
+                    #     date_next_payment_attempt,
+                    # )
 
                     paid = invoice["paid"]
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: paid [%s]",
-                        paid,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: paid [%s]",
+                    #     paid,
+                    # )
 
                 client_amount = str(client_billing.amount)
                 pay_period = str(client_billing.subscription_interval_count)
@@ -447,6 +426,7 @@ class VisitService:
                         "client_name": client.first_name + " " + client.last_name,
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
                         "paid": paid,
+                        "status": client_billing.status,
                         "date_next_payment_attempt": date_next_payment_attempt,
                     }
                 )
@@ -464,6 +444,7 @@ class VisitService:
                 "client_name": "",
                 "doctor_name": "",
                 "paid": None,
+                "status": None,
                 "date_next_payment_attempt": None,
             }
         ]
