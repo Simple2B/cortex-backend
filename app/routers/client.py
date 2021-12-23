@@ -260,11 +260,10 @@ async def stripe_subscription(
     return service.stripe_subscription(data, doctor)
 
 
-@router_client.post("/webhook ", response_model=str, tags=["Client"])
+@router_client.post("/webhook", response_model=str, tags=["Client"])
 async def webhook(
     request: Request,
     stripe_signature: str = Header(str),
-    doctor: Doctor = Depends(get_current_doctor),
 ):
     """Stripe webhook"""
     service = VisitService()
