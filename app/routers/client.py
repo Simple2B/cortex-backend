@@ -5,11 +5,11 @@ from typing import List
 # import stripe
 
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
+from fastapi_pagination import Page as BasePage, paginate
 from starlette.responses import FileResponse
 
 # from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
-from fastapi_pagination import Page as BasePage, paginate
 
 from app.services import (
     ClientService,
