@@ -280,9 +280,9 @@ class VisitService:
             modify_subscription.stripe_id,
         )
 
-        info_payment_method = stripe.PaymentMethod.retrieve(
-            payment_method.stripe_id,
-        )
+        # info_payment_method = stripe.PaymentMethod.retrieve(
+        #     payment_method.stripe_id,
+        # )
 
         billing = Billing(
             description=data.description,
