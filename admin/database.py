@@ -1,7 +1,4 @@
 # from app import db
-import datetime
-import random
-
 import openpyxl
 from pathlib import Path
 from admin.config import BaseConfig as conf
@@ -46,14 +43,6 @@ def generate_test_data():
         doctor = add_doctor_to_db()
 
     for i in range(2, len(sheet["A"]) + 1):
-        str_address = sheet[f"G{i}"].value
-        num = None
-        address = []
-        for word in sheet["G2"].value.split():
-            if word.isdigit():
-                num = word
-            else:
-                address.append(word)
         client = Client(
             first_name=sheet[f"B{i}"].value,
             last_name=sheet[f"D{i}"].value,
