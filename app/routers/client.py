@@ -264,10 +264,7 @@ async def stripe_subscription(
 
 
 @router_client.post("/webhook", response_model=str, tags=["Client"])
-async def webhook(
-    request: Request,
-    stripe_signature: str = Header(str),
-):
+async def webhook(request: Request, stripe_signature: str = Header(None)):
     """Stripe webhook"""
     service = VisitService()
     service.webhook(request, stripe_signature)
