@@ -1,6 +1,6 @@
 import enum
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 
 # from stripe.api_resources import payment_method
 
@@ -24,9 +24,9 @@ class ClientInfo(BaseModel):
     phone: str
     email: EmailStr
     referring: Optional[str]
-    conditions: list[str]
+    conditions: List[str]
     otherCondition: Optional[str]
-    diseases: list[str]
+    diseases: List[str]
     medications: str
     covidTestedPositive: Optional[YesNoNone]
     covidVaccine: Optional[YesNoNone]
@@ -34,7 +34,7 @@ class ClientInfo(BaseModel):
     consentMinorChild: Optional[bool]
     diagnosticProcedures: Optional[bool]
     # relationshipChild: Optional[str]
-    visits: Optional[list]
+    visits: Optional[List]
 
     class Config:
         orm_mode = True

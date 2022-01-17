@@ -1,5 +1,8 @@
 FROM python:3.9
 
+# for deploy
+# COPY . /app
+
 # set working directory
 WORKDIR /app
 
@@ -18,3 +21,5 @@ COPY poetry.lock .
 COPY pyproject.toml .
 
 RUN POETRY_VIRTUALENVS_CREATE=false poetry install --no-dev --no-interaction --no-ansi
+# for deploy
+# RUN chmod +x /app/start_server.sh

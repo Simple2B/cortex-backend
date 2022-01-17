@@ -35,9 +35,9 @@ def login(client, username=conf.ADMIN_EMAIL, password=conf.ADMIN_PASSWORD) -> st
 #     return response.json()["access_token"]
 
 
-# fastapi - > logout
-def logout(client):
-    raise NotImplementedError()
+# # fastapi - > logout
+# def logout(client):
+#     raise NotImplementedError()
 
 
 # flask - > login

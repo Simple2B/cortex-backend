@@ -1,8 +1,8 @@
 import datetime
 from typing import List
-from fastapi import HTTPException, status
-
+from fastapi import HTTPException, status, Request
 import stripe
+
 from app.schemas import (
     Doctor,
     VisitInfoHistory,
@@ -121,57 +121,69 @@ class VisitService:
             "cortex_key": config.CORTEX_KEY,
         }
 
-    def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> None:
-        stripe.api_key = config.CORTEX_KEY
-        try:
+    def create_stripe_session(self, data: ClientInfoStripe, doctor: Doctor) -> str:
+        stripe.api_key = config.SK_TEST
+        customer = stripe.Customer.create(
+            email=data.email,
+        )
+        log(
+            log.INFO, "create_stripe_session: customer created [%s]", customer.stripe_id
+        )
 
-            charge = stripe.Charge.create(
-                amount=data.amount,
-                currency="usd",
-                description=data.description,
-                source="tok_visa",
-                idempotency_key=data.id,
-                receipt_email=data.email
-                # customer
-            )
-            log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
+        charge = stripe.Charge.create(
+            amount=data.amount,
+            currency="usd",
+            description=data.description,
+            source="tok_visa",
+            idempotency_key=data.id,
+            receipt_email=data.email,
+            # customer=customer.stripe_id,
+        )
+        log(log.INFO, "create_stripe_session: stripe charge [%s]", charge)
 
-            client: ClientDB = ClientDB.query.filter(
-                ClientDB.api_key == data.api_key
-            ).first()
+        payment_intent = stripe.PaymentIntent.create(
+            amount=data.amount,
+            currency="usd",
+            payment_method_types=["card"],
+            customer=customer.stripe_id,
+        )
 
-            if not client:
-                log(log.ERROR, "create_stripe_session: Client not found")
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
-                )
+        payment_intent
 
-            log(log.INFO, "create_stripe_session: Client [%s]", client)
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data.api_key
+        ).first()
 
-            client_billing = Billing(
-                description=data.description,
-                amount=data.amount / 100,
-                client_id=client.id,
-                doctor_id=doctor.id,
-            ).save()
-
-            log(
-                log.INFO,
-                "create_stripe_session: billing [%d] saved for client [%d] [%s]",
-                client_billing.id,
-                client.id,
-                client.first_name,
-            )
-
-        except stripe.error.StripeError as error:
+        if not client:
+            log(log.ERROR, "create_stripe_session: Client not found")
             raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail=str(error.args),
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
             )
+
+        log(log.INFO, "create_stripe_session: Client [%s]", client)
+
+        client_billing = Billing(
+            description=data.description,
+            amount=data.amount / 100,
+            client_id=client.id,
+            doctor_id=doctor.id,
+            payment_method=data.id,
+            status=charge["status"],
+        ).save()
+
+        log(
+            log.INFO,
+            "create_stripe_session: billing [%d] saved for client [%d] [%s]",
+            client_billing.id,
+            client.id,
+            client.first_name,
+        )
+
+        return "ok"
 
     def stripe_subscription(
         self, data: ClientStripeSubscription, doctor: Doctor
-    ) -> None:
+    ) -> str:
         stripe.api_key = config.SK_TEST
         product = config.CORTEX_PRODUCT_ID
 
@@ -187,13 +199,15 @@ class VisitService:
 
         log(log.INFO, "stripe_subscription: Client [%s]", client)
 
-        # try:
         customer = stripe.Customer.create(
             description=data.name,
             email=data.email,
             payment_method=data.payment_method,
             name=data.name,
         )
+
+        if not customer:
+            log(log.ERROR, "stripe_subscription: customer didn't create")
 
         log(
             log.INFO,
@@ -263,8 +277,12 @@ class VisitService:
         log(
             log.INFO,
             "stripe_subscription: subscription [%s] modify successfully ",
-            modify_subscription,
+            modify_subscription.stripe_id,
         )
+
+        # info_payment_method = stripe.PaymentMethod.retrieve(
+        #     payment_method.stripe_id,
+        # )
 
         billing = Billing(
             description=data.description,
@@ -277,6 +295,7 @@ class VisitService:
             subscription_interval=data.interval.split("-")[1],
             subscription_interval_count=data.interval.split("-")[0],
             payment_method=data.payment_method,
+            status=subscription["status"],
             client_id=client.id,
             doctor_id=doctor.id,
         ).save()
@@ -288,11 +307,32 @@ class VisitService:
             client.id,
         )
 
-        # except stripe.error.StripeError as error:
-        #     raise HTTPException(
-        #         status.HTTP_400_BAD_REQUEST,
-        #         detail=str(error.args),
-        #     )
+        return "ok"
+
+    async def webhook(self, request: Request, stripe_signature: str):
+        webhook_secret = config.STRIPE_WEBHOOK_SECRET
+        data = await request.body()
+        try:
+            event = stripe.Webhook.construct_event(
+                payload=data, secret=webhook_secret, sig_header=stripe_signature
+            )
+            event_data = event["data"]
+            event_data
+        except Exception as e:
+            return {"error": str(e)}
+
+        event_type = event["type"]
+        if event_type == "checkout.session.completed":
+            print("checkout session completed")
+        elif event_type == "invoice.paid":
+            print("invoice paid")
+        elif event_type == "invoice.payment_failed":
+            print("invoice payment failed")
+        elif event_type == "charge.succeeded":
+            print("charge succeeded")
+        else:
+            print(f"unhandled event: {event_type}")
+        return {"status": "success"}
 
     def get_billing_history(self, api_key: str, doctor: Doctor) -> List[BillingBase]:
         stripe.api_key = config.SK_TEST
@@ -345,11 +385,11 @@ class VisitService:
                         customer=customer_stripe_id,
                     )
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: subscription data [%s]",
-                        invoice,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: subscription data [%s]",
+                    #     invoice,
+                    # )
 
                     next_payment_attempt = invoice["next_payment_attempt"]
 
@@ -357,19 +397,19 @@ class VisitService:
                         next_payment_attempt
                     ).strftime("%m/%d/%Y")
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: next payment date [%s]",
-                        date_next_payment_attempt,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: next payment date [%s]",
+                    #     date_next_payment_attempt,
+                    # )
 
                     paid = invoice["paid"]
 
-                    log(
-                        log.INFO,
-                        "get_billing_history: paid [%s]",
-                        paid,
-                    )
+                    # log(
+                    #     log.INFO,
+                    #     "get_billing_history: paid [%s]",
+                    #     paid,
+                    # )
 
                 client_amount = str(client_billing.amount)
                 pay_period = str(client_billing.subscription_interval_count)
@@ -386,6 +426,7 @@ class VisitService:
                         "client_name": client.first_name + " " + client.last_name,
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
                         "paid": paid,
+                        "status": client_billing.status,
                         "date_next_payment_attempt": date_next_payment_attempt,
                     }
                 )
@@ -403,6 +444,7 @@ class VisitService:
                 "client_name": "",
                 "doctor_name": "",
                 "paid": None,
+                "status": None,
                 "date_next_payment_attempt": None,
             }
         ]

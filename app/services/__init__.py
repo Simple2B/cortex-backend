@@ -4,5 +4,5 @@ from .client import ClientService
 from .queue import QueueService
 from .reports import ReportService
 from .note import NoteService
-from .visit import VisitService
 from .test import TestService
+from .visit import VisitService

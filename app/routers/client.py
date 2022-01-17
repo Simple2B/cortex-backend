@@ -2,8 +2,13 @@ import os
 import datetime
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, status
+# import stripe
+
+from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
+from fastapi_pagination import Page as BasePage, paginate
 from starlette.responses import FileResponse
+
+# from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
 
 from app.services import (
@@ -39,8 +44,12 @@ from app.models import (
 from app.services.auth import get_current_doctor
 from app.logger import log
 
+
+# from app.config import settings as config
+
 settings = Settings()
 router_client = APIRouter(prefix="/client")
+Page = BasePage.with_custom_options(size=4)
 
 
 @router_client.post("/registration", response_model=Client, tags=["Client"])
@@ -242,8 +251,7 @@ async def create_stripe_session(
 ):
     """Stripe session"""
     service = VisitService()
-    service.create_stripe_session(data, doctor)
-    return "ok"
+    return service.create_stripe_session(data, doctor)
 
 
 @router_client.post("/create_stripe_subscription", response_model=str, tags=["Client"])
@@ -252,17 +260,25 @@ async def stripe_subscription(
 ):
     """Stripe session"""
     service = VisitService()
-    service.stripe_subscription(data, doctor)
+    return service.stripe_subscription(data, doctor)
+
+
+@router_client.post("/webhook", response_model=str, tags=["Client"])
+async def webhook(request: Request, stripe_signature: str = Header(None)):
+    """Stripe webhook"""
+    service = VisitService()
+    service.webhook(request, stripe_signature)
     return "ok"
 
 
 @router_client.get(
-    "/billing_history/{api_key}", response_model=List[BillingBase], tags=["Client"]
+    "/billing_history/{api_key}", response_model=Page[BillingBase], tags=["Client"]
 )
 async def get_billing_history(
     api_key: str, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Get secret stripe keys"""
     service = VisitService()
+    billing_history = service.get_billing_history(api_key, doctor)
 
-    return service.get_billing_history(api_key, doctor)
+    return paginate(billing_history)
