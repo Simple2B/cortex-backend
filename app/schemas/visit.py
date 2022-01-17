@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -24,7 +24,7 @@ class VisitWithNote(BaseModel):
     start_time: datetime.datetime
     end_time: Optional[datetime.datetime]
     client_info: ClientInfo
-    notes: Optional[list]
+    notes: Optional[List]
 
     class Config:
         orm_mode = True
