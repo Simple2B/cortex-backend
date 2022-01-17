@@ -1,12 +1,12 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class Doctor(BaseModel):
     id: Optional[int]
     first_name: str
     last_name: str
-    email: str
+    email: Optional[EmailStr]
 
     class Config:
         orm_mode = True

@@ -85,10 +85,13 @@ class ClientService:
         client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
         if not client:
             log(log.INFO, "Client [%s] must registered", client_data.firstName)
-            client_with_email = ClientDB.query.filter(
+            client_with_email: ClientDB = ClientDB.query.filter(
                 ClientDB.email == client_data.email
             ).first()
-            if client_with_email:
+            if client_with_email and (
+                client_with_email.first_name == client_data.firstName
+                and client_with_email.last_name == client_data.lastName
+            ):
 
                 care_plan: CarePlan = CarePlan.query.filter(
                     CarePlan.client_id == client_with_email.id
