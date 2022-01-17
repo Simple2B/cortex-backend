@@ -1,5 +1,6 @@
 # from fastapi import Depends, HTTPException
 # from fastapi.security import OAuth2PasswordRequestForm
+from http.client import HTTPException
 from admin.config import BaseConfig as conf
 
 
@@ -35,9 +36,9 @@ def login(client, username=conf.ADMIN_EMAIL, password=conf.ADMIN_PASSWORD) -> st
 #     return response.json()["access_token"]
 
 
-# fastapi - > logout
-def logout(client):
-    raise NotImplementedError()
+# # fastapi - > logout
+# def logout(client):
+#     raise NotImplementedError()
 
 
 # flask - > login
