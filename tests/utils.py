@@ -1,6 +1,5 @@
 # from fastapi import Depends, HTTPException
 # from fastapi.security import OAuth2PasswordRequestForm
-from http.client import HTTPException
 from admin.config import BaseConfig as conf
 
 
