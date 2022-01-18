@@ -26,7 +26,7 @@ def add_doctor_to_db(
     return doctor
 
 
-def generate_test_data():
+def generate_data():
     doctor = Doctor.query.first()
 
     xlsx_file = Path("admin", "clients.xlsx")

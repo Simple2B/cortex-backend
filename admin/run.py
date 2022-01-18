@@ -6,7 +6,7 @@ from admin import db
 from app import models
 from app.logger import log
 from admin.config import BaseConfig as conf
-from admin.database import generate_test_data
+from admin.database import generate_data
 
 log.set_level(conf.LOG_LEVEL)
 
@@ -24,7 +24,7 @@ def get_context():
 def create_db():
     """Create the configured database."""
     db.create_all()
-    generate_test_data()
+    generate_data()
 
 
 @app.cli.command()
