@@ -43,6 +43,17 @@ def generate_data():
         doctor = add_doctor_to_db()
 
     for i in range(2, len(sheet["A"]) + 1):
+        phone = (
+            (
+                str(sheet[f"M{i}"].value)
+                .replace("(", "")
+                .replace(")", "")
+                .replace(" ", "")
+                .replace("-", "")
+            )
+            if sheet[f"M{i}"].value
+            else None
+        )
         client = Client(
             first_name=sheet[f"B{i}"].value,
             last_name=sheet[f"D{i}"].value,
@@ -51,7 +62,7 @@ def generate_data():
             city=sheet[f"I{i}"].value,
             state=sheet[f"J{i}"].value,
             zip=sheet[f"K{i}"].value,
-            phone=sheet[f"M{i}"].value,
+            phone=phone,
             email=sheet[f"L{i}"].value,
             referring=sheet[f"N{i}"].value,
             medications=[],

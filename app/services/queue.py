@@ -130,7 +130,16 @@ class QueueService:
         self, phone_num: ClientPhone, doctor: Doctor
     ) -> Union[Client, None]:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
-        client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
+
+        phone = (
+            str(phone_num.phone)
+            .replace("(", "")
+            .replace(")", "")
+            .replace(" ", "")
+            .replace("-", "")
+        )
+
+        client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
             log(
                 log.ERROR,
@@ -142,7 +151,14 @@ class QueueService:
         return client
 
     def get_client_with_phone(phone: str) -> Union[Client, None]:
-        client = ClientDB.query.filter(ClientDB.phone == phone).first()
+        phone_number = (
+            str(phone)
+            .replace("(", "")
+            .replace(")", "")
+            .replace(" ", "")
+            .replace("-", "")
+        )
+        client = ClientDB.query.filter(ClientDB.phone == phone_number).first()
         if not client:
             log(
                 log.ERROR,
