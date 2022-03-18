@@ -93,6 +93,7 @@ class ClientService:
         #     .replace(" ", "")
         #     .replace("-", "")
         # )
+        log(log.INFO, "Register_new_client: phone [%s] ", phone)
 
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
