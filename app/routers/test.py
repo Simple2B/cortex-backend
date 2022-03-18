@@ -31,7 +31,7 @@ async def care_plan_create(
 
 
 @router_test.get(
-    "/care_plan_create/{api_key}", response_model=CarePlanCreate, tags=["Test"]
+    "/care_plan_create/{api_key}", response_model=InfoCarePlan, tags=["Test"]
 )
 async def get_care_plan(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get care_plan for test"""
