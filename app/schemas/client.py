@@ -1,3 +1,4 @@
+import datetime
 import enum
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
@@ -48,6 +49,8 @@ class Client(BaseModel):
     phone: Optional[str]
     email: Optional[EmailStr]
     rougue_mode: Optional[bool]
+    req_date: Optional[str]
+    visits: Optional[List]
 
     class Config:
         orm_mode = True
@@ -106,6 +109,8 @@ class ClientStripeSubscription(BaseModel):
 
 class ClientCarePlan(BaseModel):
     api_key: str
+    start_time: Optional[str]
+    end_time: Optional[str]
 
     class Config:
         orm_mode = True
