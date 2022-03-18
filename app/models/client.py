@@ -1,6 +1,7 @@
 from uuid import uuid4
+import datetime
 
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, DateTime
 from sqlalchemy.sql.sqltypes import Boolean
 
 from app.database import Base
@@ -11,10 +12,16 @@ def gen_uuid() -> str:
     return str(uuid4())
 
 
+time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+
+
 class Client(Base, ModelMixin):
     __tablename__ = "clients"
 
     id = Column(Integer, primary_key=True, index=True)
+    req_date = Column(
+        DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+    )
     first_name = Column(String(64), nullable=False)
     last_name = Column(String(64), nullable=False)
     birthday = Column(Date, nullable=True)
@@ -106,5 +113,6 @@ class Client(Base, ModelMixin):
             "consentMinorChild": self.consent_minor_child,
             "diagnosticProcedures": self.consent_diagnostic_procedures,
             # "relationshipChild": self.relationship_child,
+            "req_date": self.req_date,
             "visits": visits,
         }
