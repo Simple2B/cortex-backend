@@ -10,7 +10,6 @@ from app.schemas import (
     CreateTest,
     GetTest,
     ClientCarePlan,
-    InfoCarePlan,
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
     CarePlanPatientInfo,
@@ -89,7 +88,7 @@ class TestService:
             log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
             return
 
-    def get_care_plan(self, api_key: str, doctor: Doctor) -> InfoCarePlan:
+    def get_care_plan(self, api_key: str, doctor: Doctor) -> typeInfoCarePlan:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
