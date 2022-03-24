@@ -1,4 +1,5 @@
 import datetime
+from email.policy import default
 import re
 from dateutil.relativedelta import relativedelta
 
@@ -8,6 +9,7 @@ from app.schemas import (
     PostTest,
     CreateTest,
     GetTest,
+    ClientCarePlan,
     PostTestCarePlanAndFrequency,
     CarePlanCreate,
     CarePlanPatientInfo,
@@ -25,7 +27,8 @@ from app.logger import log
 
 
 class TestService:
-    def care_plan_create(self, data: PostTest, doctor: Doctor) -> None:
+    def care_plan_create(self, data: ClientCarePlan, doctor: Doctor) -> None:
+        data
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
         ).first()
@@ -44,25 +47,48 @@ class TestService:
         ).first()
 
         if not care_plan:
-            care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
-            log(log.INFO, "care_plan_create: care plan [%d] created", care_plan.id)
+            care_plan = CarePlan(
+                client_id=client.id,
+                doctor_id=doctor.id,
+                start_time=data.start_time,
+                end_time=data.end_time,
+            ).save()
+            log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
             return
 
         if care_plan.care_plan:
             num_care_plan = re.findall(r"\d+", care_plan.care_plan)
-            end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
-            log(log.INFO, "care_plan_create: end_time [%s]", end_time)
-            care_plan.end_time = end_time
-            care_plan.save()
+            if data.end_time:
+                care_plan.end_time = data.end_time
+                care_plan.save()
+            else:
+                end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
+                log(log.INFO, "care_plan_create: end_time [%s]", end_time)
+                care_plan.end_time = end_time
+                care_plan.save()
+            if data.start_time:
+                care_plan.start_time = data.start_time
+                care_plan.save()
 
             log(
                 log.INFO, "care_plan_create: care plan [%d] with end_time", care_plan.id
             )
 
             log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
+
             return
 
-    def get_care_plan(self, api_key: str, doctor: Doctor) -> CarePlanCreate:
+        if data.start_time or data.end_time:
+            care_plan = CarePlan(
+                client_id=client.id,
+                doctor_id=doctor.id,
+                start_time=data.start_time if data.start_time else default,
+                end_time=data.end_time if data.end_time else None,
+            ).save()
+            log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
+            return
+
+    def get_care_plan(self, api_key: str, doctor: Doctor) -> typeInfoCarePlan:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
@@ -74,23 +100,24 @@ class TestService:
 
         log(log.INFO, "get_care_plan: Client [%s] for test", client)
 
-        care_plan: CarePlan = CarePlan.query.filter(
+        care_plans: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
-        ).first()
+        ).all()
+
+        care_plan = care_plans[len(care_plans) - 1]
 
         if not care_plan:
             log(log.INFO, "get_care_plan: care plan not found")
             return
 
         today = datetime.datetime.now()
-
         if care_plan.end_time and (care_plan.end_time < today):
             care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
             log(log.INFO, "get_care_plan: care plan [%d] created", care_plan.id)
             return care_plan
 
         plan = {
-            "date": care_plan.date,
+            "date": care_plan.date if care_plan.date else None,
             "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
             if care_plan.start_time
             else None,
@@ -367,9 +394,13 @@ class TestService:
         names = []
         for name in care_plan_names:
             num_name = re.findall(r"\d+", name.care_plan)
-            names.append({"number": int(num_name[0]), "care_plan": name.care_plan})
+            log(log.INFO, "get_care_plan_names: num_name [%s]", num_name)
+            if len(num_name) > 0:
+                log(log.INFO, "get_care_plan_names: [%d]", len(num_name))
+                names.append({"number": int(num_name[0]), "care_plan": name.care_plan})
 
         sorted_names = sorted(names, key=lambda k: k["number"])
+        log(log.INFO, "get_care_plan_names: names are sorted")
 
         return sorted_names
 
@@ -386,9 +417,13 @@ class TestService:
         names = []
         for name in frequency_plan_names:
             num_name = re.findall(r"\d+", name.frequency)
-            names.append({"number": int(num_name[0]), "frequency": name.frequency})
+            log(log.INFO, "get_frequency_names: num_name [%s]", num_name)
+            if len(num_name) > 0:
+                log(log.INFO, "get_frequency_names: [%d]", len(num_name))
+                names.append({"number": int(num_name[0]), "frequency": name.frequency})
 
         sorted_names = sorted(names, key=lambda k: k["number"])
+        log(log.INFO, "get_frequency_names: names are sorted")
 
         return sorted_names
 

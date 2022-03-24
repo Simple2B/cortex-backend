@@ -14,15 +14,15 @@ class YesNoNone(enum.Enum):
 class ClientInfo(BaseModel):
     id: Optional[int]
     api_key: Optional[str]
-    firstName: str
-    lastName: str
+    firstName: Optional[str]
+    lastName: Optional[str]
     birthday: Optional[str]
     address: Optional[str]
     city: Optional[str]
     state: Optional[str]
     zip: Optional[int]
-    phone: str
-    email: EmailStr
+    phone: Optional[str]
+    email: Optional[EmailStr]
     referring: Optional[str]
     conditions: List[str]
     otherCondition: Optional[str]
@@ -30,7 +30,7 @@ class ClientInfo(BaseModel):
     medications: str
     covidTestedPositive: Optional[YesNoNone]
     covidVaccine: Optional[YesNoNone]
-    stressfulLevel: int
+    stressfulLevel: Optional[int]
     consentMinorChild: Optional[bool]
     diagnosticProcedures: Optional[bool]
     # relationshipChild: Optional[str]
@@ -46,8 +46,10 @@ class Client(BaseModel):
     first_name: str
     last_name: str
     phone: Optional[str]
-    email: Optional[str]
+    email: Optional[EmailStr]
     rougue_mode: Optional[bool]
+    req_date: Optional[str]
+    visits: Optional[List]
 
     class Config:
         orm_mode = True
@@ -67,7 +69,7 @@ class ClientInTake(BaseModel):
 
 
 class ClientPhone(BaseModel):
-    phone: str
+    phone: Optional[str]
 
     class Config:
         orm_mode = True
@@ -106,6 +108,8 @@ class ClientStripeSubscription(BaseModel):
 
 class ClientCarePlan(BaseModel):
     api_key: str
+    start_time: Optional[str]
+    end_time: Optional[str]
 
     class Config:
         orm_mode = True

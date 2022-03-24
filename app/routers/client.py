@@ -50,6 +50,7 @@ from app.logger import log
 settings = Settings()
 router_client = APIRouter(prefix="/client")
 Page = BasePage.with_custom_options(size=4)
+PageClients = BasePage.with_custom_options(size=6)
 
 
 @router_client.post("/registration", response_model=Client, tags=["Client"])
@@ -98,7 +99,50 @@ def get_clients(doctor: Doctor = Depends(get_current_doctor)):
         log(log.INFO, "get_clients: reception didn't created")
         reception = Reception(date=today, doctor_id=doctor.id).save()
         log(log.INFO, "get_clients: Today reception created [%s]", reception)
-    return ClientDB.query.all()
+    clients_from_db = ClientDB.query.all()
+    clients = [
+        {
+            "id": client.id,
+            "api_key": client.api_key,
+            "first_name": client.first_name,
+            "last_name": client.last_name,
+            "phone": client.phone,
+            "email": client.email,
+            "req_date": client.req_date.strftime("%m/%d/%Y, %H:%M:%S")
+            if client.req_date
+            else None,
+            "visits": client.client_info["visits"]
+            if client.client_info["visits"]
+            else [],
+        }
+        for client in clients_from_db
+    ]
+    return clients
+
+
+@router_client.get(
+    "/clients_for_queue", response_model=PageClients[Client], tags=["Client"]
+)
+async def get_db_clients_for_queue(
+    # query: Optional[str],
+    doctor: Doctor = Depends(get_current_doctor),
+):
+    """Show clients from db for queue"""
+    today = datetime.date.today()
+    reception = Reception.query.filter(Reception.date == today).first()
+    if not reception:
+        log(log.INFO, "get_db_clients_for_queue: reception didn't created")
+        reception = Reception(date=today, doctor_id=doctor.id).save()
+        log(
+            log.INFO,
+            "get_db_clients_for_queue: Today reception created [%s]",
+            reception,
+        )
+    clients = ClientDB.query.all()
+
+    log(log.INFO, "get_db_clients_for_queue: clients count [%d]", len(clients))
+
+    return paginate(clients)
 
 
 @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])

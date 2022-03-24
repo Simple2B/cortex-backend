@@ -11,13 +11,24 @@ class CarePlan(BaseModel):
 
 class CarePlanCreate(CarePlan):
     date: Optional[datetime.datetime]
-    start_time: Optional[str]
-    end_time: Optional[str]
+    start_time: Optional[datetime.datetime]
+    end_time: Optional[datetime.datetime]
     progress_date: Optional[str]
     care_plan: Optional[str]
     frequency: Optional[str]
     client_id: int
     doctor_id: int
+
+
+class InfoCarePlan(CarePlan):
+    date: Optional[datetime.datetime]
+    start_time: Optional[str]
+    end_time: Optional[str]
+    progress_date: Optional[str]
+    care_plan: Optional[str]
+    frequency: Optional[str]
+    client_id: Optional[int]
+    doctor_id: Optional[int]
 
 
 class CarePlanPatientInfo(CarePlan):

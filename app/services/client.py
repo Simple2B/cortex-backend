@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from fastapi import HTTPException, status
 from sqlalchemy.sql.elements import and_
@@ -45,6 +46,7 @@ class ClientService:
             client_data.covidTestedPositive.value if covidTestedPositive else "null"
         )
         covidVaccine = client_data.covidVaccine.value if covidVaccine else "null"
+        phone = "".join(re.findall(r"\d+", client_data.phone))
         client = ClientDB(
             first_name=client_data.firstName,
             last_name=client_data.lastName,
@@ -55,7 +57,7 @@ class ClientService:
             city=client_data.city,
             state=client_data.state,
             zip=client_data.zip,
-            phone=client_data.phone,
+            phone=phone,
             email=client_data.email,
             referring=client_data.referring,
             medications=client_data.medications,
@@ -82,13 +84,27 @@ class ClientService:
     def register_new_client(self, client_data: ClientInfo) -> Client:
         log(log.INFO, "Register_new_client: client_data [%s] ", client_data)
 
-        client = ClientDB.query.filter(ClientDB.phone == client_data.phone).first()
+        phone = "".join(re.findall(r"\d+", client_data.phone))
+
+        # phone = (
+        #     client_data.phone.replace("(", "")
+        #     .replace(")", "")
+        #     .replace("+", "")
+        #     .replace(" ", "")
+        #     .replace("-", "")
+        # )
+        log(log.INFO, "Register_new_client: phone [%s] ", phone)
+
+        client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
             log(log.INFO, "Client [%s] must registered", client_data.firstName)
-            client_with_email = ClientDB.query.filter(
+            client_with_email: ClientDB = ClientDB.query.filter(
                 ClientDB.email == client_data.email
             ).first()
-            if client_with_email:
+            if client_with_email and (
+                client_with_email.first_name == client_data.firstName
+                and client_with_email.last_name == client_data.lastName
+            ):
 
                 care_plan: CarePlan = CarePlan.query.filter(
                     CarePlan.client_id == client_with_email.id
@@ -133,7 +149,7 @@ class ClientService:
             client.city = client_data.city
             client.state = client_data.state
             client.zip = client_data.zip
-            client.phone = client_data.phone
+            client.phone = phone
             client.email = client_data.email
             client.referring = client_data.referring
             client.medications = client_data.medications

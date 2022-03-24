@@ -10,6 +10,7 @@
     "DEVEL",
     "finalizer",
     "noqa",
+    "openpyxl",
     "pydantic",
     "pytest",
     "skipif",

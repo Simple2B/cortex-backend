@@ -1,4 +1,5 @@
 import datetime
+import re
 from typing import List, Union
 
 from fastapi import HTTPException, status
@@ -130,7 +131,17 @@ class QueueService:
         self, phone_num: ClientPhone, doctor: Doctor
     ) -> Union[Client, None]:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
-        client = ClientDB.query.filter(ClientDB.phone == phone_num.phone).first()
+
+        # phone = (
+        #     str(phone_num.phone)
+        #     .replace("(", "")
+        #     .replace(")", "")
+        #     .replace(" ", "")
+        #     .replace("-", "")
+        # )
+        phone = "".join(re.findall(r"\d+", str(phone_num.phone)))
+
+        client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
             log(
                 log.ERROR,
@@ -142,7 +153,15 @@ class QueueService:
         return client
 
     def get_client_with_phone(phone: str) -> Union[Client, None]:
-        client = ClientDB.query.filter(ClientDB.phone == phone).first()
+        # phone_number = (
+        #     str(phone)
+        #     .replace("(", "")
+        #     .replace(")", "")
+        #     .replace(" ", "")
+        #     .replace("-", "")
+        # )
+        phone_number = "".join(re.findall(r"\d+", str(phone)))
+        client = ClientDB.query.filter(ClientDB.phone == phone_number).first()
         if not client:
             log(
                 log.ERROR,
@@ -188,6 +207,10 @@ class QueueService:
         members_in_queue = []
         for member in members:
             member_info = member["client"].client_info
+            visit_info_with_end_date = []
+            for visit in member_info["visits"]:
+                if visit.end_time:
+                    visit_info_with_end_date.append(visit)
             client_member = {
                 "api_key": member_info["api_key"],
                 "email": member_info["email"],
@@ -195,8 +218,12 @@ class QueueService:
                 "id": member_info["id"],
                 "last_name": member_info["lastName"],
                 "phone": member_info["phone"],
+                "req_date": member_info["req_date"].strftime("%m/%d/%Y, %H:%M:%S")
+                if member_info["req_date"]
+                else None,
                 # TODO: rougue_mode
                 # "rougue_mode": member_info,
+                "visits": visit_info_with_end_date,
             }
             visits = member_info["visits"]
             if not visits:
