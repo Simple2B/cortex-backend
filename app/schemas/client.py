@@ -45,8 +45,8 @@ class Client(BaseModel):
     api_key: Optional[str]
     first_name: str
     last_name: str
-    phone: str
-    email: str
+    phone: Optional[str]
+    email: Optional[str]
     rougue_mode: Optional[bool]
 
     class Config:
