@@ -84,14 +84,22 @@ class TestService:
 
         today = datetime.datetime.now()
 
-        if care_plan.end_time < today:
+        if care_plan.end_time and (care_plan.end_time < today):
             care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
             log(log.INFO, "get_care_plan: care plan [%d] created", care_plan.id)
             return care_plan
 
         plan = {
             "date": care_plan.date,
-            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S"),
+            "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.start_time
+            else None,
+            "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.end_time
+            else None,
+            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.progress_date
+            else None,
             "care_plan": care_plan.care_plan,
             "frequency": care_plan.frequency,
             "client_id": client.id,

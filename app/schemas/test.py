@@ -12,6 +12,8 @@ class Test(BaseModel):
 class PostTest(Test):
     api_key: str
     date: str
+    start_time: Optional[str]
+    end_time: Optional[str]
 
 
 class CreateTest(Test):
