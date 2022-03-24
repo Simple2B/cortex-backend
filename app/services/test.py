@@ -111,8 +111,8 @@ class TestService:
             return
 
         today = datetime.datetime.now()
-
-        if care_plan.end_time and care_plan.end_time < today:
+        
+        if care_plan.end_time and (care_plan.end_time < today):
             care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
             log(log.INFO, "get_care_plan: care plan [%d] created", care_plan.id)
             return care_plan
