@@ -20,7 +20,9 @@ class Client(Base, ModelMixin):
 
     id = Column(Integer, primary_key=True, index=True)
     req_date = Column(
-        DateTime, default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
+        DateTime,
+        default=datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S"),
+        nullable=True,
     )
     first_name = Column(String(64), nullable=False)
     last_name = Column(String(64), nullable=False)
