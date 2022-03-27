@@ -86,13 +86,6 @@ class ClientService:
 
         phone = "".join(re.findall(r"\d+", client_data.phone))
 
-        # phone = (
-        #     client_data.phone.replace("(", "")
-        #     .replace(")", "")
-        #     .replace("+", "")
-        #     .replace(" ", "")
-        #     .replace("-", "")
-        # )
         log(log.INFO, "Register_new_client: phone [%s] ", phone)
 
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
@@ -167,7 +160,6 @@ class ClientService:
             client.consent_minor_child = client_data.consentMinorChild
             client.consent_diagnostic_procedures = client_data.diagnosticProcedures
             # client.relationship_child = client_data.relationshipChild
-
             log(log.INFO, "Client [%d] updated [%s]", client.id, client.first_name)
 
             ClientCondition.query.filter(
@@ -185,9 +177,21 @@ class ClientService:
             for disease_name in client_data.diseases:
                 ClientService.link_client_disease(client.id, disease_name)
 
-            return client.save(True)
+            client.save(True)
 
-        return client
+        return {
+            "id": client.id,
+            "api_key": client.api_key,
+            "first_name": client.first_name,
+            "last_name": client.last_name,
+            "phone": client.phone,
+            "email": client.email,
+            # rougue_mode: Optional[bool]
+            "req_date": client.req_date.strftime("%m/%d/%Y, %H:%M:%S")
+            if client.req_date
+            else None,
+            "visits": client.client_info["visits"],
+        }
 
     @staticmethod
     def intake(client_data: ClientInTake, doctor: Doctor) -> ClientInfo:

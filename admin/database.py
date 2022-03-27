@@ -68,6 +68,7 @@ def generate_data():
             medications=[],
             covid_tested_positive="null",
             covid_vaccine="null",
+            req_date=None,
             stressful_level=1,
             consent_minor_child=None,
             consent_diagnostic_procedures=None,

@@ -45,11 +45,27 @@ class QueueService:
 
             log(log.INFO, "add_client_to_queue: Reception created [%d]", reception.id)
 
-        client_in_queue = QueueMember.query.filter(
+        clients_in_queue = QueueMember.query.filter(
             QueueMember.reception_id == reception.id
         ).all()
 
-        place_in_queue = len(client_in_queue) + 1 if client_in_queue else 1
+        # list({member["id"]: member for member in clients_in_queue}.values())
+
+        for i in range(len(clients_in_queue)):
+            clients_in_queue[i].place_in_queue = i + 1
+            clients_in_queue[i].save()
+            if (
+                clients_in_queue[i].canceled is False
+                and clients_in_queue[i].client_id == client.id
+            ):
+                log(
+                    log.INFO,
+                    "add_client_to_queue: this client in queue still [%s]",
+                    client,
+                )
+                return
+
+        place_in_queue = len(clients_in_queue) + 1 if clients_in_queue else 1
 
         log(log.INFO, "add_client_to_queue: place_in_queue [%d]", place_in_queue)
 
@@ -131,14 +147,6 @@ class QueueService:
         self, phone_num: ClientPhone, doctor: Doctor
     ) -> Union[Client, None]:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
-
-        # phone = (
-        #     str(phone_num.phone)
-        #     .replace("(", "")
-        #     .replace(")", "")
-        #     .replace(" ", "")
-        #     .replace("-", "")
-        # )
         phone = "".join(re.findall(r"\d+", str(phone_num.phone)))
 
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
@@ -153,13 +161,6 @@ class QueueService:
         return client
 
     def get_client_with_phone(phone: str) -> Union[Client, None]:
-        # phone_number = (
-        #     str(phone)
-        #     .replace("(", "")
-        #     .replace(")", "")
-        #     .replace(" ", "")
-        #     .replace("-", "")
-        # )
         phone_number = "".join(re.findall(r"\d+", str(phone)))
         client = ClientDB.query.filter(ClientDB.phone == phone_number).first()
         if not client:
@@ -194,6 +195,7 @@ class QueueService:
             {
                 "client": member.client,
                 "canceled": member.canceled,
+                "place_in_queue": member.place_in_queue,
             }
             for member in queue_members
         ]
@@ -221,6 +223,7 @@ class QueueService:
                 "req_date": member_info["req_date"].strftime("%m/%d/%Y, %H:%M:%S")
                 if member_info["req_date"]
                 else None,
+                "place_in_queue": member["place_in_queue"],
                 # TODO: rougue_mode
                 # "rougue_mode": member_info,
                 "visits": visit_info_with_end_date,
