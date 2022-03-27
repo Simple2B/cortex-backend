@@ -55,7 +55,7 @@ class QueueService:
             clients_in_queue[i].place_in_queue = i + 1
             clients_in_queue[i].save()
             if (
-                clients_in_queue[i].canceled == False
+                clients_in_queue[i].canceled is False
                 and clients_in_queue[i].client_id == client.id
             ):
                 log(
