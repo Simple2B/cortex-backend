@@ -5,8 +5,10 @@ from typing import List
 # import stripe
 
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
-from fastapi_pagination import Page as BasePage, paginate
+from fastapi_pagination import Page as BasePage, paginate, add_pagination
+from pydantic import BaseModel
 from starlette.responses import FileResponse
+from sqlalchemy import or_, func
 
 # from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
@@ -91,7 +93,7 @@ async def get_client_with_phone(
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
-def get_clients(doctor: Doctor = Depends(get_current_doctor)):
+def get_clients(q: str = None, page: int = None, doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
     today = datetime.date.today()
     reception = Reception.query.filter(Reception.date == today).first()
@@ -99,7 +101,11 @@ def get_clients(doctor: Doctor = Depends(get_current_doctor)):
         log(log.INFO, "get_clients: reception didn't created")
         reception = Reception(date=today, doctor_id=doctor.id).save()
         log(log.INFO, "get_clients: Today reception created [%s]", reception)
-    clients_from_db = ClientDB.query.all()
+    # clients_from_db = ClientDB.query.all()
+    clients_from_db = ClientDB.query[:page]
+    if q:
+        clients_from_db = ClientDB.query.filter(
+            or_(func.lower(ClientDB.first_name) == func.lower(q), func.lower(ClientDB.last_name) == func.lower(q)))
     clients = [
         {
             "id": client.id,
