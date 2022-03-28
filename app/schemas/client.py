@@ -11,7 +11,12 @@ class YesNoNone(enum.Enum):
     NONE = "null"
 
 
-class ClientInfo(BaseModel):
+class ClientBase(BaseModel):
+    class Config:
+        orm_mode = True
+
+
+class ClientInfo(ClientBase):
     id: Optional[int]
     api_key: Optional[str]
     firstName: Optional[str]
@@ -36,46 +41,42 @@ class ClientInfo(BaseModel):
     # relationshipChild: Optional[str]
     visits: Optional[List]
 
-    class Config:
-        orm_mode = True
 
-
-class Client(BaseModel):
+class Client(ClientBase):
     id: Optional[int]
     api_key: Optional[str]
     first_name: str
     last_name: str
     phone: Optional[str]
     email: Optional[EmailStr]
-    rougue_mode: Optional[bool]
+    # rougue_mode: Optional[bool]
     req_date: Optional[str]
     visits: Optional[List]
 
-    class Config:
-        orm_mode = True
 
-
-class ClientQueue(Client):
+class ClientQueue(ClientBase):
+    id: Optional[int]
+    api_key: Optional[str]
+    email: Optional[EmailStr]
+    first_name: str
+    last_name: str
+    phone: Optional[str]
+    req_date: Optional[str]
+    visits: Optional[List]
     place_in_queue: Optional[int]
 
-    class Config:
-        orm_mode = True
 
-
-class ClientInTake(BaseModel):
+class ClientInTake(ClientBase):
     api_key: str
     place_in_queue: Optional[int]
     rougue_mode: Optional[bool]
 
 
-class ClientPhone(BaseModel):
+class ClientPhone(ClientBase):
     phone: Optional[str]
 
-    class Config:
-        orm_mode = True
 
-
-class ClientInfoStripe(BaseModel):
+class ClientInfoStripe(ClientBase):
     id: str
     description: Optional[str]
     amount: int
@@ -83,11 +84,8 @@ class ClientInfoStripe(BaseModel):
     email: str
     name: str
 
-    class Config:
-        orm_mode = True
 
-
-class ClientStripeSubscription(BaseModel):
+class ClientStripeSubscription(ClientBase):
     payment_method: str
     email: str
     description: str
@@ -102,14 +100,8 @@ class ClientStripeSubscription(BaseModel):
     exp_year: Optional[int]
     cvc: Optional[int]
 
-    class Config:
-        orm_mode = True
 
-
-class ClientCarePlan(BaseModel):
+class ClientCarePlan(ClientBase):
     api_key: str
     start_time: Optional[str]
     end_time: Optional[str]
-
-    class Config:
-        orm_mode = True
