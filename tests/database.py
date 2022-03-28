@@ -1,4 +1,5 @@
 import datetime
+import random
 import openpyxl
 from pathlib import Path
 from admin.config import BaseConfig as conf
