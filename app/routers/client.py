@@ -7,6 +7,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
 from fastapi_pagination import Page as BasePage, paginate
 from starlette.responses import FileResponse
+from sqlalchemy import or_, func, and_
 
 # from stripe.api_resources import line_item, payment_method
 from app.config.settings import Settings
@@ -101,7 +102,7 @@ async def get_client_with_phone(
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
-def get_clients(doctor: Doctor = Depends(get_current_doctor)):
+def get_clients(q: str = None, page: int = None, doctor: Doctor = Depends(get_current_doctor)):
     """Show clients"""
     today = datetime.date.today()
     reception = Reception.query.filter(Reception.date == today).first()
@@ -109,7 +110,18 @@ def get_clients(doctor: Doctor = Depends(get_current_doctor)):
         log(log.INFO, "get_clients: reception didn't created")
         reception = Reception(date=today, doctor_id=doctor.id).save()
         log(log.INFO, "get_clients: Today reception created [%s]", reception)
-    clients_from_db = ClientDB.query.all()
+
+    clients_from_db = ClientDB.query[:page]
+
+    if q:
+        if len(q.split()) > 1:
+            clients_from_db = ClientDB.query.filter(
+                and_(
+                    (func.lower(ClientDB.first_name).like(f"{q.split()[1]}%")),
+                    func.lower(ClientDB.last_name).like(f"{q.split()[0]}%")))
+        else:
+            clients_from_db = ClientDB.query.filter(
+                or_(func.lower(ClientDB.first_name).like(f"{q}%"), func.lower(ClientDB.last_name).like(f"{q}%")))
     clients = [
         {
             "id": client.id,
