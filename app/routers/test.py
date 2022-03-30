@@ -12,6 +12,7 @@ from app.schemas import (
     CarePlanCreate,
     ClientCarePlan,
     CarePlanPatientInfo,
+    CarePlanHistory,
 )
 from app.services import TestService
 from app.services.auth import get_current_doctor
@@ -28,6 +29,19 @@ async def care_plan_create(
     service = TestService()
     service.care_plan_create(data, doctor)
     return "ok"
+
+
+@router_test.get(
+    "/care_plan_history/{api_key}",
+    response_model=List[CarePlanHistory],
+    tags=["Client"],
+)
+async def get_history_care_plan(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Get all care plan for client"""
+    service = TestService()
+    return service.get_history_care_plan(api_key, doctor)
 
 
 @router_test.get(
