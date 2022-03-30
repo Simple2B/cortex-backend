@@ -53,3 +53,15 @@ class CarePlanHistory(CarePlan):
     doctor_name: Optional[str]
     notes: Optional[list]
     tests: Optional[list]
+
+
+class CurrentCarePlan(CarePlan):
+    id: int
+    date: Optional[str]
+    start_time: Optional[str]
+    end_time: Optional[str]
+    care_plan: Optional[str]
+    frequency: Optional[str]
+    progress_date: Optional[str]
+    client_id: int
+    doctor_id: int
