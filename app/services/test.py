@@ -1,6 +1,5 @@
 import re
 import datetime
-from email.policy import default
 from dateutil.relativedelta import relativedelta
 
 from fastapi import HTTPException, status
@@ -121,7 +120,7 @@ class TestService:
         today = datetime.datetime.now()
 
         for plan in care_plans:
-            if plan.start_time < today and plan.end_time == None:
+            if plan.start_time < today and plan.end_time is None:
                 care_plan = self.get_data_care_plan(plan, client, doctor)
                 return care_plan
 
