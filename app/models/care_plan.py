@@ -34,9 +34,27 @@ class CarePlan(Base, ModelMixin):
         return f"<{self.id}: c:{self.client_id}-d:{self.doctor_id}>"
 
     @property
-    def care_plan_info(self):
+    def care_plan_info_tests(self):
         from .test import Test
+        from .visit import Visit
 
         tests = Test.query.filter(Test.care_plan_id == self.id).all()
 
-        return tests
+        # notes in visit
+        visits = Visit.query.filter(Visit.client_id == self.client_id).all()
+
+        care_plan_visit = []
+        if len(visits) > 0:
+            for visit in visits:
+                if self.end_time and visit.end_time:
+                    if (
+                        self.start_time >= visit.start_time
+                        and self.end_time <= visit.end_time
+                    ):
+                        care_plan_visit.append(visit)
+
+        # intake consult
+        return {
+            "tests": tests,
+            "visits": visits,
+        }

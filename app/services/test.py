@@ -1,6 +1,5 @@
-import datetime
-from email.policy import default
 import re
+import datetime
 from dateutil.relativedelta import relativedelta
 
 from fastapi import HTTPException, status
@@ -15,6 +14,7 @@ from app.schemas import (
     CarePlanPatientInfo,
     InfoCarePlan as typeInfoCarePlan,
     InfoFrequency as typeInfoFrequency,
+    CarePlanHistory,
 )
 from app.models import (
     Client as ClientDB,
@@ -28,7 +28,6 @@ from app.logger import log
 
 class TestService:
     def care_plan_create(self, data: ClientCarePlan, doctor: Doctor) -> None:
-        data
         client: ClientDB = ClientDB.query.filter(
             ClientDB.api_key == data.api_key
         ).first()
@@ -46,12 +45,23 @@ class TestService:
             CarePlan.client_id == client.id
         ).first()
 
+        data_start_time = (
+            datetime.datetime.strptime(data.start_time, "%m/%d/%Y, %H:%M:%S")
+            if data.start_time
+            else care_plan.start_time
+        )
+        data_end_time = (
+            datetime.datetime.strptime(data.end_time, "%m/%d/%Y, %H:%M:%S")
+            if data.end_time
+            else None
+        )
+
         if not care_plan:
             care_plan = CarePlan(
                 client_id=client.id,
                 doctor_id=doctor.id,
-                start_time=data.start_time,
-                end_time=data.end_time,
+                start_time=data_start_time,
+                end_time=data_end_time,
             ).save()
             log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
             return
@@ -59,7 +69,7 @@ class TestService:
         if care_plan.care_plan:
             num_care_plan = re.findall(r"\d+", care_plan.care_plan)
             if data.end_time:
-                care_plan.end_time = data.end_time
+                care_plan.end_time = data_end_time
                 care_plan.save()
             else:
                 end_time = care_plan.date + relativedelta(months=int(num_care_plan[0]))
@@ -67,7 +77,7 @@ class TestService:
                 care_plan.end_time = end_time
                 care_plan.save()
             if data.start_time:
-                care_plan.start_time = data.start_time
+                care_plan.start_time = data_start_time
                 care_plan.save()
 
             log(
@@ -78,13 +88,12 @@ class TestService:
 
             return
 
-        if data.start_time or data.end_time:
-            care_plan = CarePlan(
-                client_id=client.id,
-                doctor_id=doctor.id,
-                start_time=data.start_time if data.start_time else default,
-                end_time=data.end_time if data.end_time else None,
-            ).save()
+        today = datetime.datetime.utcnow()
+
+        if data_end_time and data_end_time >= today:
+            care_plan.start_time = data_start_time
+            care_plan.end_time = data_end_time
+            care_plan.save(True)
             log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
             return
 
@@ -104,36 +113,65 @@ class TestService:
             CarePlan.client_id == client.id
         ).all()
 
-        care_plan = care_plans[len(care_plans) - 1]
-
-        if not care_plan:
+        if len(care_plans) == 0:
             log(log.INFO, "get_care_plan: care plan not found")
             return
 
         today = datetime.datetime.now()
-        if care_plan.end_time and (care_plan.end_time < today):
-            care_plan = CarePlan(client_id=client.id, doctor_id=doctor.id).save()
-            log(log.INFO, "get_care_plan: care plan [%d] created", care_plan.id)
-            return care_plan
 
-        plan = {
-            "date": care_plan.date if care_plan.date else None,
-            "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
-            if care_plan.start_time
-            else None,
-            "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
-            if care_plan.end_time
-            else None,
-            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
-            if care_plan.progress_date
-            else None,
-            "care_plan": care_plan.care_plan,
-            "frequency": care_plan.frequency,
-            "client_id": client.id,
-            "doctor_id": doctor.id,
-        }
+        for plan in care_plans:
+            if plan.start_time < today and plan.end_time is None:
+                care_plan = self.get_data_care_plan(plan, client, doctor)
+                return care_plan
 
-        return plan
+            if plan.start_time < today and (plan.end_time and plan.end_time >= today):
+                care_plan = self.get_data_care_plan(plan, client, doctor)
+                return care_plan
+
+    def get_history_care_plan(
+        self, api_key: str, doctor: Doctor
+    ) -> CarePlanHistory or None:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+        if not client:
+            log(log.ERROR, "get_history_care_plan: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+            )
+
+        log(log.INFO, "get_history_care_plan: Client [%s]", client)
+        care_plans: CarePlan = CarePlan.query.filter(
+            CarePlan.client_id == client.id
+        ).all()
+        log(log.INFO, "get_history_care_plan: care_plans length [%d]", len(care_plans))
+        # notes
+
+        history_care_plans = []
+        for care_plan in care_plans:
+            if care_plan.end_time:
+                history_care_plans.append(care_plan)
+        log(
+            log.INFO,
+            "get_history_care_plan: history_care_plans length[%d]",
+            len(history_care_plans),
+        )
+        if len(history_care_plans) > 0:
+            return [
+                {
+                    "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "care_plan": care_plan.care_plan,
+                    "frequency": care_plan.frequency,
+                    "progress_date": care_plan.progress_date,
+                    "client_id": care_plan.client_id,
+                    "doctor_id": care_plan.doctor_id,
+                    "doctor_name": doctor.first_name + " " + doctor.last_name,
+                    "tests": care_plan.care_plan_info_tests["tests"],
+                    "notes": care_plan.care_plan_info_tests["visits"],
+                }
+                for care_plan in history_care_plans
+            ]
+        return []
 
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
         client: ClientDB = ClientDB.query.filter(
@@ -178,6 +216,25 @@ class TestService:
         create_test.save()
 
         return create_test
+
+    @staticmethod
+    def get_data_care_plan(plan, client: ClientDB, doctor: Doctor) -> typeInfoCarePlan:
+        return {
+            "date": plan.date if plan.date else None,
+            "start_time": plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if plan.start_time
+            else None,
+            "end_time": plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if plan.end_time
+            else None,
+            "progress_date": plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+            if plan.progress_date
+            else None,
+            "care_plan": plan.care_plan,
+            "frequency": plan.frequency,
+            "client_id": client.id,
+            "doctor_id": doctor.id,
+        }
 
     @staticmethod
     def formed_care_plan_with_progress_test_date(
@@ -313,7 +370,7 @@ class TestService:
         # if the progress_date is not filled,
         # the next test date should occur 6 weeks(42 days) after the patient's last test
         if not data.progress_date:
-            tests = care_plan.care_plan_info
+            tests = care_plan.care_plan_info_tests
             if len(tests) > 0:
                 last_test = tests[-1]
                 progress_date = last_test.date + datetime.timedelta(days=42)
