@@ -68,7 +68,7 @@ DATA_CLIENT = {
     "id": CLIENT_NUMBER + 1,
     "first_name": "Alex",
     "last_name": "Brown",
-    "phone": "+19077653340",
+    "phone": "19077653340",
     "email": "client@gmail.com",
 }
 
@@ -128,7 +128,7 @@ def test_doctor_put_client_in_queue(client: TestClient):
     assert response.ok
     data = response.json()
     assert len(data) == 1
-    assert data[0]["id"] == 11
+    assert data[0]["id"] == 12
 
 
 def test_get_queue(client: TestClient):
