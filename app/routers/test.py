@@ -13,6 +13,7 @@ from app.schemas import (
     ClientCarePlan,
     CarePlanPatientInfo,
     CarePlanHistory,
+    CurrentCarePlan,
 )
 from app.services import TestService
 from app.services.auth import get_current_doctor
@@ -21,14 +22,13 @@ from app.services.auth import get_current_doctor
 router_test = APIRouter(prefix="/test")
 
 
-@router_test.post("/care_plan_create", response_model=str, tags=["Test"])
+@router_test.post("/care_plan_create", response_model=CurrentCarePlan, tags=["Test"])
 async def care_plan_create(
     data: ClientCarePlan, doctor: Doctor = Depends(get_current_doctor)
 ):
     """Create care_plan for client"""
     service = TestService()
-    service.care_plan_create(data, doctor)
-    return "ok"
+    return service.care_plan_create(data, doctor)
 
 
 @router_test.get(
@@ -61,9 +61,14 @@ async def test_create(data: PostTest, doctor: Doctor = Depends(get_current_docto
 
 
 @router_test.get(
-    "/client_tests/{api_key}", response_model=List[GetTest], tags=["Client"]
+    "/client_tests/{api_key}",
+    response_model=List[GetTest],
+    tags=["Client"],
 )
-async def get_client_tests(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+async def get_client_tests(
+    api_key: str,
+    doctor: Doctor = Depends(get_current_doctor),
+):
     """Get all tests for client"""
     service = TestService()
     return service.get_client_tests(api_key, doctor)

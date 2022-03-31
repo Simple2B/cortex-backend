@@ -31,5 +31,6 @@ from .care_plan import (
     CarePlanPatientInfo,
     InfoCarePlan,
     CarePlanHistory,
+    CurrentCarePlan,
 )
 from .billing import BillingBase

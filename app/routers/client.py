@@ -97,7 +97,17 @@ async def get_client_with_phone(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
         )
-    return client
+    return {
+        "id": client.id,
+        "api_key": client.api_key,
+        "first_name": client.first_name,
+        "last_name": client.last_name,
+        "phone": client.phone,
+        "email": client.email,
+        "req_date": client.req_date.strftime("%m/%d/%Y, %H:%M:%S")
+        if client.req_date
+        else None,
+    }
 
 
 @router_client.get("/clients", response_model=List[Client], tags=["Client"])
