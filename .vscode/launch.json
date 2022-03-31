@@ -11,7 +11,7 @@
       "module": "flask",
       "env": { "FLASK_APP": "admin.run:app", "FLASK_ENV": "development" },
       "args": ["run", "--no-debugger"],
-      "jinja": true
+      "jinja": true,
     },
     {
       "name": "Debug",
@@ -22,7 +22,8 @@
       "jinja": true,
       "env": {
         "FLASK_ENV": "development"
-      }
+      },
+      "justMyCode": false
     }
   ]
 }

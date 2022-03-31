@@ -13,10 +13,10 @@ from app.schemas import (
 from app.models import Doctor
 from app.services.auth import get_current_doctor
 
-router_client = APIRouter(prefix="/client")
+router_note = APIRouter(prefix="/note")
 
 
-@router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
+@router_note.post("/note", response_model=VisitWithNote, tags=["Note"])
 async def write_note(
     data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
 ):
@@ -25,14 +25,14 @@ async def write_note(
     return service.write_note(data_note, doctor)
 
 
-@router_client.get("/note/{api_key}", response_model=List[NoteSchemas], tags=["Client"])
+@router_note.get("/note/{api_key}", response_model=List[NoteSchemas], tags=["Note"])
 async def get_note(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get notes for client"""
     service = NoteService()
     return service.get_note(api_key, doctor)
 
 
-@router_client.post("/note_delete", response_model=str, tags=["Client"])
+@router_note.post("/note_delete", response_model=str, tags=["Note"])
 async def delete_note(
     data_note: NoteDelete, doctor: Doctor = Depends(get_current_doctor)
 ):

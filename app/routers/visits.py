@@ -20,11 +20,11 @@ from app.models import Doctor
 from app.services.auth import get_current_doctor
 
 settings = Settings()
-router_client = APIRouter(prefix="/client")
+router_visits = APIRouter(prefix="/visits")
 
 
-@router_client.post(
-    "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
+@router_visits.post(
+    "/report_visit", response_model=List[VisitReportRes], tags=["Visits"]
 )
 def formed_report_visit(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
@@ -34,13 +34,13 @@ def formed_report_visit(
     return service.filter_data_for_report_of_visit(client_data, doctor)
 
 
-@router_client.get("/report_visit", response_class=FileResponse, tags=["Client"])
+@router_visits.get("/report_visit", response_class=FileResponse, tags=["Visits"])
 async def report_visit(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     return FileResponse(os.path.join(settings.REPORTS_DIR, settings.VISITS_REPORT_FILE))
 
 
-@router_client.post("/report_new_clients", response_model=str, tags=["Client"])
+@router_visits.post("/report_new_clients", response_model=str, tags=["Visits"])
 def formed_report_new_clients(
     client_data: VisitReportReq, doctor: Doctor = Depends(get_current_doctor)
 ):
@@ -50,7 +50,7 @@ def formed_report_new_clients(
     return "ok"
 
 
-@router_client.get("/report_new_clients", response_class=FileResponse, tags=["Client"])
+@router_visits.get("/report_new_clients", response_class=FileResponse, tags=["Visits"])
 async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     """Get for page reports visits by date"""
     return FileResponse(
@@ -58,8 +58,8 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     )
 
 
-@router_client.get(
-    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
+@router_visits.get(
+    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Visits"]
 )
 async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get all visits for client"""
@@ -67,8 +67,8 @@ async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_d
     return service.get_history_visit(api_key, doctor)
 
 
-@router_client.post(
-    "/visit_history", response_model=List[VisitHistory], tags=["Client"]
+@router_visits.post(
+    "/visit_history", response_model=List[VisitHistory], tags=["Visits"]
 )
 async def filter_visits(
     data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
