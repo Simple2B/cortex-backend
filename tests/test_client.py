@@ -321,12 +321,12 @@ def test_delete_client_from_queue(client: TestClient):
     }
 
     # 2. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/add_clients_queue", json=client_data)
     assert response
     assert response.ok
 
     # 3. doctor delete patient from queue
-    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/delete_clients_queue", json=client_data)
     assert response
     assert response.ok
 
@@ -342,7 +342,7 @@ def test_delete_member_from_queue(client: TestClient):
             client_id=clientDB.id,
         ).save(True)
     # 3. get Queue
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -363,12 +363,12 @@ def test_delete_member_from_queue(client: TestClient):
     }
 
     # 4. doctor delete patient from queue
-    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/delete_clients_queue", json=client_data)
     assert response
     assert response.ok
 
     # 5. get queue after delete
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -608,7 +608,7 @@ def test_get_history_visit(client: TestClient):
     }
 
     # 1. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=data_client)
+    response = client.post("/api/clients_queue/add_clients_queue", json=data_client)
     assert response
     assert response.ok
 
@@ -635,7 +635,7 @@ def test_get_history_visit(client: TestClient):
     # get history visit for client
     api_key = client_intake.api_key
 
-    response = client.get(f"/api/client/visit_history/{api_key}")
+    response = client.get(f"/api/visits/visit_history/{api_key}")
     assert response
     assert response.ok
     data_visits = response.json()
@@ -648,7 +648,7 @@ def test_get_history_visit(client: TestClient):
     }
 
     # filtered visit for client
-    response = client.post("/api/client/visit_history", json=data)
+    response = client.post("/api/visits/visit_history", json=data)
     assert response
     assert response.ok
     data_filtered_visits = response.json()

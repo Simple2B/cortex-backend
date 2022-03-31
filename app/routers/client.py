@@ -204,14 +204,14 @@ async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_d
 
 ################################################################################################################
 # queue
-@router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
-async def add_client_to_queue(
-    client_data: Client, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Put clients to queue"""
-    service = QueueService()
-    service.add_client_to_queue(client_data, doctor)
-    return "ok"
+# @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
+# async def add_client_to_queue(
+#     client_data: Client, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Put clients to queue"""
+#     service = QueueService()
+#     service.add_client_to_queue(client_data, doctor)
+#     return "ok"
 
 
 @router_client.post("/complete_client_visit", response_model=str, tags=["Client"])
@@ -225,21 +225,21 @@ async def complete_client_visit(
     return "ok"
 
 
-@router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
-async def delete_client_from_queue(
-    client_data: ClientQueue, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Delete client from queue"""
-    service = QueueService()
-    service.delete_client_from_queue(client_data, doctor)
-    return "ok"
+# @router_client.post("/delete_clients_queue", response_model=str, tags=["Client"])
+# async def delete_client_from_queue(
+#     client_data: ClientQueue, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Delete client from queue"""
+#     service = QueueService()
+#     service.delete_client_from_queue(client_data, doctor)
+#     return "ok"
 
 
-@router_client.get("/queue", response_model=List[ClientQueue], tags=["Client"])
-def get_queue(doctor: Doctor = Depends(get_current_doctor)):
-    """Show clients in queue"""
-    service = QueueService()
-    return service.get_queue(doctor)
+# @router_client.get("/queue", response_model=List[ClientQueue], tags=["Client"])
+# def get_queue(doctor: Doctor = Depends(get_current_doctor)):
+#     """Show clients in queue"""
+#     service = QueueService()
+#     return service.get_queue(doctor)
 
 
 
@@ -285,24 +285,24 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     )
 
 
-@router_client.get(
-    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
-)
-async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Get all visits for client"""
-    service = VisitService()
-    return service.get_history_visit(api_key, doctor)
+# @router_client.get(
+#     "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
+# )
+# async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+#     """Get all visits for client"""
+#     service = VisitService()
+#     return service.get_history_visit(api_key, doctor)
 
 
-@router_client.post(
-    "/visit_history", response_model=List[VisitHistory], tags=["Client"]
-)
-async def filter_visits(
-    data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Filtered history visits"""
-    service = VisitService()
-    return service.filter_visits(data, doctor)
+# @router_client.post(
+#     "/visit_history", response_model=List[VisitHistory], tags=["Client"]
+# )
+# async def filter_visits(
+#     data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Filtered history visits"""
+#     service = VisitService()
+#     return service.filter_visits(data, doctor)
 
 
 
