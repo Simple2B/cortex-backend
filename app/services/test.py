@@ -52,25 +52,10 @@ class TestService:
         )
 
         if len(care_plans) == 0:
-            care_plan = CarePlan(
-                client_id=client.id,
-                doctor_id=doctor.id,
-            ).save()
-            log(log.INFO, "care_plan_create: care plan [%s] created", care_plan)
-            return {
-                "id": care_plan.id,
-                "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
-                "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                "end_time": care_plan.end_time,
-                "care_plan": care_plan.care_plan,
-                "frequency": care_plan.frequency,
-                "progress_date": care_plan.progress_date,
-                "client_id": care_plan.client_id,
-                "doctor_id": care_plan.doctor_id,
-            }
+            return self.new_care_plan_data(client, doctor)
 
         today = datetime.datetime.utcnow()
-
+        history_care_plans = []
         for care_plan in care_plans:
             data_start_time = (
                 datetime.datetime.strptime(data.start_time, "%m/%d/%Y, %H:%M:%S")
@@ -96,39 +81,28 @@ class TestService:
                         "client_id": care_plan.client_id,
                         "doctor_id": care_plan.doctor_id,
                     }
+            if care_plan.end_time is None or care_plan.end_time >= today:
                 return {
                     "id": care_plan.id,
                     "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
                     "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                    "end_time": care_plan.end_time,
+                    "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+                    if care_plan.end_time
+                    else care_plan.end_time,
                     "care_plan": care_plan.care_plan,
                     "frequency": care_plan.frequency,
-                    "progress_date": care_plan.progress_date,
+                    "progress_date": care_plan.progress_date.strftime(
+                        "%m/%d/%Y, %H:%M:%S"
+                    )
+                    if care_plan.progress_date
+                    else care_plan.progress_date,
                     "client_id": care_plan.client_id,
                     "doctor_id": care_plan.doctor_id,
                 }
-                # if care_plan.care_plan:
-                #     num_care_plan = re.findall(r"\d+", care_plan.care_plan)
-                #     if data_end_time:
-                #         care_plan.end_time = data_end_time
-                #         care_plan.save()
-                #     else:
-                #         end_time = care_plan.date + relativedelta(
-                #             months=int(num_care_plan[0])
-                #         )
-                #         log(log.INFO, "care_plan_create: end_time [%s]", end_time)
-                #         care_plan.end_time = end_time
-                #         care_plan.save()
-                #     if data_start_time:
-                #         care_plan.start_time = data_start_time
-                #         care_plan.save()
-                #     log(
-                #         log.INFO,
-                #         "care_plan_create: care plan [%d] with end_time",
-                #         care_plan.id,
-                #     )
-
-                #     log(log.INFO, "care_plan_create: care plan [%s]", care_plan)
+            if care_plan.end_time < today:
+                history_care_plans.append(care_plan)
+        if len(care_plans) == len(history_care_plans):
+            return self.new_care_plan_data(client, doctor)
 
     def get_care_plan(self, api_key: str, doctor: Doctor) -> typeInfoCarePlan:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
@@ -257,6 +231,25 @@ class TestService:
         create_test.save()
 
         return create_test
+
+    @staticmethod
+    def new_care_plan_data(client: ClientDB, doctor: Doctor) -> CurrentCarePlan:
+        care_plan = CarePlan(
+            client_id=client.id,
+            doctor_id=doctor.id,
+        ).save()
+        log(log.INFO, "new_care_plan_data: care plan [%s] created", care_plan)
+        return {
+            "id": care_plan.id,
+            "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
+            "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+            "end_time": care_plan.end_time,
+            "care_plan": care_plan.care_plan,
+            "frequency": care_plan.frequency,
+            "progress_date": care_plan.progress_date,
+            "client_id": care_plan.client_id,
+            "doctor_id": care_plan.doctor_id,
+        }
 
     @staticmethod
     def get_data_care_plan(plan, client: ClientDB, doctor: Doctor) -> typeInfoCarePlan:
