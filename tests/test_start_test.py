@@ -76,6 +76,7 @@ def test_create_care_plan(client: TestClient):
     test_data = {
         "api_key": client_intake.api_key,
         "date": "8/22/2021, 11:43:14",
+        "current_care_plan_id": data_care_plan["id"],
     }
 
     # 2. create test for client
@@ -105,8 +106,6 @@ def test_create_care_plan(client: TestClient):
     response = client.post("/api/test/care_plan_create", json=data)
     assert response
     assert response.ok
-    care_plan = response.json()
-    assert care_plan == "ok"
 
     # 5. get care plan
     response = client.get(f"/api/test/care_plan_create/{client_intake.api_key}")
@@ -131,6 +130,7 @@ def test_create_start_test(client: TestClient):
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
+        "current_care_plan_id": data_care_plan["id"],
     }
     response = client.post("/api/test/test_create", json=data)
     assert response
@@ -158,6 +158,7 @@ def test_get_client_tests(client: TestClient):
         data = {
             "api_key": client_intake.api_key,
             "date": date,
+            "current_care_plan_id": data_care_plan["id"],
         }
 
         response = client.post("/api/test/test_create", json=data)
@@ -187,6 +188,7 @@ def test_write_care_plan_frequency(client: TestClient):
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
+        "current_care_plan_id": data_care_plan["id"],
     }
     # 2. create test for client
     response = client.post("/api/test/test_create", json=data)
@@ -306,6 +308,7 @@ def test_get_care_plan_and_frequency_names(client: TestClient):
     data = {
         "api_key": client_intake.api_key,
         "date": "11/22/2021, 11:43:14",
+        "current_care_plan_id": data_care_plan["id"],
     }
     # 2. create test for client
     response = client.post("/api/test/test_create", json=data)

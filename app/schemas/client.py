@@ -68,8 +68,8 @@ class ClientQueue(ClientBase):
 
 class ClientInTake(ClientBase):
     api_key: str
-    place_in_queue: Optional[int]
     rougue_mode: Optional[bool]
+    place_in_queue: Optional[int]
 
 
 class ClientPhone(ClientBase):

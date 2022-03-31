@@ -14,6 +14,7 @@ class PostTest(Test):
     date: str
     start_time: Optional[str]
     end_time: Optional[str]
+    current_care_plan_id: int
 
 
 class CreateTest(Test):
