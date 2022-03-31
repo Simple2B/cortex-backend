@@ -657,7 +657,7 @@ def test_get_history_visit(client: TestClient):
 
 def test_get_secret(client: TestClient):
 
-    response = client.get("/api/client/get_secret")
+    response = client.get("/api/stripe/get_secret")
     assert response
     assert response.ok
     data = response.json()

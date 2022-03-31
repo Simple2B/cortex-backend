@@ -155,6 +155,55 @@ async def get_db_clients_for_queue(
     return paginate(clients)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################################################
+# intake
+@router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
+async def client_intake(
+    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Put client intake and returns it"""
+    return ClientService.intake(client_data, doctor)
+
+
+@router_client.get(
+    "/client_intake/{api_key}", response_model=ClientInfo, tags=["Client"]
+)
+async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Returns client intake"""
+    return ClientService.get_intake(api_key, doctor)
+
+
+
+
+
+
+################################################################################################################
+# queue
 @router_client.post("/add_clients_queue", response_model=str, tags=["Client"])
 async def add_client_to_queue(
     client_data: Client, doctor: Doctor = Depends(get_current_doctor)
@@ -193,22 +242,14 @@ def get_queue(doctor: Doctor = Depends(get_current_doctor)):
     return service.get_queue(doctor)
 
 
-@router_client.post("/client_intake", response_model=ClientInfo, tags=["Client"])
-async def client_intake(
-    client_data: ClientInTake, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Put client intake and returns it"""
-    return ClientService.intake(client_data, doctor)
 
 
-@router_client.get(
-    "/client_intake/{api_key}", response_model=ClientInfo, tags=["Client"]
-)
-async def get_client_intake(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Returns client intake"""
-    return ClientService.get_intake(api_key, doctor)
 
 
+
+
+###############################################################################################################
+# visits
 @router_client.post(
     "/report_visit", response_model=List[VisitReportRes], tags=["Client"]
 )
@@ -244,6 +285,33 @@ async def report_new_clients(doctor: Doctor = Depends(get_current_doctor)):
     )
 
 
+@router_client.get(
+    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
+)
+async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
+    """Get all visits for client"""
+    service = VisitService()
+    return service.get_history_visit(api_key, doctor)
+
+
+@router_client.post(
+    "/visit_history", response_model=List[VisitHistory], tags=["Client"]
+)
+async def filter_visits(
+    data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Filtered history visits"""
+    service = VisitService()
+    return service.filter_visits(data, doctor)
+
+
+
+
+
+
+
+##################################################################################################################
+# note
 @router_client.post("/note", response_model=VisitWithNote, tags=["Client"])
 async def write_note(
     data_note: NoteSchemas, doctor: Doctor = Depends(get_current_doctor)
@@ -270,69 +338,55 @@ async def delete_note(
     return "ok"
 
 
-@router_client.get(
-    "/visit_history/{api_key}", response_model=List[VisitHistory], tags=["Client"]
-)
-async def get_history_visit(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
-    """Get all visits for client"""
-    service = VisitService()
-    return service.get_history_visit(api_key, doctor)
 
 
-@router_client.post(
-    "/visit_history", response_model=List[VisitHistory], tags=["Client"]
-)
-async def filter_visits(
-    data: VisitHistoryFilter, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Filtered history visits"""
-    service = VisitService()
-    return service.filter_visits(data, doctor)
 
 
+
+####################################################################################################################
 # stripe
-@router_client.get("/get_secret", response_model=DoctorStripeSecret, tags=["Client"])
-async def get_secret(doctor: Doctor = Depends(get_current_doctor)):
-    """Get secret stripe keys"""
-    service = VisitService()
+# @router_client.get("/get_secret", response_model=DoctorStripeSecret, tags=["Client"])
+# async def get_secret(doctor: Doctor = Depends(get_current_doctor)):
+#     """Get secret stripe keys"""
+#     service = VisitService()
 
-    return service.get_secret()
-
-
-@router_client.post("/create_stripe_session", response_model=str, tags=["Client"])
-async def create_stripe_session(
-    data: ClientInfoStripe, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Stripe session"""
-    service = VisitService()
-    return service.create_stripe_session(data, doctor)
+#     return service.get_secret()
 
 
-@router_client.post("/create_stripe_subscription", response_model=str, tags=["Client"])
-async def stripe_subscription(
-    data: ClientStripeSubscription, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Stripe session"""
-    service = VisitService()
-    return service.stripe_subscription(data, doctor)
+# @router_client.post("/create_stripe_session", response_model=str, tags=["Client"])
+# async def create_stripe_session(
+#     data: ClientInfoStripe, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Stripe session"""
+#     service = VisitService()
+#     return service.create_stripe_session(data, doctor)
 
 
-@router_client.post("/webhook", response_model=str, tags=["Client"])
-async def webhook(request: Request, stripe_signature: str = Header(None)):
-    """Stripe webhook"""
-    service = VisitService()
-    service.webhook(request, stripe_signature)
-    return "ok"
+# @router_client.post("/create_stripe_subscription", response_model=str, tags=["Client"])
+# async def stripe_subscription(
+#     data: ClientStripeSubscription, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Stripe session"""
+#     service = VisitService()
+#     return service.stripe_subscription(data, doctor)
 
 
-@router_client.get(
-    "/billing_history/{api_key}", response_model=Page[BillingBase], tags=["Client"]
-)
-async def get_billing_history(
-    api_key: str, doctor: Doctor = Depends(get_current_doctor)
-):
-    """Get secret stripe keys"""
-    service = VisitService()
-    billing_history = service.get_billing_history(api_key, doctor)
+# @router_client.post("/webhook", response_model=str, tags=["Client"])
+# async def webhook(request: Request, stripe_signature: str = Header(None)):
+#     """Stripe webhook"""
+#     service = VisitService()
+#     service.webhook(request, stripe_signature)
+#     return "ok"
 
-    return paginate(billing_history)
+
+# @router_client.get(
+#     "/billing_history/{api_key}", response_model=Page[BillingBase], tags=["Client"]
+# )
+# async def get_billing_history(
+#     api_key: str, doctor: Doctor = Depends(get_current_doctor)
+# ):
+#     """Get secret stripe keys"""
+#     service = VisitService()
+#     billing_history = service.get_billing_history(api_key, doctor)
+
+#     return paginate(billing_history)
