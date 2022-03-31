@@ -443,7 +443,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 4. end_date for visit
     data = {"api_key": client_intake.api_key, "rougue_mode": False}
-    response = client.post("/api/client/complete_client_visit", json=data)
+    response = client.post("/api/clients_queue/complete_client_visit", json=data)
     assert response
     assert response.ok
 
@@ -479,7 +479,7 @@ def test_complete_client_visit(client: TestClient):
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
     # 7. put date for filter report visits
-    response = client.post("/api/client/report_visit", json=data)
+    response = client.post("/api/visits/report_visit", json=data)
     assert response
     assert response.ok
     # assert response.text

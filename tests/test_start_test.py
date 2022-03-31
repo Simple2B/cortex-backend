@@ -52,7 +52,12 @@ def test_history_care_plan(client: TestClient):
     data_care_plan = response.json()
     assert data_care_plan
 
-    # 2. get history plan
+    # 2. add end_time to care plan depens on plan
+    response = client.post("/api/test/care_plan_create", json=data)
+    assert response
+    assert response.ok
+
+    # 3. get history plan
     response = client.get(f"/api/test/care_plan_history/{data['api_key']}", json=data)
     assert response
     assert response.ok
