@@ -496,12 +496,12 @@ def test_complete_client_visit(client: TestClient):
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
 
-    response = client.post("/api/client/report_new_clients", json=data)
+    response = client.post("/api/visits/report_new_clients", json=data)
     assert response
     assert response.ok
 
     # 10. get report with new client
-    response = client.get("/api/client/report_new_clients")
+    response = client.get("/api/visits/report_new_clients")
     assert response
     assert response.ok
 
@@ -558,14 +558,14 @@ def test_note(client: TestClient):
     }
 
     # create note for today visit
-    response = client.post("/api/note/note", json=data_note)
+    response = client.post("/api/notes/note", json=data_note)
     assert response
     assert response.ok
     data_note = response.json()
     assert data_note
 
     # get all notes for today visit
-    response = client.get(f"/api/note/note/{client_intake.api_key}")
+    response = client.get(f"/api/notes/note/{client_intake.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()
@@ -579,7 +579,7 @@ def test_note(client: TestClient):
     }
 
     # delete note
-    response = client.post("/api/note/note_delete", json=data_note_deleted)
+    response = client.post("/api/notes/note_delete", json=data_note_deleted)
     assert response
     assert response.ok
 
@@ -587,7 +587,7 @@ def test_note(client: TestClient):
     assert client
 
     # error! => get no notes for client which doesn't have visit
-    response = client.get(f"/api/note/note/{client_without_notes_for_today.api_key}")
+    response = client.get(f"/api/notes/note/{client_without_notes_for_today.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()

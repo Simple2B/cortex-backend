@@ -13,7 +13,7 @@ from app.schemas import (
 from app.models import Doctor
 from app.services.auth import get_current_doctor
 
-router_note = APIRouter(prefix="/note")
+router_note = APIRouter(prefix="/notes")
 
 
 @router_note.post("/note", response_model=VisitWithNote, tags=["Note"])
