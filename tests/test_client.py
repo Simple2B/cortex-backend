@@ -119,11 +119,11 @@ def test_doctor_put_client_in_queue(client: TestClient):
     assert response
     assert response.ok
     # 2. Add client for queue
-    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
+    response = client.post("/api/clients_queue/add_clients_queue", json=DATA_CLIENT)
     assert response
     assert response.ok
     # 3. get Queue
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -141,7 +141,7 @@ def test_get_queue(client: TestClient):
         QueueMember(reception_id=reception.id, client_id=clientDB.id).save()
         count = count + 1
     # 3. get Queue
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     queue_data = response.json()
@@ -158,7 +158,7 @@ def test_get_queue(client: TestClient):
         "rougue_mode": False,
         # "place_in_queue": client_intake.client_info["place_in_queue"],
     }
-    response = client.post("/api/client/client_intake", json=data)
+    response = client.post("/api/clients_intake/client_intake", json=data)
     assert response
     assert response.ok
     data = response.json()
@@ -173,7 +173,7 @@ def test_get_queue(client: TestClient):
     assert visit.doctor_id == doctor.id
 
     # 5. get client intake
-    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    response = client.get(f"/api/clients_intake/client_intake/{client_intake.api_key}")
     assert response
     assert response.ok
     data = response.json()
@@ -186,7 +186,7 @@ def test_get_queue(client: TestClient):
         "rougue_mode": False,
         # "place_in_queue": client_intake.client_info["place_in_queue"],
     }
-    response = client.post("/api/client/complete_client_visit", json=data)
+    response = client.post("/api/clients_queue/complete_client_visit", json=data)
     assert response
     assert response.ok
 
@@ -202,12 +202,12 @@ def test_get_queue(client: TestClient):
 
     assert queue_member
 
-    response = client.post("/api/client/add_clients_queue", json=queue_member)
+    response = client.post("/api/clients_queue/add_clients_queue", json=queue_member)
     assert response
     assert response.ok
 
     # 8. get Queue again
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -225,12 +225,12 @@ def test_get_queue(client: TestClient):
     }
 
     # 9. doctor delete patient from queue
-    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/delete_clients_queue", json=client_data)
     assert response
     assert response.ok
 
     # 10. get Queue again without delete member
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -246,7 +246,7 @@ def test_get_client_intake_from_kiosk(client: TestClient):
     assert response.ok
     # 2. get client for intake
     data = {"api_key": clientDB.api_key, "rougue_mode": False}
-    response = client.post("/api/client/client_intake", json=data)
+    response = client.post("/api/clients_intake/client_intake", json=data)
     assert response
     assert response.ok
     data = response.json()
@@ -262,7 +262,7 @@ def test_get_client_intake_from_kiosk(client: TestClient):
 
     api_key = clientDB.api_key
 
-    response = client.get(f"/api/client/client_intake/{api_key}")
+    response = client.get(f"/api/clients_intake/client_intake/{api_key}")
     assert response
     assert response.ok
     data = response.json()
@@ -281,13 +281,13 @@ def test_get_client_intake_add_doctor(client: TestClient):
     ).first()
 
     # 2. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
+    response = client.post("/api/clients_queue/add_clients_queue", json=DATA_CLIENT)
     assert response
     assert response.ok
 
     # 3. get client for intake
     data = {"api_key": client_intake.api_key, "rougue_mode": False}
-    response = client.post("/api/client/client_intake", json=data)
+    response = client.post("/api/clients_intake/client_intake", json=data)
     assert response
     assert response.ok
     data = response.json()
@@ -301,7 +301,7 @@ def test_get_client_intake_add_doctor(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    response = client.get(f"/api/clients_intake/client_intake/{client_intake.api_key}")
     assert response
     assert response.ok
     data = response.json()
@@ -321,12 +321,12 @@ def test_delete_client_from_queue(client: TestClient):
     }
 
     # 2. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/add_clients_queue", json=client_data)
     assert response
     assert response.ok
 
     # 3. doctor delete patient from queue
-    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/delete_clients_queue", json=client_data)
     assert response
     assert response.ok
 
@@ -342,7 +342,7 @@ def test_delete_member_from_queue(client: TestClient):
             client_id=clientDB.id,
         ).save(True)
     # 3. get Queue
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -363,12 +363,12 @@ def test_delete_member_from_queue(client: TestClient):
     }
 
     # 4. doctor delete patient from queue
-    response = client.post("/api/client/delete_clients_queue", json=client_data)
+    response = client.post("/api/clients_queue/delete_clients_queue", json=client_data)
     assert response
     assert response.ok
 
     # 5. get queue after delete
-    response = client.get("/api/client/queue")
+    response = client.get("/api/clients_queue/queue")
     assert response
     assert response.ok
     data = response.json()
@@ -414,13 +414,13 @@ def test_complete_client_visit(client: TestClient):
     ).first()
 
     # 2. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=DATA_CLIENT)
+    response = client.post("/api/clients_queue/add_clients_queue", json=DATA_CLIENT)
     assert response
     assert response.ok
 
     # 3. get client for intake (create visit)
     data = {"api_key": client_intake.api_key, "rougue_mode": False}
-    response = client.post("/api/client/client_intake", json=data)
+    response = client.post("/api/clients_intake/client_intake", json=data)
     assert response
     assert response.ok
     data = response.json()
@@ -434,7 +434,7 @@ def test_complete_client_visit(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    response = client.get(f"/api/clients_intake/client_intake/{client_intake.api_key}")
     assert response
     assert response.ok
     data = response.json()
@@ -443,7 +443,7 @@ def test_complete_client_visit(client: TestClient):
 
     # 4. end_date for visit
     data = {"api_key": client_intake.api_key, "rougue_mode": False}
-    response = client.post("/api/client/complete_client_visit", json=data)
+    response = client.post("/api/clients_queue/complete_client_visit", json=data)
     assert response
     assert response.ok
 
@@ -479,13 +479,13 @@ def test_complete_client_visit(client: TestClient):
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
     # 7. put date for filter report visits
-    response = client.post("/api/client/report_visit", json=data)
+    response = client.post("/api/visits/report_visit", json=data)
     assert response
     assert response.ok
     # assert response.text
 
     # 8. get report with visits
-    response = client.get("/api/client/report_visit")
+    response = client.get("/api/visits/report_visit")
     assert response
     assert response.ok
 
@@ -496,12 +496,12 @@ def test_complete_client_visit(client: TestClient):
         "end_time": visit3.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
     }
 
-    response = client.post("/api/client/report_new_clients", json=data)
+    response = client.post("/api/visits/report_new_clients", json=data)
     assert response
     assert response.ok
 
     # 10. get report with new client
-    response = client.get("/api/client/report_new_clients")
+    response = client.get("/api/visits/report_new_clients")
     assert response
     assert response.ok
 
@@ -521,13 +521,13 @@ def test_note(client: TestClient):
     }
 
     # 1. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=data_client)
+    response = client.post("/api/clients_queue/add_clients_queue", json=data_client)
     assert response
     assert response.ok
 
     # 2. get client for intake (create visit and note)
     data_client_intake = {"api_key": client_intake.api_key, "rougue_mode": False}
-    response = client.post("/api/client/client_intake", json=data_client_intake)
+    response = client.post("/api/clients_intake/client_intake", json=data_client_intake)
     assert response
     assert response.ok
     data_intake = response.json()
@@ -540,7 +540,7 @@ def test_note(client: TestClient):
     doctor = Doctor.query.first()
     assert visit.doctor_id == doctor.id
 
-    response = client.get(f"/api/client/client_intake/{client_intake.api_key}")
+    response = client.get(f"/api/clients_intake/client_intake/{client_intake.api_key}")
     assert response
     assert response.ok
     data_intake = response.json()
@@ -558,14 +558,14 @@ def test_note(client: TestClient):
     }
 
     # create note for today visit
-    response = client.post("/api/client/note", json=data_note)
+    response = client.post("/api/notes/note", json=data_note)
     assert response
     assert response.ok
     data_note = response.json()
     assert data_note
 
     # get all notes for today visit
-    response = client.get(f"/api/client/note/{client_intake.api_key}")
+    response = client.get(f"/api/notes/note/{client_intake.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()
@@ -579,7 +579,7 @@ def test_note(client: TestClient):
     }
 
     # delete note
-    response = client.post("/api/client/note_delete", json=data_note_deleted)
+    response = client.post("/api/notes/note_delete", json=data_note_deleted)
     assert response
     assert response.ok
 
@@ -587,7 +587,7 @@ def test_note(client: TestClient):
     assert client
 
     # error! => get no notes for client which doesn't have visit
-    response = client.get(f"/api/client/note/{client_without_notes_for_today.api_key}")
+    response = client.get(f"/api/notes/note/{client_without_notes_for_today.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()
@@ -608,7 +608,7 @@ def test_get_history_visit(client: TestClient):
     }
 
     # 1. doctor add patient in queue
-    response = client.post("/api/client/add_clients_queue", json=data_client)
+    response = client.post("/api/clients_queue/add_clients_queue", json=data_client)
     assert response
     assert response.ok
 
@@ -635,7 +635,7 @@ def test_get_history_visit(client: TestClient):
     # get history visit for client
     api_key = client_intake.api_key
 
-    response = client.get(f"/api/client/visit_history/{api_key}")
+    response = client.get(f"/api/visits/visit_history/{api_key}")
     assert response
     assert response.ok
     data_visits = response.json()
@@ -648,7 +648,7 @@ def test_get_history_visit(client: TestClient):
     }
 
     # filtered visit for client
-    response = client.post("/api/client/visit_history", json=data)
+    response = client.post("/api/visits/visit_history", json=data)
     assert response
     assert response.ok
     data_filtered_visits = response.json()
@@ -657,7 +657,7 @@ def test_get_history_visit(client: TestClient):
 
 def test_get_secret(client: TestClient):
 
-    response = client.get("/api/client/get_secret")
+    response = client.get("/api/stripe/get_secret")
     assert response
     assert response.ok
     data = response.json()
@@ -680,7 +680,7 @@ def test_create_billing(client: TestClient):
             "name": "Jon Conore",
         }
         response = client.post(
-            "/api/client/create_stripe_session",
+            "/api/stripe/create_stripe_session",
             json=billing_client_data,
         )
         assert response
@@ -688,7 +688,7 @@ def test_create_billing(client: TestClient):
         # data = response.json()
         # assert data
 
-    res = client.get(f"/api/client/billing_history/{client_intake.api_key}")
+    res = client.get(f"/api/stripe/billing_history/{client_intake.api_key}")
     assert res
     assert res.ok
     data_billing = res.json()
