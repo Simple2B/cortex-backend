@@ -114,38 +114,45 @@ class NoteService:
 
         log(log.INFO, "get_note: Today reception [%s]", reception)
 
-        visit: Visit = Visit.query.filter(
+        visits: Visit = Visit.query.filter(
             and_(
                 Visit.date == today,
                 Visit.client_id == client.id,
-                Visit.end_time == None,  # noqa E711
+                # Visit.end_time == None,  # noqa E711
             )
-        ).first()
-
-        if not visit:
-            log(log.INFO, "get_note: client doesn't have visit")
-            visit: Visit = Visit(
-                date=today,
-                client_id=client.id,
-                doctor_id=doctor.id,
-            )
-            visit.save()
-            log(
-                log.INFO,
-                "get_note: visit [%s] for client [%d] today created",
-                visit,
-                client.id,
-            )
-
-        log(log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id)
-
-        # all_notes = visit.visit_info["notes"]
-
-        notes_client = Note.query.filter(
-            and_(Note.client_id == client.id, Note.date == today)
         ).all()
+        if len(visits) > 0:
 
-        return notes_client
+            visit = visits[-1]
+
+            log(
+                log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id
+            )
+
+            notes_client = Note.query.filter(
+                and_(
+                    Note.client_id == client.id,
+                    Note.date == today,
+                    Note.visit_id == visit.id,
+                )
+            ).all()
+
+            return notes_client
+
+        log(log.INFO, "get_note: client doesn't have visit")
+        visit: Visit = Visit(
+            date=today,
+            client_id=client.id,
+            doctor_id=doctor.id,
+        )
+        visit.save()
+        log(
+            log.INFO,
+            "get_note: visit [%s] for client [%d] today created",
+            visit,
+            client.id,
+        )
+        return []
 
     def delete_note(self, data_note: NoteSchemas, doctor: Doctor) -> None:
 
