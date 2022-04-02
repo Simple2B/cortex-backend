@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends
+from typing import Union
 
 from app.models import Doctor
 from app.schemas import (
@@ -45,7 +46,9 @@ async def get_history_care_plan(
 
 
 @router_test.get(
-    "/care_plan_create/{api_key}", response_model=InfoCarePlan, tags=["Test"]
+    "/care_plan_create/{api_key}",
+    response_model=Union[InfoCarePlan, None],
+    tags=["Test"],
 )
 async def get_care_plan(api_key: str, doctor: Doctor = Depends(get_current_doctor)):
     """Get care_plan for test"""
