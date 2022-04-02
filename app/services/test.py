@@ -1,5 +1,6 @@
 import re
 import datetime
+from typing import Union
 
 from fastapi import HTTPException, status
 from app.schemas import (
@@ -45,66 +46,43 @@ class TestService:
             CarePlan.client_id == client.id
         ).all()
 
-        data_end_time = (
-            datetime.datetime.strptime(data.end_time, "%m/%d/%Y, %H:%M:%S")
-            if data.end_time
-            else None
-        )
-
         if len(care_plans) == 0:
             return self.new_care_plan_data(client, doctor)
 
         today = datetime.datetime.utcnow()
         history_care_plans = []
         for care_plan in care_plans:
-            data_start_time = (
-                datetime.datetime.strptime(data.start_time, "%m/%d/%Y, %H:%M:%S")
-                if data.start_time
-                else care_plan.start_time
-            )
-            if data_end_time and data_end_time >= today:
-                if care_plan.end_time is None or care_plan.end_time >= today:
-                    care_plan.start_time = data_start_time
-                    care_plan.end_time = data_end_time
-                    care_plan.save(True)
-                    log(log.INFO, "care_plan_create: care plan [%s] update", care_plan)
-                    return {
-                        "id": care_plan.id,
-                        "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "start_time": care_plan.start_time.strftime(
-                            "%m/%d/%Y, %H:%M:%S"
-                        ),
-                        "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "care_plan": care_plan.care_plan,
-                        "frequency": care_plan.frequency,
-                        "progress_date": care_plan.progress_date,
-                        "client_id": care_plan.client_id,
-                        "doctor_id": care_plan.doctor_id,
-                    }
-            if care_plan.end_time is None or care_plan.end_time >= today:
+            if datetime.datetime.strptime(
+                care_plan.start_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
+            ) == datetime.datetime.strptime(today.strftime("%m/%d/%Y"), "%m/%d/%Y"):
                 return {
                     "id": care_plan.id,
-                    "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "date": care_plan.date.strftime("%m/%d/%Y"),
                     "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
                     "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
                     if care_plan.end_time
-                    else care_plan.end_time,
+                    else None,
                     "care_plan": care_plan.care_plan,
                     "frequency": care_plan.frequency,
                     "progress_date": care_plan.progress_date.strftime(
                         "%m/%d/%Y, %H:%M:%S"
                     )
                     if care_plan.progress_date
-                    else care_plan.progress_date,
+                    else None,
                     "client_id": care_plan.client_id,
                     "doctor_id": care_plan.doctor_id,
                 }
-            if care_plan.end_time < today:
+            if care_plan.end_time is None or care_plan.end_time >= today:
+                if data.start_time or data.start_time:
+                    self.update_care_plan(care_plan, data.start_time, data.end_time)
+            if care_plan.end_time and care_plan.end_time < today:
                 history_care_plans.append(care_plan)
         if len(care_plans) == len(history_care_plans):
             return self.new_care_plan_data(client, doctor)
 
-    def get_care_plan(self, api_key: str, doctor: Doctor) -> typeInfoCarePlan:
+    def get_care_plan(
+        self, api_key: str, doctor: Doctor
+    ) -> Union[typeInfoCarePlan, None]:
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
 
         if not client:
@@ -125,15 +103,14 @@ class TestService:
             return
 
         today = datetime.datetime.now()
-
+        care_plan = None
         for plan in care_plans:
-            if plan.start_time < today and plan.end_time is None:
+            if plan.start_time and plan.end_time is None:
                 care_plan = self.get_data_care_plan(plan, client, doctor)
-                return care_plan
 
             if plan.start_time < today and (plan.end_time and plan.end_time >= today):
                 care_plan = self.get_data_care_plan(plan, client, doctor)
-                return care_plan
+        return care_plan
 
     def get_history_care_plan(
         self, api_key: str, doctor: Doctor
@@ -150,7 +127,6 @@ class TestService:
             CarePlan.client_id == client.id
         ).all()
         log(log.INFO, "get_history_care_plan: care_plans length [%d]", len(care_plans))
-        # notes
 
         history_care_plans = []
         for care_plan in care_plans:
@@ -162,26 +138,53 @@ class TestService:
             len(history_care_plans),
         )
         if len(history_care_plans) > 0:
-            return [
-                {
-                    "date": care_plan.date.strftime("%m/%d/%Y"),
-                    "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                    "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
-                    "care_plan": care_plan.care_plan,
-                    "frequency": care_plan.frequency,
-                    "progress_date": care_plan.progress_date.strftime(
-                        "%m/%d/%Y, %H:%M:%S"
-                    )
-                    if care_plan.progress_date
-                    else care_plan.progress_date,
-                    "client_id": care_plan.client_id,
-                    "doctor_id": care_plan.doctor_id,
-                    "doctor_name": doctor.first_name + " " + doctor.last_name,
-                    "tests": care_plan.care_plan_info_tests["tests"],
-                    "notes": care_plan.care_plan_info_tests["visits"],
-                }
-                for care_plan in history_care_plans
-            ]
+            care_plans = []
+            for care_plan in history_care_plans:
+                history_care_plans
+                visits = care_plan.care_plan_info_tests["visits"]
+                notes = None
+                if len(visits) > 0:
+                    for visit in visits:
+                        if (
+                            visit.start_time >= care_plan.start_time
+                            and visit.end_time is None
+                            or visit.start_time >= care_plan.start_time
+                            and visit.end_time <= care_plan.end_time
+                        ):
+                            notes = [
+                                {
+                                    "id": note.id,
+                                    "date": note.date,
+                                    "client_id": note.client_id,
+                                    "doctor_id": note.doctor_id,
+                                    "note": note.notes,
+                                }
+                                for note in visit.visit_info["notes"]
+                            ]
+
+                care_plans.append(
+                    {
+                        "id": care_plan.id,
+                        "date": care_plan.date.strftime("%m/%d/%Y"),
+                        "start_time": care_plan.start_time.strftime(
+                            "%m/%d/%Y, %H:%M:%S"
+                        ),
+                        "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "care_plan": care_plan.care_plan,
+                        "frequency": care_plan.frequency,
+                        "progress_date": care_plan.progress_date.strftime(
+                            "%m/%d/%Y, %H:%M:%S"
+                        )
+                        if care_plan.progress_date
+                        else care_plan.progress_date,
+                        "client_id": care_plan.client_id,
+                        "doctor_id": care_plan.doctor_id,
+                        "doctor_name": doctor.first_name + " " + doctor.last_name,
+                        "tests": care_plan.care_plan_info_tests["tests"],
+                        "notes": notes if notes else [],
+                    }
+                )
+            return care_plans
         return []
 
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
@@ -231,6 +234,37 @@ class TestService:
         create_test.save()
 
         return create_test
+
+    @staticmethod
+    def update_care_plan(care_plan, start_time, end_time):
+        if start_time:
+            care_plan.start_time = datetime.datetime.strptime(
+                start_time, "%m/%d/%Y, %H:%M:%S"
+            )
+            care_plan.save(True)
+        if end_time:
+            care_plan.end_time = datetime.datetime.strptime(
+                end_time, "%m/%d/%Y, %H:%M:%S"
+            )
+            care_plan.save(True)
+        log(log.INFO, "update_care_plan: care plan [%s] updated", care_plan)
+        return {
+            "id": care_plan.id,
+            "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
+            "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.start_time
+            else None,
+            "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.end_time
+            else None,
+            "care_plan": care_plan.care_plan,
+            "frequency": care_plan.frequency,
+            "progress_date": care_plan.progress_date.strftime("%m/%d/%Y, %H:%M:%S")
+            if care_plan.progress_date
+            else care_plan.progress_date,
+            "client_id": care_plan.client_id,
+            "doctor_id": care_plan.doctor_id,
+        }
 
     @staticmethod
     def new_care_plan_data(client: ClientDB, doctor: Doctor) -> CurrentCarePlan:
@@ -367,53 +401,51 @@ class TestService:
         today = datetime.datetime.utcnow()
 
         for care_plan in care_plans:
-            if care_plan.end_time is None or care_plan.end_time >= today:
-                if data.care_plan == "" or data.frequency == "":
-                    log(
-                        log.INFO,
-                        "write_care_plan_frequency: care_plan [%s] or frequency [%s] not filled",
-                        data.care_plan,
-                        data.frequency,
-                    )
-                    return care_plan
+            if (
+                care_plan.end_time is None
+                or care_plan.end_time
+                and care_plan.end_time >= today
+            ):
 
                 data_care_plan = ""
 
-                month_data_care_plan = re.findall("m", data.care_plan)
-                week_data_care_plan = re.findall("w", data.care_plan)
+                if len(data.care_plan) > 0:
+                    month_data_care_plan = re.findall("m", data.care_plan)
+                    week_data_care_plan = re.findall("w", data.care_plan)
 
-                if len(month_data_care_plan) > 0:
-                    num_care_plan = re.findall(r"\d+", data.care_plan)
-                    data_care_plan = num_care_plan[0] + "-" + "month"
+                    if len(month_data_care_plan) > 0:
+                        num_care_plan = re.findall(r"\d+", data.care_plan)
+                        data_care_plan = num_care_plan[0] + "-" + "month"
 
-                if len(week_data_care_plan) > 0:
-                    num_care_plan = re.findall(r"\d+", data.care_plan)
-                    data_care_plan = num_care_plan[0] + "-" + "week"
+                    if len(week_data_care_plan) > 0:
+                        num_care_plan = re.findall(r"\d+", data.care_plan)
+                        data_care_plan = num_care_plan[0] + "-" + "week"
 
-                log(
-                    log.INFO,
-                    "write_care_plan_frequency: data_care_plan [%s]",
-                    data_care_plan,
-                )
+                    log(
+                        log.INFO,
+                        "write_care_plan_frequency: data_care_plan [%s]",
+                        data_care_plan,
+                    )
 
                 data_frequency = ""
 
-                month_data_frequency = re.findall("m", data.frequency)
-                week_data_frequency = re.findall("w", data.frequency)
+                if len(data.frequency) > 0:
+                    month_data_frequency = re.findall("m", data.frequency)
+                    week_data_frequency = re.findall("w", data.frequency)
 
-                if len(month_data_frequency) > 0:
-                    num_frequency = re.findall(r"\d+", data.frequency)
-                    data_frequency = num_frequency[0] + "-" + "month"
+                    if len(month_data_frequency) > 0:
+                        num_frequency = re.findall(r"\d+", data.frequency)
+                        data_frequency = num_frequency[0] + "-" + "month"
 
-                if len(week_data_frequency) > 0:
-                    num_frequency = re.findall(r"\d+", data.frequency)
-                    data_frequency = num_frequency[0] + "-" + "week"
+                    if len(week_data_frequency) > 0:
+                        num_frequency = re.findall(r"\d+", data.frequency)
+                        data_frequency = num_frequency[0] + "-" + "week"
 
-                log(
-                    log.INFO,
-                    "write_care_plan_frequency: data_frequency [%s]",
-                    data_frequency,
-                )
+                    log(
+                        log.INFO,
+                        "write_care_plan_frequency: data_frequency [%s]",
+                        data_frequency,
+                    )
 
                 progress_date = None
                 # if the progress_date is not filled,
@@ -483,26 +515,14 @@ class TestService:
         today = datetime.datetime.utcnow()
 
         for care_plan in care_plans:
-            if care_plan.end_time is None or (
-                care_plan.end_time and care_plan.end_time >= today
-            ):
-                tests: Test = Test.query.filter(Test.care_plan_id == care_plan.id).all()
-                all_tests = []
-                for test in tests:
-                    all_tests.append(
-                        {
-                            "id": test.id,
-                            "date": test.date.strftime("%B %d %Y"),
-                            "care_plan_id": test.care_plan_id,
-                            "client_name": client.first_name,
-                            "doctor_name": doctor.first_name,
-                        }
-                    )
-
-                log(log.INFO, "get_client_tests: Count of tests [%d]", len(all_tests))
-
+            if care_plan.end_time is None:
+                all_tests = self.get_tests_info(care_plan, client, doctor)
                 return all_tests
-            return []
+            if care_plan.end_time and care_plan.end_time >= today:
+                all_tests = self.get_tests_info(care_plan, client, doctor)
+                return all_tests
+
+        return []
 
     def get_care_plan_names(self, doctor: Doctor) -> typeInfoCarePlan:
         care_plan_names = InfoCarePlan.query.all()
@@ -595,9 +615,11 @@ class TestService:
             first_visit = visits[0]
             last_visit = visits[-1]
 
-        care_plan: CarePlan = CarePlan.query.filter(
+        care_plans: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
-        ).first()
+        ).all()
+        care_plan = care_plans[-1]
+
         care_plan_length = None
         visit_frequency = None
         next_visit = None
@@ -638,3 +660,24 @@ class TestService:
             "next_visit": next_visit,
             "expiration": "",
         }
+
+    @staticmethod
+    def get_tests_info(
+        care_plan: CarePlan, client: ClientDB, doctor: Doctor
+    ) -> list[GetTest]:
+        tests: Test = Test.query.filter(Test.care_plan_id == care_plan.id).all()
+        all_tests = []
+        for test in tests:
+            all_tests.append(
+                {
+                    "id": test.id,
+                    "date": test.date.strftime("%B %d %Y"),
+                    "care_plan_id": test.care_plan_id,
+                    "client_name": client.first_name,
+                    "doctor_name": doctor.first_name,
+                }
+            )
+
+        log(log.INFO, "get_client_tests: Count of tests [%d]", len(all_tests))
+
+        return all_tests
