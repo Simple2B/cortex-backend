@@ -42,6 +42,7 @@ class CarePlanPatientInfo(CarePlan):
 
 
 class CarePlanHistory(CarePlan):
+    id: Optional[int]
     date: Optional[str]
     start_time: Optional[str]
     end_time: Optional[str]
