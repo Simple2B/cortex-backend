@@ -135,25 +135,22 @@ class ConsultService:
         ).all()
         today = today = datetime.datetime.utcnow()
         if len(visits) > 0:
-            visit = visits[-1]
-
             log(
                 log.INFO,
-                "get_consult: visit [%s] for client [%d] today",
-                visit,
+                "get_consult: visits count [%d] for client [%d] today",
+                len(visits),
                 client.id,
             )
-
-            consults_client = Consult.query.filter(Consult.client_id == client.id).all()
-
-            consults = []
-            for consult in consults_client:
-                if consult.visit.end_time and consult.visit.end_time >= today:
-                    consults.append(consult)
+            consults_client = []
+            for visit in visits:
+                if visit.end_time is None or visit.end_time >= today:
+                    consults_client = [
+                        consult for consult in visit.visit_info["consults"]
+                    ]
             return consults_client
 
         log(log.INFO, "get_consult: client doesn't have visit")
-        visit: Visit = Visit(
+        Visit(
             date=today,
             client_id=client.id,
             doctor_id=doctor.id,
