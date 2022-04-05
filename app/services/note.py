@@ -171,12 +171,11 @@ class NoteService:
             return notes
 
         log(log.INFO, "get_note: client doesn't have visit")
-        Visit(
+        visit = Visit(
             date=today,
             client_id=client.id,
             doctor_id=doctor.id,
-        )
-        visit.save()
+        ).save()
         log(
             log.INFO,
             "get_note: visit [%s] for client [%d] today created",

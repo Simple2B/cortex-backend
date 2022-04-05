@@ -555,6 +555,8 @@ def test_note(client: TestClient):
         "client_id": visit.client_id,
         "doctor_id": visit.doctor_id,
         "visit_id": visit.id,
+        "start_time": "04/06/2022, 11:43:14",
+        "end_time": "04/11/2022, 12:43:14",
     }
 
     # create note for today visit
