@@ -17,6 +17,12 @@ class PostTest(Test):
     current_care_plan_id: int
 
 
+class DeleteTest(Test):
+    id: int
+    api_key: str
+    current_care_plan_id: int
+
+
 class CreateTest(Test):
     id: int
     date: Optional[datetime.datetime]
