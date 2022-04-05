@@ -53,6 +53,7 @@ class CarePlanHistory(CarePlan):
     doctor_id: Optional[int]
     doctor_name: Optional[str]
     notes: Optional[list]
+    consults: Optional[list]
     tests: Optional[list]
 
 
