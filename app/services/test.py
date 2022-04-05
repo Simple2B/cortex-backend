@@ -1,3 +1,4 @@
+from operator import and_
 import re
 import datetime
 from typing import Union
@@ -16,6 +17,8 @@ from app.schemas import (
     InfoFrequency as typeInfoFrequency,
     CarePlanHistory,
     CurrentCarePlan,
+    ClientCarePlanDelete,
+    DeleteTest,
 )
 from app.models import (
     Client as ClientDB,
@@ -23,6 +26,9 @@ from app.models import (
     InfoCarePlan,
     InfoFrequency,
     CarePlan,
+    Visit,
+    Note,
+    Consult,
 )
 from app.logger import log
 
@@ -55,6 +61,28 @@ class TestService:
             if datetime.datetime.strptime(
                 care_plan.start_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
             ) == datetime.datetime.strptime(today.strftime("%m/%d/%Y"), "%m/%d/%Y"):
+                if data.end_time:
+                    care_plan.end_time = datetime.datetime.strptime(
+                        data.end_time, "%m/%d/%Y, %H:%M:%S"
+                    )
+                    care_plan.save()
+                    return {
+                        "id": care_plan.id,
+                        "date": care_plan.date.strftime("%m/%d/%Y"),
+                        "start_time": care_plan.start_time.strftime(
+                            "%m/%d/%Y, %H:%M:%S"
+                        ),
+                        "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "care_plan": care_plan.care_plan,
+                        "frequency": care_plan.frequency,
+                        "progress_date": care_plan.progress_date.strftime(
+                            "%m/%d/%Y, %H:%M:%S"
+                        )
+                        if care_plan.progress_date
+                        else None,
+                        "client_id": care_plan.client_id,
+                        "doctor_id": care_plan.doctor_id,
+                    }
                 return {
                     "id": care_plan.id,
                     "date": care_plan.date.strftime("%m/%d/%Y"),
@@ -73,12 +101,71 @@ class TestService:
                     "doctor_id": care_plan.doctor_id,
                 }
             if care_plan.end_time is None or care_plan.end_time >= today:
-                if data.start_time or data.start_time:
+                if data.start_time or data.end_time:
                     self.update_care_plan(care_plan, data.start_time, data.end_time)
             if care_plan.end_time and care_plan.end_time < today:
                 history_care_plans.append(care_plan)
         if len(care_plans) == len(history_care_plans):
             return self.new_care_plan_data(client, doctor)
+
+    def care_plan_delete(self, data: ClientCarePlanDelete, doctor: Doctor) -> str:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data.api_key
+        ).first()
+
+        if not client:
+            log(log.ERROR, "care_plan_delete: Client not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="care_plan_delete: Client not found",
+            )
+
+        log(log.INFO, "care_plan_delete: Client [%s] for test", client)
+
+        care_plan: CarePlan = CarePlan.query.filter(
+            and_(CarePlan.client_id == client.id, CarePlan.id == data.id)
+        ).first()
+
+        if not care_plan:
+            log(log.ERROR, "care_plan_delete: care plan not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="care_plan_delete: care plan not found",
+            )
+
+        care_plan_info = care_plan.care_plan_info_tests
+
+        tests = care_plan_info["tests"]
+        visits = care_plan_info["visits"]
+
+        if len(tests) > 0:
+            for test in tests:
+                Test.query.filter(Test.id == test.id).delete()
+            log(log.INFO, "care_plan_delete: tests count [%d] deleted", len(tests))
+
+        if len(visits) > 0:
+            for visit in visits:
+                visit_delete = Visit.query.filter(Visit.id == visit.id).first()
+                visit_info = visit_delete.visit_info
+                notes = visit_info["notes"]
+                consults = visit_info["consults"]
+                if len(notes):
+                    for note in notes:
+                        Note.query.filter(note.visit_id == visit_delete.id).delete()
+                log(log.INFO, "care_plan_delete: notes count [%d] deleted", len(notes))
+                if len(consults):
+                    for consult in consults:
+                        Consult.query.filter(
+                            consult.visit_id == visit_delete.id
+                        ).delete()
+                    log(
+                        log.INFO,
+                        "care_plan_delete: consults count [%d] deleted",
+                        len(consults),
+                    )
+
+        care_plan.delete()
+        return
 
     def get_care_plan(
         self, api_key: str, doctor: Doctor
@@ -108,7 +195,7 @@ class TestService:
             if plan.start_time and plan.end_time is None:
                 care_plan = self.get_data_care_plan(plan, client, doctor)
 
-            if plan.start_time < today and (plan.end_time and plan.end_time >= today):
+            if plan.end_time and plan.end_time >= today:
                 care_plan = self.get_data_care_plan(plan, client, doctor)
         return care_plan
 
@@ -143,23 +230,39 @@ class TestService:
                 history_care_plans
                 visits = care_plan.care_plan_info_tests["visits"]
                 notes = None
+                consults = None
                 if len(visits) > 0:
                     for visit in visits:
                         if (
-                            visit.start_time >= care_plan.start_time
-                            and visit.end_time is None
-                            or visit.start_time >= care_plan.start_time
+                            # visit.start_time >= care_plan.start_time
+                            # and visit.end_time is None
+                            # visit.start_time >= care_plan.start_time
+                            # and
+                            visit.end_time
                             and visit.end_time <= care_plan.end_time
                         ):
                             notes = [
                                 {
                                     "id": note.id,
-                                    "date": note.date,
+                                    "date": note.date.strftime("%m/%d/%Y"),
                                     "client_id": note.client_id,
                                     "doctor_id": note.doctor_id,
+                                    "visit_id": visit.id,
                                     "note": note.notes,
                                 }
                                 for note in visit.visit_info["notes"]
+                            ]
+
+                            consults = [
+                                {
+                                    "id": consult.id,
+                                    "date": consult.date.strftime("%m/%d/%Y"),
+                                    "client_id": consult.client_id,
+                                    "doctor_id": consult.doctor_id,
+                                    "visit_id": visit.id,
+                                    "consult": consult.consult,
+                                }
+                                for consult in visit.visit_info["consults"]
                             ]
 
                 care_plans.append(
@@ -182,6 +285,7 @@ class TestService:
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
                         "tests": care_plan.care_plan_info_tests["tests"],
                         "notes": notes if notes else [],
+                        "consults": consults if consults else [],
                     }
                 )
             return care_plans
@@ -234,6 +338,19 @@ class TestService:
         create_test.save()
 
         return create_test
+
+    def delete_test(self, data_test: DeleteTest, doctor: Doctor):
+        test = Test.query.filter(Test.id == data_test.id).first()
+        if not test:
+            log(log.ERROR, "delete_test: test not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="delete_test: test not found",
+            )
+
+        test.delete()
+        log(log.INFO, "delete_test: test [%s]", test)
+        return
 
     @staticmethod
     def update_care_plan(care_plan, start_time, end_time):
@@ -618,15 +735,13 @@ class TestService:
         care_plans: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
         ).all()
-        care_plan = care_plans[-1]
-
         care_plan_length = None
         visit_frequency = None
         next_visit = None
         care_plan_length = None
         visit_frequency = None
         next_visit = None
-        if not care_plan:
+        if not care_plans:
             return {
                 "first_visit": "-",
                 "last_visit": "-",
@@ -637,6 +752,7 @@ class TestService:
                 "expiration": "-",
             }
 
+        care_plan = care_plans[-1]
         care_plan_length = care_plan.care_plan
         if not care_plan_length:
             care_plan_length = "-"

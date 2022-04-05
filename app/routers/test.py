@@ -15,7 +15,9 @@ from app.schemas import (
     CarePlanPatientInfo,
     CarePlanHistory,
     CurrentCarePlan,
+    ClientCarePlanDelete,
 )
+from app.schemas.test import DeleteTest
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
@@ -30,6 +32,16 @@ async def care_plan_create(
     """Create care_plan for client"""
     service = TestService()
     return service.care_plan_create(data, doctor)
+
+
+@router_test.post("/care_plan_delete", response_model=str, tags=["Test"])
+async def care_plan_delete(
+    data: ClientCarePlanDelete, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Delete care_plan for client"""
+    service = TestService()
+    service.care_plan_delete(data, doctor)
+    return "ok"
 
 
 @router_test.get(
@@ -61,6 +73,16 @@ async def test_create(data: PostTest, doctor: Doctor = Depends(get_current_docto
     """Create test for client in visit"""
     service = TestService()
     return service.create_test(data, doctor)
+
+
+@router_test.post("/test_delete", response_model=str, tags=["Test"])
+async def delete_test(
+    data_test: DeleteTest, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Delete test"""
+    service = TestService()
+    service.delete_test(data_test, doctor)
+    return "ok"
 
 
 @router_test.get(
