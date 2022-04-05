@@ -1,12 +1,15 @@
 import datetime
 from typing import Optional, List
-
 from pydantic import BaseModel
-
 from .client import ClientInfo
 
 
-class Visit(BaseModel):
+class BaseVisit(BaseModel):
+    class Config:
+        orm_mode = True
+
+
+class Visit(BaseVisit):
     date: datetime.date
     start_time: datetime.datetime
     end_time: Optional[datetime.datetime]
@@ -14,11 +17,8 @@ class Visit(BaseModel):
     doctor_id: int
     rougue_mode: bool
 
-    class Config:
-        orm_mode = True
 
-
-class VisitWithNote(BaseModel):
+class VisitWithNote(BaseVisit):
     id: int
     date: datetime.date
     start_time: datetime.datetime
@@ -26,11 +26,17 @@ class VisitWithNote(BaseModel):
     client_info: ClientInfo
     notes: Optional[List]
 
-    class Config:
-        orm_mode = True
+
+class VisitWithConsult(BaseVisit):
+    id: int
+    date: datetime.date
+    start_time: datetime.datetime
+    end_time: Optional[datetime.datetime]
+    client_info: ClientInfo
+    consult: Optional[List]
 
 
-class VisitInfoHistory(BaseModel):
+class VisitInfoHistory(BaseVisit):
     id: int
     date: datetime.date
     start_time: datetime.datetime
@@ -41,49 +47,31 @@ class VisitInfoHistory(BaseModel):
     rougue_mode: bool
     visit_info: VisitWithNote
 
-    class Config:
-        orm_mode = True
 
-
-class VisitHistory(BaseModel):
+class VisitHistory(BaseVisit):
     date: str
     doctor_name: str
 
-    class Config:
-        orm_mode = True
 
-
-class VisitHistoryFilter(BaseModel):
+class VisitHistoryFilter(BaseVisit):
     api_key: str
     start_time: str
     end_time: str
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportReq(BaseModel):
+class VisitReportReq(BaseVisit):
     type: str
     start_time: str
     end_time: str
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportRes(BaseModel):
+class VisitReportRes(BaseVisit):
     id: Optional[int]
     date: datetime.date
     start_time: datetime.datetime
     end_time: datetime.datetime
     client_info: ClientInfo
 
-    class Config:
-        orm_mode = True
 
-
-class VisitReportResClients(BaseModel):
+class VisitReportResClients(BaseVisit):
     client_info: ClientInfo
-
-    class Config:
-        orm_mode = True
