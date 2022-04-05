@@ -1,5 +1,4 @@
 import pytest
-import datetime
 from typing import Generator
 from fastapi.testclient import TestClient
 
@@ -7,23 +6,9 @@ import tests.setup  # noqa: F401
 from app.database import engine, Base
 
 from app.setup import create_app
-from app.models import (
-    Client,
-    ClientCondition,
-    ClientDisease,
-    Condition,
-    Disease,
-    Visit,
-    Doctor,
-    Reception,
-    QueueMember,
-)
+from app.models import Client
 
-from app.schemas import (
-    Consult
-)
-
-from .database import generate_test_data, CLIENT_NUMBER
+from .database import generate_test_data
 from .utils import login
 
 
@@ -51,7 +36,7 @@ def test_write_consult(client: TestClient):
         "last_name": client_consult.last_name,
         "phone": client_consult.phone,
         "email": client_consult.email,
-}
+    }
 
     # 1. doctor add patient in queue
     response = client.post("/api/client/add_clients_queue", json=data_client)
@@ -66,7 +51,7 @@ def test_write_consult(client: TestClient):
     data_intake = response.json()
     assert data_intake
 
-    # 2. post client consult
+    # 3. post client consult
     data_client_intake = {
         "consult": "test4",
         "client_id": 1,
@@ -80,14 +65,14 @@ def test_write_consult(client: TestClient):
     data_consult = response.json()
     assert data_consult
 
-    # 2. get client consult
+    # 4. get client consult
     response = client.get(f"/api/consult/get_consult/{client_consult.api_key}")
     assert response
     assert response.ok
     get_data_consult = response.json()
     assert get_data_consult
 
-
+    # 5. delete client consult
     response = client.post("/api/consult/consult_delete/", json=data_consult)
     assert response
     assert response.ok
