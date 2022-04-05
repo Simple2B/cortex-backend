@@ -1,12 +1,8 @@
-import os
-import datetime
 from typing import List
 
 # import stripe
 
-from fastapi import APIRouter, HTTPException, Depends, status, Request, Header
-from fastapi_pagination import Page as BasePage, paginate
-from starlette.responses import FileResponse
+from fastapi import APIRouter, Depends
 
 from app.config.settings import Settings
 from app.schemas.consult import ConsultDelete
@@ -15,13 +11,10 @@ from app.services import (
     ConsultService,
 )
 from app.schemas import (
-    VisitWithConsult,
     Consult as ConsultSchemas,
 )
-from app.models import Consult, Doctor
+from app.models import Doctor
 from app.services.auth import get_current_doctor
-from app.logger import log
-
 
 # from app.config import settings as config
 

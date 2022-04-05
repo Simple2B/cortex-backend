@@ -133,68 +133,6 @@ class ConsultService:
                 # Visit.end_time == None,  # noqa E711
             )
         ).all()
-        if len(visits) > 0:
-
-            visit = visits[-1]
-
-            log(
-                log.INFO,
-                "get_consult: visit [%s] for client [%d] today",
-                visit,
-                client.id,
-            )
-
-            consults_client = Consult.query.filter(
-                and_(
-                    Consult.client_id == client.id,
-                    Consult.date == today,
-                    Consult.visit_id == visit.id,
-                )
-            ).all()
-
-            return consults_client
-
-        log(log.INFO, "get_consult: client doesn't have visit")
-        visit: Visit = Visit(
-            date=today,
-            client_id=client.id,
-            doctor_id=doctor.id,
-        )
-        visit.save()
-        log(
-            log.INFO,
-            "get_consult: visit [%s] for client [%d] today created",
-            visit,
-            client.id,
-        )
-        return []
-
-    def get_consult(self, api_key: str, doctor: Doctor) -> List[ConsultSchemas]:
-        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
-        if not client:
-            log(log.ERROR, "get_consult: Client not found")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
-            )
-
-        log(log.INFO, "get_consult: Client [%s]", client)
-
-        today = datetime.date.today()
-
-        reception = Reception.query.filter(Reception.date == today).first()
-        if not reception:
-            reception = Reception(date=today, doctor_id=doctor.id).save()
-            log(log.INFO, "get_consult: Today reception created [%s]", reception)
-
-        log(log.INFO, "get_consult: Today reception [%s]", reception)
-
-        visits: Visit = Visit.query.filter(
-            and_(
-                Visit.date == today,
-                Visit.client_id == client.id,
-                # Visit.end_time == None,  # noqa E711
-            )
-        ).all()
         today = today = datetime.datetime.utcnow()
         if len(visits) > 0:
             visit = visits[-1]
