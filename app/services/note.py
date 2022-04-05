@@ -36,6 +36,41 @@ class NoteService:
 
         log(log.INFO, "write_note: Today reception [%s]", reception)
 
+        if not data_note.visit_id:
+            start_time = datetime.datetime.strptime(
+                data_note.start_time, "%m/%d/%Y, %H:%M:%S"
+            )
+            end_time = datetime.datetime.strptime(
+                data_note.end_time, "%m/%d/%Y, %H:%M:%S"
+            )
+            visit = Visit(
+                date=start_time,
+                start_time=start_time,
+                end_time=end_time,
+                client_id=client.id,
+                doctor_id=doctor.id,
+            )
+            visit.save()
+
+            log(log.INFO, "write_note: save visit [%d] for update care plan", visit.id)
+
+            note = Note(
+                date=today,
+                client_id=client.id,
+                doctor_id=doctor.id,
+                visit_id=visit.id,
+                notes=data_note.notes,
+            ).save()
+
+            log(
+                log.INFO,
+                "write_note: note [%d] of visit [%d] created for care plan updated",
+                note.id,
+                visit.id,
+            )
+
+            return visit.visit_info
+
         visit: Visit = Visit.query.filter(
             and_(
                 Visit.date == today,
@@ -121,22 +156,20 @@ class NoteService:
                 # Visit.end_time == None,  # noqa E711
             )
         ).all()
+        today = today = datetime.datetime.utcnow()
         if len(visits) > 0:
-
             visit = visits[-1]
 
             log(
                 log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id
             )
 
-            notes_client = Note.query.filter(
-                and_(
-                    Note.client_id == client.id,
-                    Note.date == today,
-                    Note.visit_id == visit.id,
-                )
-            ).all()
+            notes_client = Note.query.filter(Note.client_id == client.id).all()
 
+            notes = []
+            for note in notes_client:
+                if note.visit.end_time and note.visit.end_time >= today:
+                    notes.append(note)
             return notes_client
 
         log(log.INFO, "get_note: client doesn't have visit")
@@ -176,22 +209,7 @@ class NoteService:
 
         log(log.INFO, "delete_note: Today reception [%s]", reception)
 
-        visit: Visit = Visit.query.filter(
-            and_(
-                Visit.date == today,
-                Visit.client_id == client.id,
-                Visit.end_time == None,  # noqa E711
-            )
-        ).first()
-
-        if not visit:
-            log(log.INFO, "delete_note : client doesn't have visit")
-
-        log(log.INFO, "delete_note: visit [%s] for client [%d] today", visit, client.id)
-
-        note: Note = Note.query.filter(
-            and_(Note.id == data_note.id, Note.visit_id == visit.id)
-        ).first()
+        note: Note = Note.query.filter(Note.id == data_note.id).first()
         note.delete()
 
         log(log.INFO, "delete_note: note [%d] deleted", note.id)
