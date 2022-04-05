@@ -10,11 +10,13 @@ from .client import (
     ClientInfoStripe,
     ClientCarePlan,
     ClientStripeSubscription,
+    ClientCarePlanDelete,
 )
 from .queue_member import QueueMember, Queue
 from .visit import (
     Visit,
     VisitWithNote,
+    VisitWithConsult,
     VisitHistory,
     VisitInfoHistory,
     VisitHistoryFilter,
@@ -23,7 +25,13 @@ from .visit import (
     VisitReportResClients,
 )
 from .note import Note, NoteDelete
-from .test import PostTest, CreateTest, GetTest, PostTestCarePlanAndFrequency
+from .test import (
+    PostTest,
+    CreateTest,
+    DeleteTest,
+    GetTest,
+    PostTestCarePlanAndFrequency,
+)
 from .info_care_plan import InfoCarePlan
 from .info_frequency import InfoFrequency
 from .care_plan import (
@@ -34,3 +42,4 @@ from .care_plan import (
     CurrentCarePlan,
 )
 from .billing import BillingBase
+from .consult import Consult, ConsultDelete

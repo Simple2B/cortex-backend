@@ -105,3 +105,8 @@ class ClientCarePlan(ClientBase):
     api_key: str
     start_time: Optional[str]
     end_time: Optional[str]
+
+
+class ClientCarePlanDelete(ClientBase):
+    id: int
+    api_key: Optional[str]
