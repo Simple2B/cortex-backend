@@ -32,8 +32,10 @@ class Visit(Base, ModelMixin):
     @property
     def visit_info(self):
         from .note import Note
+        from .consult import Consult
 
         notes = Note.query.filter(Visit.id == Note.visit_id).all()
+        consults = Consult.query.filter(Visit.id == Consult.visit_id).all()
 
         return {
             "id": self.id,
@@ -42,6 +44,7 @@ class Visit(Base, ModelMixin):
             "end_time": self.end_time,
             "client_info": self.client.client_info,
             "notes": notes if len(notes) > 0 else [],
+            "consults": consults if len(consults) > 0 else [],
             # TODO: add doctor when doctor would be not one
             "doctor": self.doctor,
         }
