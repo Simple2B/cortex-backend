@@ -158,22 +158,20 @@ class NoteService:
         ).all()
         today = today = datetime.datetime.utcnow()
         if len(visits) > 0:
-            visit = visits[-1]
-
             log(
-                log.INFO, "get_note: visit [%s] for client [%d] today", visit, client.id
+                log.INFO,
+                "get_note: visit count [%d] for client [%d] today",
+                len(visits),
+                client.id,
             )
-
-            notes_client = Note.query.filter(Note.client_id == client.id).all()
-
             notes = []
-            for note in notes_client:
-                if note.visit.end_time and note.visit.end_time >= today:
-                    notes.append(note)
-            return notes_client
+            for visit in visits:
+                if visit.end_time is None or visit.end_time >= today:
+                    notes = [note for note in visit.visit_info["notes"]]
+            return notes
 
         log(log.INFO, "get_note: client doesn't have visit")
-        visit: Visit = Visit(
+        Visit(
             date=today,
             client_id=client.id,
             doctor_id=doctor.id,
