@@ -2,6 +2,7 @@ from operator import and_
 import re
 import datetime
 from typing import Union
+from operator import itemgetter
 
 from fastapi import HTTPException, status
 from app.schemas import (
@@ -251,6 +252,7 @@ class TestService:
                                     "note": note.notes,
                                 }
                                 for note in visit.visit_info["notes"]
+                                if note.date == visit.start_time.date()
                             ]
 
                             consults = [
@@ -288,7 +290,9 @@ class TestService:
                         "consults": consults if consults else [],
                     }
                 )
-            return care_plans
+            # history_plans = care_plans.sort(key=itemgetter("id"))
+            history_plans = sorted(care_plans, key=itemgetter("end_time"))
+            return history_plans
         return []
 
     def create_test(self, data: PostTest, doctor: Doctor) -> CreateTest:
@@ -751,8 +755,11 @@ class TestService:
                 "next_visit": "-",
                 "expiration": "-",
             }
-
-        care_plan = care_plans[-1]
+        today = datetime.datetime.now()
+        care_plan = None
+        for plan in care_plans:
+            if plan.end_time and plan.end_time >= today:
+                care_plan = plan
         care_plan_length = care_plan.care_plan
         if not care_plan_length:
             care_plan_length = "-"
