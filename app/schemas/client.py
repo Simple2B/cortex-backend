@@ -63,6 +63,7 @@ class ClientQueue(ClientBase):
     phone: Optional[str]
     req_date: Optional[str]
     visits: Optional[List]
+    progress_date: Optional[str]
     place_in_queue: Optional[int]
 
 
