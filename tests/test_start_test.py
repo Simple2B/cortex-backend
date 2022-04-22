@@ -248,11 +248,11 @@ def test_write_care_plan_frequency(client: TestClient):
     assert visits
 
     # get care plan for client
-    response = client.get(f"/api/test/info_for_care_plan_page/{client_intake.api_key}")
-    assert response
-    assert response.ok
-    care_plan_info_tests = response.json()
-    assert care_plan_info_tests
+    # response = client.get(f"/api/test/info_for_care_plan_page/{client_intake.api_key}")
+    # assert response
+    # assert response.ok
+    # care_plan_info_tests = response.json()
+    # assert care_plan_info_tests
 
 
 def test_get_care_plan_and_frequency_names(client: TestClient):
