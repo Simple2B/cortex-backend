@@ -166,8 +166,17 @@ class NoteService:
             )
             notes = []
             for visit in visits:
-                if visit.end_time is None or visit.end_time >= today:
-                    notes = [note for note in visit.visit_info["notes"]]
+                # if visit.end_time is None or visit.end_time >= today:
+                if visit.end_time:
+                    if visit.end_time >= today:
+                        notes = [note for note in visit.visit_info["notes"]]
+                else:
+                    notes = [
+                        note
+                        for note in visit.visit_info["notes"]
+                        if note.date == visit.start_time.date()
+                    ]
+                    return notes
             return notes
 
         log(log.INFO, "get_note: client doesn't have visit")
