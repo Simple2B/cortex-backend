@@ -34,8 +34,8 @@ class Visit(Base, ModelMixin):
         from .note import Note
         from .consult import Consult
 
-        notes = Note.query.filter(Visit.id == Note.visit_id).all()
-        consults = Consult.query.filter(Visit.id == Consult.visit_id).all()
+        notes = Note.query.filter(self.client_id == Note.client_id).all()
+        consults = Consult.query.filter(self.client_id == Consult.client_id).all()
 
         return {
             "id": self.id,
