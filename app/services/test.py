@@ -731,35 +731,48 @@ class TestService:
 
         log(log.INFO, "get_info_for_care_plan_page: Client [%s] for test", client)
 
-        visits = client.client_info["visits"]
-        if len(visits):
-            first_visit = visits[0]
-            last_visit = visits[-1]
-
         care_plans: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
         ).all()
-        care_plan_length = None
-        visit_frequency = None
-        next_visit = None
-        care_plan_length = None
-        visit_frequency = None
-        next_visit = None
+
+        empty_care_plan = {
+            "first_visit": "-",
+            "last_visit": "-",
+            "total_visits": "-",
+            "care_plan_length": "-",
+            "visit_frequency": "-",
+            "next_visit": "-",
+            "expiration": "-",
+        }
         if not care_plans:
-            return {
-                "first_visit": "-",
-                "last_visit": "-",
-                "total_visits": "-",
-                "care_plan_length": "-",
-                "visit_frequency": "-",
-                "next_visit": "-",
-                "expiration": "-",
-            }
+            return empty_care_plan
+
+        log(
+            log.INFO,
+            "get_info_for_care_plan_page: count [%d] of care plan",
+            len(care_plans),
+        )
+
+        care_plan_length = None
+        visit_frequency = None
+        next_visit = None
+        care_plan_length = None
+        visit_frequency = None
+        next_visit = None
+
         today = datetime.datetime.now()
+
         care_plan = None
         for plan in care_plans:
-            if plan.end_time and plan.end_time >= today:
+            if plan.end_time and plan.end_time >= today or not plan.end_time:
+                log(
+                    log.INFO,
+                    "get_info_for_care_plan_page: current care plan [%s]",
+                    plan,
+                )
                 care_plan = plan
+        if not care_plan:
+            return empty_care_plan
         care_plan_length = care_plan.care_plan
         if not care_plan_length:
             care_plan_length = "-"
@@ -774,10 +787,30 @@ class TestService:
         else:
             next_visit = "-"
 
+        visits = client.client_info["visits"]
+
+        first_visit = None
+        last_visit = None
+        visits_with_end_data = []
+
+        if len(visits) > 0:
+            for visit in visits:
+                if visit.end_time:
+                    visits_with_end_data.append(visit)
+        if len(visits_with_end_data) > 0:
+            first_visit = visits_with_end_data[0]
+            last_visit = visits_with_end_data[-1]
+
         return {
-            "first_visit": first_visit.start_time.strftime("%m/%d/%Y"),
-            "last_visit": last_visit.start_time.strftime("%m/%d/%Y"),
-            "total_visits": len(visits),
+            "first_visit": first_visit.start_time.strftime("%m/%d/%Y")
+            if first_visit
+            else "-",
+            "last_visit": last_visit.start_time.strftime("%m/%d/%Y")
+            if last_visit
+            else "-",
+            "total_visits": len(visits_with_end_data)
+            if len(visits_with_end_data) > 0
+            else "-",
             "care_plan_length": care_plan_length,
             "visit_frequency": visit_frequency,
             "next_visit": next_visit,
