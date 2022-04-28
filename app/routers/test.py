@@ -16,8 +16,8 @@ from app.schemas import (
     CarePlanHistory,
     CurrentCarePlan,
     ClientCarePlanDelete,
+    DeleteTest,
 )
-from app.schemas.test import DeleteTest
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
