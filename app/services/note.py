@@ -10,6 +10,7 @@ from app.models import (
     Visit,
     Reception,
     Note,
+    CarePlan,
 )
 from app.logger import log
 
@@ -149,35 +150,55 @@ class NoteService:
 
         log(log.INFO, "get_note: Today reception [%s]", reception)
 
-        visits: Visit = Visit.query.filter(
-            and_(
-                Visit.date == today,
-                Visit.client_id == client.id,
-                # Visit.end_time == None,  # noqa E711
-            )
-        ).all()
-        today = today = datetime.datetime.utcnow()
+        visits: Visit = Visit.query.filter(Visit.client_id == client.id).all()
+        visits_with_end_time = []
         if len(visits) > 0:
+            for visit in visits:
+                if visit.end_time:
+                    visits_with_end_time.append(visit)
+            visits_with_end_time.append(visits[-1])
+        today = today = datetime.datetime.utcnow()
+        log(
+            log.INFO,
+            "get_note: Count of visits with end time [%d]",
+            len(visits_with_end_time),
+        )
+        care_plans = CarePlan.query.filter(CarePlan.client_id == client.id).all()
+
+        if len(visits_with_end_time) > 0:
             log(
                 log.INFO,
                 "get_note: visit count [%d] for client [%d] today",
-                len(visits),
+                len(visits_with_end_time),
                 client.id,
             )
-            notes = []
-            for visit in visits:
+            care_plan = None
+            if len(care_plans) > 0:
+                for plan in care_plans:
+                    if not plan.end_time or plan.end_time >= today:
+                        care_plan = plan
+
+            for visit in visits_with_end_time:
+                notes = []
                 # if visit.end_time is None or visit.end_time >= today:
-                if visit.end_time:
-                    if visit.end_time >= today:
+                if care_plan:
+                    #     log(log.INFO, "get_note: care plan [%s]", care_plan)
+                    if (
+                        not care_plan.end_time
+                        and care_plan.start_time <= visit.start_time
+                        or care_plan.start_time <= visit.start_time
+                        and care_plan.end_time >= visit.end_time
+                    ):
                         notes = [note for note in visit.visit_info["notes"]]
-                else:
-                    notes = [
-                        note
-                        for note in visit.visit_info["notes"]
-                        if note.date == visit.start_time.date()
-                    ]
-                    return notes
-            return notes
+                        return notes
+                    # notes = [
+                    #     note
+                    #     for note in visit.visit_info["notes"]
+                    #     if note.date >= care_plan.start_time.date()
+                    # ]
+                    # return notes
+                notes = [note for note in visit.visit_info["notes"]]
+                return notes
 
         log(log.INFO, "get_note: client doesn't have visit")
         visit = Visit(
