@@ -71,9 +71,10 @@ async def identify_client_with_phone(
     service = QueueService()
     client = service.identify_client_with_phone(phone_data, doctor)
     if not client:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
-        )
+        log(log.INFO, "identify_client_with_phone: client didn't fined")
+        # raise HTTPException(
+        #     status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+        return None
     return {
         "id": client.id,
         "api_key": client.api_key,
