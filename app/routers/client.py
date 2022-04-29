@@ -54,12 +54,22 @@ PageClients = BasePage.with_custom_options(size=6)
 
 
 @router_client.post("/registration", response_model=Client, tags=["Client"])
-async def registrations(client_data: ClientInfo):
+async def registrations(
+    client_data: ClientInfo, doctor: Doctor = Depends(get_current_doctor)
+):
     """Register new client"""
     service = ClientService()
     client = service.register_new_client(client_data)
     if not client:
         raise HTTPException(status_code=404, detail="Client didn't registration")
+    # after registration the patient automatically becomes in queue
+    serviceQueue = QueueService()
+    clientInQueue = serviceQueue.identify_client_with_phone(client["phone"], doctor)
+    log(
+        log.INFO,
+        "registrations: clientInQueue [%s]",
+        clientInQueue,
+    )
     return client
 
 
@@ -69,7 +79,7 @@ async def identify_client_with_phone(
 ):
     """Identify client with phone"""
     service = QueueService()
-    client = service.identify_client_with_phone(phone_data, doctor)
+    client = service.identify_client_with_phone(phone_data.phone, doctor)
     if not client:
         log(log.INFO, "identify_client_with_phone: client didn't fined")
         # raise HTTPException(
