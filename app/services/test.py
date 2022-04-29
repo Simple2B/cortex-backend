@@ -1,10 +1,12 @@
-from operator import and_
 import re
 import datetime
 from typing import Union
 from operator import itemgetter
+from sqlalchemy.sql.elements import and_
 
 from fastapi import HTTPException, status
+
+# from stripe import client_id
 from app.schemas import (
     Doctor,
     PostTest,
@@ -20,6 +22,8 @@ from app.schemas import (
     CurrentCarePlan,
     ClientCarePlanDelete,
     DeleteTest,
+    DeleteFrequencyName,
+    DeleteCarePlanName,
 )
 from app.models import (
     Client as ClientDB,
@@ -55,9 +59,11 @@ class TestService:
 
         if len(care_plans) == 0:
             return self.new_care_plan_data(client, doctor)
+        log(log.INFO, "care_plan_create: care_plans [%d]", len(care_plans))
 
         today = datetime.datetime.utcnow()
         history_care_plans = []
+        current_care_plan = None
         for care_plan in care_plans:
             if datetime.datetime.strptime(
                 care_plan.start_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
@@ -102,10 +108,20 @@ class TestService:
                     "doctor_id": care_plan.doctor_id,
                 }
             if care_plan.end_time is None or care_plan.end_time >= today:
-                if data.start_time or data.end_time:
-                    self.update_care_plan(care_plan, data.start_time, data.end_time)
+                # if data.start_time or data.end_time:
+                current_care_plan = care_plan
             if care_plan.end_time and care_plan.end_time < today:
                 history_care_plans.append(care_plan)
+            log(
+                log.INFO,
+                "care_plan_create: history_care_plans [%d]",
+                len(history_care_plans),
+            )
+        if current_care_plan:
+            current_care_plan = self.update_care_plan(
+                care_plan, data.start_time, data.end_time
+            )
+            return current_care_plan
         if len(care_plans) == len(history_care_plans):
             return self.new_care_plan_data(client, doctor)
 
@@ -357,7 +373,7 @@ class TestService:
         return
 
     @staticmethod
-    def update_care_plan(care_plan, start_time, end_time):
+    def update_care_plan(care_plan, start_time, end_time) -> CurrentCarePlan:
         if start_time:
             care_plan.start_time = datetime.datetime.strptime(
                 start_time, "%m/%d/%Y, %H:%M:%S"
@@ -368,8 +384,7 @@ class TestService:
                 end_time, "%m/%d/%Y, %H:%M:%S"
             )
             care_plan.save(True)
-        log(log.INFO, "update_care_plan: care plan [%s] updated", care_plan)
-        return {
+        care_plan_updated = {
             "id": care_plan.id,
             "date": care_plan.date.strftime("%m/%d/%Y, %H:%M:%S"),
             "start_time": care_plan.start_time.strftime("%m/%d/%Y, %H:%M:%S")
@@ -386,6 +401,8 @@ class TestService:
             "client_id": care_plan.client_id,
             "doctor_id": care_plan.doctor_id,
         }
+        log(log.INFO, "update_care_plan: care plan [%s] updated", care_plan_updated)
+        return care_plan_updated
 
     @staticmethod
     def new_care_plan_data(client: ClientDB, doctor: Doctor) -> CurrentCarePlan:
@@ -442,19 +459,25 @@ class TestService:
         care_plan.save()
         log(
             log.INFO,
-            "write_care_plan_frequency: care plan [%d] with care_plan [%s] and frequency[%s] saved",
+            "write_care_plan_frequency: client [%d] with care plan [%d] with care_plan_name [%s] and frequency[%s] saved",
+            client.id,
             care_plan.id,
             care_plan.care_plan,
             care_plan.frequency,
         )
 
-        info_care_plan = InfoCarePlan.query.filter(
-            InfoCarePlan.care_plan == data_care_plan
-        ).first()
+        info_care_plan_names = InfoCarePlan.query.filter(
+            InfoCarePlan.client_id == client.id
+        ).all()
+        info_care_plan = None
+        if len(info_care_plan_names) > 0:
+            for care_plan_name in info_care_plan_names:
+                if care_plan_name.care_plan == data_care_plan:
+                    info_care_plan = care_plan_name
 
         if not info_care_plan:
             info_care_plan = InfoCarePlan(
-                care_plan=data_care_plan, doctor_id=doctor.id
+                care_plan=data_care_plan, doctor_id=doctor.id, client_id=client.id
             ).save()
 
             log(
@@ -463,13 +486,19 @@ class TestService:
                 info_care_plan.id,
             )
 
-        info_frequency = InfoFrequency.query.filter(
-            InfoFrequency.frequency == data_frequency
-        ).first()
+        info_frequency_names = InfoFrequency.query.filter(
+            InfoFrequency.client_id == client.id
+        ).all()
+
+        info_frequency = None
+        if len(info_frequency_names) > 0:
+            for frequency_name in info_frequency_names:
+                if frequency_name.frequency == data_frequency:
+                    info_frequency = frequency_name
 
         if not info_frequency:
             info_frequency = InfoFrequency(
-                frequency=data_frequency, doctor_id=doctor.id
+                frequency=data_frequency, doctor_id=doctor.id, client_id=client.id
             ).save()
             log(
                 log.INFO,
@@ -645,8 +674,11 @@ class TestService:
 
         return []
 
-    def get_care_plan_names(self, doctor: Doctor) -> typeInfoCarePlan:
-        care_plan_names = InfoCarePlan.query.all()
+    def get_care_plan_names(self, api_key: str, doctor: Doctor) -> typeInfoCarePlan:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+        care_plan_names = InfoCarePlan.query.filter(
+            InfoCarePlan.client_id == client.id
+        ).all()
         if not care_plan_names:
             log(log.INFO, "get_care_plan_names: No care plan names")
             return [{"number": 0, "care_plan": ""}]
@@ -657,15 +689,24 @@ class TestService:
             log(log.INFO, "get_care_plan_names: num_name [%s]", num_name)
             if len(num_name) > 0:
                 log(log.INFO, "get_care_plan_names: [%d]", len(num_name))
-                names.append({"number": int(num_name[0]), "care_plan": name.care_plan})
+                names.append(
+                    {
+                        "id": name.id,
+                        "number": int(num_name[0]),
+                        "care_plan": name.care_plan,
+                    }
+                )
 
         sorted_names = sorted(names, key=lambda k: k["number"])
         log(log.INFO, "get_care_plan_names: names are sorted")
 
         return sorted_names
 
-    def get_frequency_names(self, doctor: Doctor) -> typeInfoFrequency:
-        frequency_plan_names = InfoFrequency.query.all()
+    def get_frequency_names(self, api_key: str, doctor: Doctor) -> typeInfoFrequency:
+        client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+        frequency_plan_names = InfoFrequency.query.filter(
+            InfoFrequency.client_id == client.id
+        ).all()
         if not frequency_plan_names:
             log(log.INFO, "get_frequency_names: No care plan names")
             return [{"number": 0, "frequency": ""}]
@@ -680,12 +721,46 @@ class TestService:
             log(log.INFO, "get_frequency_names: num_name [%s]", num_name)
             if len(num_name) > 0:
                 log(log.INFO, "get_frequency_names: [%d]", len(num_name))
-                names.append({"number": int(num_name[0]), "frequency": name.frequency})
+                names.append(
+                    {
+                        "id": name.id,
+                        "number": int(num_name[0]),
+                        "frequency": name.frequency,
+                    }
+                )
 
         sorted_names = sorted(names, key=lambda k: k["number"])
         log(log.INFO, "get_frequency_names: names are sorted")
 
         return sorted_names
+
+    def delete_frequency_name(
+        self, data_frequency_name: DeleteFrequencyName, doctor: Doctor
+    ) -> str:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data_frequency_name.api_key
+        ).first()
+        frequency_plan_name = InfoFrequency.query.filter(
+            and_(
+                InfoFrequency.client_id == client.id,
+                InfoFrequency.id == data_frequency_name.id,
+            )
+        ).first()
+        frequency_plan_name.delete()
+
+    def delete_care_plan_name(
+        self, data_care_pla_name: DeleteCarePlanName, doctor: Doctor
+    ) -> str:
+        client: ClientDB = ClientDB.query.filter(
+            ClientDB.api_key == data_care_pla_name.api_key
+        ).first()
+        care_plan_name = InfoCarePlan.query.filter(
+            and_(
+                InfoCarePlan.client_id == client.id,
+                InfoCarePlan.id == data_care_pla_name.id,
+            )
+        ).first()
+        care_plan_name.delete()
 
     def get_test(self, test_id: str, doctor: Doctor) -> GetTest:
         id = int(test_id)
