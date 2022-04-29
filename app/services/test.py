@@ -459,7 +459,8 @@ class TestService:
         care_plan.save()
         log(
             log.INFO,
-            "write_care_plan_frequency: client [%d] with care plan [%d] with care_plan_name [%s] and frequency[%s] saved",
+            "write_care_plan_frequency: client [%d]"
+            + "with care plan [%d] with care_plan_name [%s] and frequency[%s] saved",
             client.id,
             care_plan.id,
             care_plan.care_plan,

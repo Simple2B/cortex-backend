@@ -194,7 +194,7 @@ def test_write_care_plan_frequency(client: TestClient):
     assert care_plan_data["frequency"] == "1-month"
 
     # 4. get all names of care plan
-    response = client.get("/api/test/care_plan_names")
+    response = client.get(f"/api/test/care_plan_names/{client_intake.api_key}")
     assert response
     assert response.ok
     data_names_care_plan = response.json()
@@ -203,7 +203,7 @@ def test_write_care_plan_frequency(client: TestClient):
     assert data_names_care_plan[0]["care_plan"] == "3-month"
 
     # 5. get all names of frequency
-    response = client.get("/api/test/frequency_names")
+    response = client.get(f"/api/test/frequency_names/{client_intake.api_key}")
     assert response
     assert response.ok
     data_names_frequency = response.json()
@@ -299,14 +299,14 @@ def test_get_care_plan_and_frequency_names(client: TestClient):
         assert response.ok
 
     # 4. get all names of care plan (magnification filtering)
-    response = client.get("/api/test/care_plan_names")
+    response = client.get(f"/api/test/care_plan_names/{client_intake.api_key}")
     assert response
     assert response.ok
     data_names_care_plan = response.json()
     assert data_names_care_plan
 
     # 5. get all names of frequency (magnification filtering)
-    response = client.get("/api/test/frequency_names")
+    response = client.get(f"/api/test/frequency_names/{client_intake.api_key}")
     assert response
     assert response.ok
     data_names_frequency = response.json()
