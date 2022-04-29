@@ -40,32 +40,32 @@ services:
 
   api:
     # for deploy
-    # image: istacat/cortex_backend
+    image: istacat/cortex_backend
     build: .
     restart: always
     command: bash ./start_server.sh
     environment:
       FLASK_ENV: production
     ports:
-      - 127.0.0.1:${LOCAL_API_PORT}:80
+      # - 127.0.0.1:${LOCAL_API_PORT}:80
       # for deploy
-      # - 127.0.0.1:6666:80
+      - 127.0.0.1:6666:80
     volumes:
       - .:/app
     depends_on:
       - db
 
-  front:
-    image: nginx:stable-alpine
-    restart: always
-    command: [nginx-debug, "-g", "daemon off;"]
-    ports:
-      - 127.0.0.1:${LOCAL_WEB_PORT}:80
-    volumes:
-      - ${FRONTEND_PATH}:/usr/share/nginx/html
-      - ${FRONTEND_CONFIG}:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - api
+  # front:
+  #   image: nginx:stable-alpine
+  #   restart: always
+  #   command: [nginx-debug, "-g", "daemon off;"]
+  #   ports:
+  #     - 127.0.0.1:${LOCAL_WEB_PORT}:80
+  #   volumes:
+  #     - ${FRONTEND_PATH}:/usr/share/nginx/html
+  #     - ${FRONTEND_CONFIG}:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - api
 
 volumes:
   db_data:

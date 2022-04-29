@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class InfoBase(BaseModel):
@@ -7,5 +8,6 @@ class InfoBase(BaseModel):
 
 
 class InfoFrequency(InfoBase):
+    id: Optional[int]
     number: int
     frequency: str

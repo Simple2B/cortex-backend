@@ -11,6 +11,7 @@ from app.models import (
     Reception,
     Client as ClientDB,
     Doctor as DoctorDB,
+    CarePlan,
 )
 from app.logger import log
 
@@ -210,9 +211,17 @@ class QueueService:
         for member in members:
             member_info = member["client"].client_info
             visit_info_with_end_date = []
+            progress_date = None
             for visit in member_info["visits"]:
                 if visit.end_time:
                     visit_info_with_end_date.append(visit)
+                care_plans = CarePlan.query.filter(
+                    CarePlan.client_id == visit.client_id
+                ).all()
+                for plan in care_plans:
+                    if plan.end_time:
+                        if plan.end_time.date() >= today:
+                            progress_date = plan.progress_date
             client_member = {
                 "api_key": member_info["api_key"],
                 "email": member_info["email"],
@@ -226,6 +235,9 @@ class QueueService:
                 "place_in_queue": member["place_in_queue"],
                 # TODO: rougue_mode
                 # "rougue_mode": member_info,
+                "progress_date": progress_date.strftime("%m/%d/%Y")
+                if progress_date
+                else None,
                 "visits": visit_info_with_end_date,
             }
             visits = member_info["visits"]

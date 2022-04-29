@@ -21,6 +21,7 @@ class CarePlanCreate(CarePlan):
 
 
 class InfoCarePlan(CarePlan):
+    id: Optional[int]
     date: Optional[datetime.datetime]
     start_time: Optional[str]
     end_time: Optional[str]

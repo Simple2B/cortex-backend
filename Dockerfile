@@ -1,7 +1,7 @@
 FROM python:3.9
 
 # for deploy
-# COPY . /app
+COPY . /app
 
 # set working directory
 WORKDIR /app
@@ -17,9 +17,9 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK on
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ENV PATH="${PATH}:/root/.poetry/bin"
 RUN poetry self update
-COPY poetry.lock .
-COPY pyproject.toml .
+# COPY poetry.lock .
+# COPY pyproject.toml .
 
 RUN POETRY_VIRTUALENVS_CREATE=false poetry install --no-dev --no-interaction --no-ansi
 # for deploy
-# RUN chmod +x /app/start_server.sh
+RUN chmod +x /app/start_server.sh

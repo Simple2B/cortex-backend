@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+# from stripe import api_key
+
 
 class Test(BaseModel):
     class Config:
@@ -21,6 +23,16 @@ class DeleteTest(Test):
     id: int
     api_key: str
     current_care_plan_id: int
+
+
+class DeleteFrequencyName(Test):
+    id: int
+    api_key: str
+
+
+class DeleteCarePlanName(Test):
+    id: int
+    api_key: str
 
 
 class CreateTest(Test):

@@ -16,8 +16,10 @@ from app.schemas import (
     CarePlanHistory,
     CurrentCarePlan,
     ClientCarePlanDelete,
+    DeleteTest,
+    DeleteFrequencyName,
+    DeleteCarePlanName,
 )
-from app.schemas.test import DeleteTest
 from app.services import TestService
 from app.services.auth import get_current_doctor
 
@@ -109,19 +111,47 @@ async def write_care_plan_frequency(
 
 
 @router_test.get(
-    "/frequency_names", response_model=List[InfoFrequency], tags=["Client"]
+    "/frequency_names/{api_key}", response_model=List[InfoFrequency], tags=["Client"]
 )
-async def get_frequency_names(doctor: Doctor = Depends(get_current_doctor)):
+async def get_frequency_names(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
     """Get all frequency name"""
     service = TestService()
-    return service.get_frequency_names(doctor)
+    return service.get_frequency_names(api_key, doctor)
 
 
-@router_test.get("/care_plan_names", response_model=List[InfoCarePlan], tags=["Client"])
-async def get_care_plan_names(doctor: Doctor = Depends(get_current_doctor)):
+@router_test.post("/frequency_name_delete", response_model=str, tags=["Test"])
+async def delete_frequency_name(
+    data_frequency_name: DeleteFrequencyName,
+    doctor: Doctor = Depends(get_current_doctor),
+):
+    """Delete frequency name"""
+    service = TestService()
+    service.delete_frequency_name(data_frequency_name, doctor)
+    return "ok"
+
+
+@router_test.get(
+    "/care_plan_names/{api_key}", response_model=List[InfoCarePlan], tags=["Client"]
+)
+async def get_care_plan_names(
+    api_key: str, doctor: Doctor = Depends(get_current_doctor)
+):
     """Get all care plan name"""
     service = TestService()
-    return service.get_care_plan_names(doctor)
+    return service.get_care_plan_names(api_key, doctor)
+
+
+@router_test.post("/care_plan_name_delete", response_model=str, tags=["Test"])
+async def delete_care_plan_name(
+    data_care_pla_name: DeleteCarePlanName,
+    doctor: Doctor = Depends(get_current_doctor),
+):
+    """Delete frequency name"""
+    service = TestService()
+    service.delete_care_plan_name(data_care_pla_name, doctor)
+    return "ok"
 
 
 @router_test.get("/test/{test_id}", response_model=GetTest, tags=["Client"])
