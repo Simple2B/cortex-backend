@@ -5,7 +5,7 @@ from typing import List, Union
 from fastapi import HTTPException, status
 from sqlalchemy import and_
 
-from app.schemas import Client, Doctor, ClientPhone, ClientQueue
+from app.schemas import Client, Doctor, ClientQueue
 from app.models import (
     QueueMember,
     Reception,
@@ -145,17 +145,17 @@ class QueueService:
         )
 
     def identify_client_with_phone(
-        self, phone_num: ClientPhone, doctor: Doctor
+        self, phone_num: str, doctor: Doctor
     ) -> Union[Client, None]:
         doctor = DoctorDB.query.filter(DoctorDB.email == doctor.email).first()
-        phone = "".join(re.findall(r"\d+", str(phone_num.phone)))
+        phone = "".join(re.findall(r"\d+", str(phone_num)))
 
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
         if not client:
             log(
                 log.ERROR,
                 "identify_client_with_phone: No such phone number [%s]. Client is not registered",
-                phone_num.phone,
+                phone_num,
             )
             return
         self.add_client_to_queue(client, doctor)
