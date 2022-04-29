@@ -13,8 +13,10 @@ class InfoFrequency(Base, ModelMixin):
     frequency = Column(String(128), nullable=True)
 
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    client_id = Column(Integer, ForeignKey("clients.id"))
 
     doctor = relationship("Doctor", viewonly=True)
+    client = relationship("Client", viewonly=True)
 
     def __repr__(self):
         return f"<{self.id}: c:{self.frequency}>"
