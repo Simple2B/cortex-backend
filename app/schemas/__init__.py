@@ -11,6 +11,7 @@ from .client import (
     ClientCarePlan,
     ClientStripeSubscription,
     ClientCarePlanDelete,
+    EditedClientData,
 )
 from .queue_member import QueueMember, Queue
 from .visit import (

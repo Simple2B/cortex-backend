@@ -73,6 +73,19 @@ class ClientInTake(ClientBase):
     place_in_queue: Optional[int]
 
 
+class EditedClientData(ClientBase):
+    api_key: Optional[str]
+    first_name: str
+    last_name: str
+    birthday: str
+    address: str
+    city: str
+    state: str
+    zip: str
+    phone: str
+    email: str
+
+
 class ClientPhone(ClientBase):
     phone: Optional[str]
 
