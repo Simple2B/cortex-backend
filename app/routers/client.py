@@ -1,5 +1,6 @@
 import os
 import datetime
+import re
 from typing import List
 
 # import stripe
@@ -35,6 +36,7 @@ from app.schemas import (
     ClientInfoStripe,
     BillingBase,
     ClientStripeSubscription,
+    EditedClientData,
 )
 from app.models import (
     Client as ClientDB,
@@ -309,6 +311,52 @@ async def filter_visits(
     """Filtered history visits"""
     service = VisitService()
     return service.filter_visits(data, doctor)
+
+
+@router_client.post(
+    "/save_edited_info_client", response_model=EditedClientData, tags=["Client"]
+)
+async def save_edited_info_client(
+    client_data: EditedClientData, doctor: Doctor = Depends(get_current_doctor)
+):
+    """Save edited info client from account"""
+    log(log.INFO, "save_edited_info_client: Client data [%s]", client_data.api_key)
+    client: ClientDB = ClientDB.query.filter(
+        ClientDB.api_key == client_data.api_key
+    ).first()
+    if not client:
+        log(log.INFO, "save_edited_info_client: no such client")
+
+    client.first_name = client_data.first_name
+    client.last_name = client_data.last_name
+    # MM / dd / yyyy
+    client.birthday = (
+        datetime.datetime.strptime(client_data.birthday, "%m/%d/%Y").date()
+        if client_data.birthday
+        else None
+    )
+    client.address = client_data.address
+    client.city = client_data.city
+    client.state = client_data.state
+    client.zip = int(client_data.zip)
+    phone = "".join(re.findall(r"\d+", client_data.phone))
+    client.phone = phone
+    client.email = client_data.email
+    client.save(True)
+
+    log(log.INFO, "save_edited_info_client: edited client info saved")
+
+    return {
+        "first_name": client.first_name,
+        "last_name": client.last_name,
+        "birthday": client.birthday.strftime("%m/%d/%Y"),
+        "address": client.address,
+        "city": client.city,
+        "state": client.state,
+        "zip": str(client.zip),
+        "phone": client.phone,
+        "email": client.email,
+    }
 
 
 # stripe
