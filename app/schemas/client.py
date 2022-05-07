@@ -62,6 +62,7 @@ class ClientQueue(ClientBase):
     last_name: str
     phone: Optional[str]
     req_date: Optional[str]
+    tests: Optional[List]
     visits: Optional[List]
     progress_date: Optional[str]
     place_in_queue: Optional[int]

@@ -12,6 +12,7 @@ from app.models import (
     Client as ClientDB,
     Doctor as DoctorDB,
     CarePlan,
+    Test,
 )
 from app.logger import log
 
@@ -195,6 +196,20 @@ class QueueService:
         members = [
             {
                 "client": member.client,
+                "tests": [
+                    {
+                        "care_plan_id": test.care_plan_id
+                        if test.care_plan_id
+                        else None,
+                        "client_id": test.client_id if test.client_id else None,
+                        "date": test.date.strftime("%m/%d/%Y") if test.date else None,
+                        "doctor_id": test.doctor_id if test.doctor_id else None,
+                        "id": test.id if test.id else None,
+                    }
+                    for test in Test.query.filter(
+                        Test.client_id == member.client.id
+                    ).all()
+                ],
                 "canceled": member.canceled,
                 "place_in_queue": member.place_in_queue,
             }
@@ -238,6 +253,7 @@ class QueueService:
                 "progress_date": progress_date.strftime("%m/%d/%Y")
                 if progress_date
                 else None,
+                "tests": member["tests"],
                 "visits": visit_info_with_end_date,
             }
             visits = member_info["visits"]
