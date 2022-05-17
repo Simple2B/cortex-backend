@@ -89,6 +89,7 @@ class ClientService:
         log(log.INFO, "Register_new_client: phone [%s] ", phone)
 
         client = ClientDB.query.filter(ClientDB.phone == phone).first()
+        time = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
         if not client:
             log(log.INFO, "Client [%s] must registered", client_data.firstName)
             client_with_email: ClientDB = ClientDB.query.filter(
@@ -130,6 +131,7 @@ class ClientService:
             client = self.register(client_data)
             log(log.INFO, "Added client [%s]", client)
         else:
+            client.req_date = datetime.datetime.strptime(time, "%m/%d/%Y, %H:%M:%S")
             client.first_name = client_data.firstName
             client.last_name = client_data.lastName
             client.birthday = client_data.birthday
