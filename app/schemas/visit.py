@@ -75,3 +75,13 @@ class VisitReportRes(BaseVisit):
 
 class VisitReportResClients(BaseVisit):
     client_info: ClientInfo
+
+
+class VisitCarePlan(BaseVisit):
+    id: Optional[int]
+    date: Optional[datetime.date]
+    start_time: Optional[datetime.datetime]
+    end_time: Optional[datetime.datetime]
+    rougue_mode: Optional[bool]
+    client_id: Optional[int]
+    doctor_id: Optional[int]

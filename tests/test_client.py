@@ -550,9 +550,8 @@ def test_note(client: TestClient):
     doctor = Doctor.query.first()
 
     data_note = {
-        # "date": visit.date.strftime("%m/%d/%Y"),
         "notes": "New Notes",
-        "client_id": visit.client_id,
+        "api_key": client_intake.api_key,
         "doctor_id": visit.doctor_id,
         "visit_id": visit.id,
         "start_time": "04/06/2022, 11:43:14",
@@ -563,19 +562,19 @@ def test_note(client: TestClient):
     response = client.post("/api/client/note", json=data_note)
     assert response
     assert response.ok
-    data_note = response.json()
-    assert data_note
+    note = response.json()
+    assert note
 
     # get all notes for today visit
     response = client.get(f"/api/client/note/{client_intake.api_key}")
     assert response
     assert response.ok
     data_notes = response.json()
-    assert data_notes
 
     data_note_deleted = {
-        "id": data_notes[0]["id"],
-        "client_id": visit.client_id,
+        "id": note["id"],
+        "api_key": client_intake.api_key,
+        # "client_id": visit.client_id,
         "doctor_id": visit.doctor_id,
         "visit_id": visit.id,
     }

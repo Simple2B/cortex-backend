@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 from .utils import ModelMixin
 
+# from app.logger import log
+
 time = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
 
@@ -35,24 +37,58 @@ class CarePlan(Base, ModelMixin):
     def care_plan_info_tests(self):
         from .test import Test
         from .visit import Visit
+        from .note import Note
+        from .consult import Consult
 
         tests = Test.query.filter(Test.care_plan_id == self.id).all()
-
-        # notes in visit
         visits = Visit.query.filter(Visit.client_id == self.client_id).all()
 
-        care_plan_visit = []
+        care_plan_visits_with_end_date = []
+        care_plan_visits_without_end_date = []
+
         if len(visits) > 0:
             for visit in visits:
                 if self.end_time and visit.end_time:
                     if (
-                        self.start_time >= visit.start_time
-                        and self.end_time <= visit.end_time
+                        self.start_time.date()
+                        <= visit.start_time.date()
+                        <= visit.end_time.date()
                     ):
-                        care_plan_visit.append(visit)
+                        care_plan_visits_with_end_date.append(visit)
+                if self.end_time and not visit.end_time:
+                    if self.start_time <= visit.start_time:
+                        care_plan_visits_without_end_date.append(visit)
 
-        # intake consult
+        notes = Note.query.filter(Note.client_id == self.client_id).all()
+
+        care_plan_notes = []
+
+        if len(notes) > 0:
+            for note in notes:
+                if self.end_time:
+                    if self.end_time.date() >= note.date:
+                        care_plan_notes.append(note)
+                if not self.end_time:
+                    if self.start_time.date() <= note.date:
+                        care_plan_notes.append(note)
+
+        consults = Consult.query.filter(Consult.client_id == self.client_id).all()
+
+        care_plan_consults = []
+
+        if len(consults) > 0:
+            for consult in consults:
+                if self.end_time:
+                    if self.end_time.date() >= consult.date:
+                        care_plan_consults.append(consult)
+                if not self.end_time:
+                    if self.start_time.date() <= consult.date:
+                        care_plan_consults.append(consult)
+
         return {
             "tests": tests,
-            "visits": visits,
+            "visits_with_end_date": care_plan_visits_with_end_date,
+            "visits_without_end_date": care_plan_visits_without_end_date,
+            "notes": care_plan_notes,
+            "consults": care_plan_consults,
         }

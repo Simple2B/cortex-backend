@@ -24,6 +24,7 @@ from .visit import (
     VisitReportReq,
     VisitReportRes,
     VisitReportResClients,
+    VisitCarePlan,
 )
 from .note import Note, NoteDelete
 from .test import (

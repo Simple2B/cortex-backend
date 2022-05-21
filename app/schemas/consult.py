@@ -13,7 +13,8 @@ class Consult(BaseConsult):
     id: Optional[int]
     date: Optional[datetime.date]
     consult: str
-    client_id: int
+    api_key: Optional[str]
+    # client_id: int
     doctor_id: int
     visit_id: Optional[int]
     start_time: Optional[str]
@@ -22,6 +23,7 @@ class Consult(BaseConsult):
 
 class ConsultDelete(BaseConsult):
     id: int
-    client_id: int
+    api_key: str
+    # client_id: int
     doctor_id: int
     visit_id: int
