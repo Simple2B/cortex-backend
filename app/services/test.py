@@ -1,6 +1,6 @@
 import re
 import datetime
-from typing import Union
+from typing import List, Union
 from operator import itemgetter
 from sqlalchemy.sql.elements import and_
 
@@ -24,6 +24,7 @@ from app.schemas import (
     DeleteTest,
     DeleteFrequencyName,
     DeleteCarePlanName,
+    VisitCarePlan,
 )
 from app.models import (
     Client as ClientDB,
@@ -68,6 +69,10 @@ class TestService:
             if datetime.datetime.strptime(
                 care_plan.start_time.strftime("%m/%d/%Y"), "%m/%d/%Y"
             ) == datetime.datetime.strptime(today.strftime("%m/%d/%Y"), "%m/%d/%Y"):
+                care_plan.start_time = datetime.datetime.strptime(
+                    data.start_time, "%m/%d/%Y, %H:%M:%S"
+                )
+                care_plan.save()
                 if data.end_time:
                     care_plan.end_time = datetime.datetime.strptime(
                         data.end_time, "%m/%d/%Y, %H:%M:%S"
@@ -219,7 +224,9 @@ class TestService:
     def get_history_care_plan(
         self, api_key: str, doctor: Doctor
     ) -> CarePlanHistory or None:
+
         client: ClientDB = ClientDB.query.filter(ClientDB.api_key == api_key).first()
+
         if not client:
             log(log.ERROR, "get_history_care_plan: Client not found")
             raise HTTPException(
@@ -227,70 +234,47 @@ class TestService:
             )
 
         log(log.INFO, "get_history_care_plan: Client [%s]", client)
+
         care_plans: CarePlan = CarePlan.query.filter(
             CarePlan.client_id == client.id
         ).all()
+
         log(log.INFO, "get_history_care_plan: care_plans length [%d]", len(care_plans))
 
         history_care_plans = []
         for care_plan in care_plans:
             if care_plan.end_time:
                 history_care_plans.append(care_plan)
+            if not care_plan.end_time:
+                history_care_plans.append(care_plan)
         log(
             log.INFO,
             "get_history_care_plan: history_care_plans length[%d]",
             len(history_care_plans),
         )
+
+        visits = Visit.query.filter(Visit.client_id == client.id).all()
+
+        log(
+            log.INFO,
+            "get_history_care_plan: client visits length[%d]",
+            len(visits),
+        )
+
         if len(history_care_plans) > 0:
-            care_plans = []
+            plans = []
             for care_plan in history_care_plans:
-                history_care_plans
-                visits = care_plan.care_plan_info_tests["visits"]
-                notes = None
-                consults = None
-                if len(visits) > 0:
-                    for visit in visits:
-                        if (
-                            # visit.start_time >= care_plan.start_time
-                            # and visit.end_time is None
-                            # visit.start_time >= care_plan.start_time
-                            # and
-                            visit.end_time
-                            and visit.end_time <= care_plan.end_time
-                        ):
-                            notes = [
-                                {
-                                    "id": note.id,
-                                    "date": note.date.strftime("%m/%d/%Y"),
-                                    "client_id": note.client_id,
-                                    "doctor_id": note.doctor_id,
-                                    "visit_id": visit.id,
-                                    "note": note.notes,
-                                }
-                                for note in visit.visit_info["notes"]
-                                if note.date == visit.start_time.date()
-                            ]
 
-                            consults = [
-                                {
-                                    "id": consult.id,
-                                    "date": consult.date.strftime("%m/%d/%Y"),
-                                    "client_id": consult.client_id,
-                                    "doctor_id": consult.doctor_id,
-                                    "visit_id": visit.id,
-                                    "consult": consult.consult,
-                                }
-                                for consult in visit.visit_info["consults"]
-                            ]
-
-                care_plans.append(
+                plans.append(
                     {
                         "id": care_plan.id,
                         "date": care_plan.date.strftime("%m/%d/%Y"),
                         "start_time": care_plan.start_time.strftime(
                             "%m/%d/%Y, %H:%M:%S"
                         ),
-                        "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "end_time": care_plan.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+                        if care_plan.end_time
+                        else None,
                         "care_plan": care_plan.care_plan,
                         "frequency": care_plan.frequency,
                         "progress_date": care_plan.progress_date.strftime(
@@ -302,12 +286,21 @@ class TestService:
                         "doctor_id": care_plan.doctor_id,
                         "doctor_name": doctor.first_name + " " + doctor.last_name,
                         "tests": care_plan.care_plan_info_tests["tests"],
-                        "notes": notes if notes else [],
-                        "consults": consults if consults else [],
+                        "notes": care_plan.care_plan_info_tests["notes"],
+                        "consults": care_plan.care_plan_info_tests["consults"],
+                        "visits_with_end_date": self.get_visits_date_for_care_plan(
+                            care_plan.start_time,
+                            care_plan.end_time,
+                            care_plan.care_plan_info_tests["visits_with_end_date"],
+                        ),
+                        "visits_without_end_date": self.get_visits_date_for_care_plan(
+                            care_plan.start_time,
+                            care_plan.end_time,
+                            care_plan.care_plan_info_tests["visits_without_end_date"],
+                        ),
                     }
                 )
-            # history_plans = care_plans.sort(key=itemgetter("id"))
-            history_plans = sorted(care_plans, key=itemgetter("end_time"))
+            history_plans = sorted(plans, key=itemgetter("start_time"))
             return history_plans
         return []
 
@@ -516,6 +509,53 @@ class TestService:
             "doctor_id": care_plan.doctor_id,
         }
         return res_care_plan
+
+    @staticmethod
+    def get_visits_date_for_care_plan(
+        plan_start_time, plan_end_time, visits
+    ) -> List[VisitCarePlan]:
+        visits_care_plan = set()
+
+        visits_care_plan_unique = [
+            visit
+            for visit in visits
+            if visit.date.strftime("%m/%d/%Y") not in visits_care_plan
+            and not visits_care_plan.add(visit.date.strftime("%m/%d/%Y"))
+        ]
+
+        log(
+            log.INFO,
+            "get_visits_date_for_care_plan: visits length[%d]",
+            len(visits_care_plan),
+        )
+
+        get_visits = []
+
+        for visit in visits_care_plan_unique:
+            if plan_start_time.date() <= visit.date <= plan_end_time.date():
+                get_visits.append(visit)
+
+        log(
+            log.INFO,
+            "get_visits_date_for_care_plan: get_visits length[%d]",
+            len(get_visits),
+        )
+        if len(get_visits) > 0:
+            return [
+                {
+                    "id": visit.id,
+                    "date": visit.date.strftime("%m/%d/%Y"),
+                    "start_time": visit.start_time.strftime("%m/%d/%Y, %H:%M:%S"),
+                    "end_time": visit.end_time.strftime("%m/%d/%Y, %H:%M:%S")
+                    if visit.end_time
+                    else None,
+                    "rougue_mode": visit.rougue_mode,
+                    "client_id": visit.client_id,
+                    "doctor_id": visit.doctor_id,
+                }
+                for visit in get_visits
+            ]
+        return []
 
     def write_care_plan_frequency(
         self, data: PostTestCarePlanAndFrequency, doctor: Doctor
