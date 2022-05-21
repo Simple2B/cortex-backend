@@ -56,6 +56,8 @@ class CarePlanHistory(CarePlan):
     notes: Optional[list]
     consults: Optional[list]
     tests: Optional[list]
+    visits_with_end_date: Optional[list]
+    visits_without_end_date: Optional[list]
 
 
 class CurrentCarePlan(CarePlan):
