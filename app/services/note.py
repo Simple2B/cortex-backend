@@ -18,7 +18,7 @@ from app.logger import log
 class NoteService:
     def write_note(self, data_note: NoteSchemas, doctor: Doctor) -> List[NoteSchemas]:
         client: ClientDB = ClientDB.query.filter(
-            ClientDB.id == data_note.client_id
+            ClientDB.api_key == data_note.api_key
         ).first()
         if not client:
             log(log.ERROR, "write_note: Client not found")
@@ -36,41 +36,6 @@ class NoteService:
             log(log.INFO, "write_note: Today reception created [%s]", reception)
 
         log(log.INFO, "write_note: Today reception [%s]", reception)
-
-        if not data_note.visit_id:
-            start_time = datetime.datetime.strptime(
-                data_note.start_time, "%m/%d/%Y, %H:%M:%S"
-            )
-            end_time = datetime.datetime.strptime(
-                data_note.end_time, "%m/%d/%Y, %H:%M:%S"
-            )
-            visit = Visit(
-                date=start_time,
-                start_time=start_time,
-                end_time=end_time,
-                client_id=client.id,
-                doctor_id=doctor.id,
-            )
-            visit.save()
-
-            log(log.INFO, "write_note: save visit [%d] for update care plan", visit.id)
-
-            note = Note(
-                date=today,
-                client_id=client.id,
-                doctor_id=doctor.id,
-                visit_id=visit.id,
-                notes=data_note.notes,
-            ).save()
-
-            log(
-                log.INFO,
-                "write_note: note [%d] of visit [%d] created for care plan updated",
-                note.id,
-                visit.id,
-            )
-
-            return visit.visit_info
 
         visit: Visit = Visit.query.filter(
             and_(
@@ -150,75 +115,45 @@ class NoteService:
 
         log(log.INFO, "get_note: Today reception [%s]", reception)
 
-        visits: Visit = Visit.query.filter(Visit.client_id == client.id).all()
-        visits_with_end_time = []
-        if len(visits) > 0:
-            for visit in visits:
-                if visit.end_time:
-                    visits_with_end_time.append(visit)
-            visits_with_end_time.append(visits[-1])
-        today = today = datetime.datetime.utcnow()
-        log(
-            log.INFO,
-            "get_note: Count of visits with end time [%d]",
-            len(visits_with_end_time),
-        )
         care_plans = CarePlan.query.filter(CarePlan.client_id == client.id).all()
 
-        if len(visits_with_end_time) > 0:
-            log(
-                log.INFO,
-                "get_note: visit count [%d] for client [%d] today",
-                len(visits_with_end_time),
-                client.id,
-            )
-            care_plan = None
-            if len(care_plans) > 0:
-                for plan in care_plans:
-                    if not plan.end_time or plan.end_time >= today:
-                        care_plan = plan
+        log(log.INFO, "get_note: count [%d] of care plans", len(care_plans))
 
-            for visit in visits_with_end_time:
-                notes = []
-                # if visit.end_time is None or visit.end_time >= today:
-                if care_plan:
-                    #     log(log.INFO, "get_note: care plan [%s]", care_plan)
-                    if (
-                        not care_plan.end_time
-                        and care_plan.start_time <= visit.start_time
-                        or care_plan.start_time <= visit.start_time
-                        and care_plan.end_time >= visit.end_time
-                    ):
-                        notes = [note for note in visit.visit_info["notes"]]
-                        return notes
-                    # notes = [
-                    #     note
-                    #     for note in visit.visit_info["notes"]
-                    #     if note.date >= care_plan.start_time.date()
-                    # ]
-                    # return notes
-                notes = [note for note in visit.visit_info["notes"]]
-                return notes
+        time_today = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
-        log(log.INFO, "get_note: client doesn't have visit")
-        visit = Visit(
-            date=today,
-            client_id=client.id,
-            doctor_id=doctor.id,
-        ).save()
-        log(
-            log.INFO,
-            "get_note: visit [%s] for client [%d] today created",
-            visit,
-            client.id,
-        )
-        return []
+        care_plan = None
+        if len(care_plans) > 0:
+            for plan in care_plans:
+                if not plan.end_time or plan.end_time >= datetime.datetime.strptime(
+                    time_today, "%m/%d/%Y, %H:%M:%S"
+                ):
+                    log(log.INFO, "get_note: care plan end time [%s]", plan.end_time)
+                    log(
+                        log.INFO,
+                        "get_note: time today [%s]",
+                        datetime.datetime.strptime(time_today, "%m/%d/%Y, %H:%M:%S"),
+                    )
+                    care_plan = plan
+
+        notes = Note.query.filter(Note.client_id == client.id).all()
+
+        log(log.INFO, "get_note: count [%d] of notes", len(notes))
+
+        get_notes = []
+
+        if len(notes) > 0 and care_plan:
+            care_plan_start_date = care_plan.start_time.date()
+            for note in notes:
+                if note.date >= care_plan_start_date:
+                    get_notes.append(note)
+
+        return get_notes
 
     def delete_note(self, data_note: NoteSchemas, doctor: Doctor) -> None:
-
         client: ClientDB = ClientDB.query.filter(
-            ClientDB.id == data_note.client_id
+            ClientDB.api_key == data_note.api_key
         ).first()
+
         if not client:
             log(log.ERROR, "delete_note: Client not found")
             raise HTTPException(
