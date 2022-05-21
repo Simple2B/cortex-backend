@@ -31,6 +31,8 @@ def test_create_care_plan(client: TestClient):
     client_intake: Client = Client.query.first()
     data = {
         "api_key": client_intake.api_key,
+        "start_time": "8/22/2021, 11:43:14",
+        "end_time": None,
     }
     # 1. create care plan
     response = client.post("/api/test/care_plan_create", json=data)
