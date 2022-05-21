@@ -7,6 +7,7 @@ from sqlalchemy.sql.elements import and_
 from app.schemas import Doctor, Consult as ConsultSchemas
 from app.models import (
     Client as ClientDB,
+    CarePlan,
     Visit,
     Reception,
     Consult,
@@ -20,7 +21,7 @@ class ConsultService:
         self, data_consult: ConsultSchemas, doctor: Doctor
     ) -> ConsultSchemas:
         client: ClientDB = ClientDB.query.filter(
-            ClientDB.id == data_consult.client_id
+            ClientDB.api_key == data_consult.api_key
         ).first()
         if not client:
             log(log.ERROR, "write_consult: Client not found")
@@ -126,48 +127,43 @@ class ConsultService:
 
         log(log.INFO, "get_consult: Today reception [%s]", reception)
 
-        visits: Visit = Visit.query.filter(
-            and_(
-                Visit.date == today,
-                Visit.client_id == client.id,
-                # Visit.end_time == None,  # noqa E711
-            )
-        ).all()
-        today = today = datetime.datetime.utcnow()
-        if len(visits) > 0:
-            log(
-                log.INFO,
-                "get_consult: visits count [%d] for client [%d] today",
-                len(visits),
-                client.id,
-            )
-            consults_client = []
-            for visit in visits:
-                if visit.end_time is None or visit.end_time >= today:
-                    consults_client = [
-                        consult for consult in visit.visit_info["consults"]
-                    ]
-            return consults_client
+        care_plans = CarePlan.query.filter(CarePlan.client_id == client.id).all()
 
-        log(log.INFO, "get_consult: client doesn't have visit")
-        Visit(
-            date=today,
-            client_id=client.id,
-            doctor_id=doctor.id,
-        )
-        visit.save()
-        log(
-            log.INFO,
-            "get_consult: visit [%s] for client [%d] today created",
-            visit,
-            client.id,
-        )
-        return []
+        log(log.INFO, "get_consult: count [%d] of care plans", len(care_plans))
+
+        time_today = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+
+        care_plan = None
+        if len(care_plans) > 0:
+            for plan in care_plans:
+                if not plan.end_time or plan.end_time >= datetime.datetime.strptime(
+                    time_today, "%m/%d/%Y, %H:%M:%S"
+                ):
+                    log(log.INFO, "get_consult: care plan end time [%s]", plan.end_time)
+                    log(
+                        log.INFO,
+                        "get_consult: time today [%s]",
+                        datetime.datetime.strptime(time_today, "%m/%d/%Y, %H:%M:%S"),
+                    )
+                    care_plan = plan
+
+        consults = Consult.query.filter(Consult.client_id == client.id).all()
+
+        log(log.INFO, "get_consult: count [%d] of consults", len(consults))
+
+        get_consults = []
+
+        if len(consults) > 0 and care_plan:
+            care_plan_start_date = care_plan.start_time.date()
+            for note in consults:
+                if note.date >= care_plan_start_date:
+                    get_consults.append(note)
+
+        return get_consults
 
     def delete_consult(self, data_consult: ConsultDelete, doctor: Doctor) -> None:
-
         client: ClientDB = ClientDB.query.filter(
-            ClientDB.id == data_consult.client_id
+            ClientDB.api_key == data_consult.api_key
         ).first()
         if not client:
             log(log.ERROR, "delete_consult: Client not found")
