@@ -37,14 +37,28 @@ class Visit(Base, ModelMixin):
         notes = Note.query.filter(self.client_id == Note.client_id).all()
         consults = Consult.query.filter(self.client_id == Consult.client_id).all()
 
+        visit_notes = []
+        if len(notes) > 0:
+            for note in notes:
+                # if self.end_time and note.end_time:
+                if self.date == note.date:
+                    visit_notes.append(note)
+
+        visit_consults = []
+        if len(consults) > 0:
+            for consult in consults:
+                # if self.end_time and note.end_time:
+                if self.date == consult.date:
+                    visit_consults.append(consult)
+
         return {
             "id": self.id,
             "date": self.date,
             "start_time": self.start_time,
             "end_time": self.end_time,
             "client_info": self.client.client_info,
-            "notes": notes if len(notes) > 0 else [],
-            "consults": consults if len(consults) > 0 else [],
+            "notes": visit_notes,
+            "consults": visit_consults,
             # TODO: add doctor when doctor would be not one
             "doctor": self.doctor,
         }
