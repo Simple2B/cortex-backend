@@ -72,6 +72,26 @@ DATA_CLIENT = {
     "email": "client@gmail.com",
 }
 
+SEARCH_CLIENTS = {
+    "q": "Alex",
+    "page": 5,
+}
+
+
+def test_search_clients(client: TestClient):
+
+    response = client.get("/api/client/clients", params=SEARCH_CLIENTS)
+    assert response
+    assert response.ok
+
+    # check count people loaded on page
+    client_db_page_number = len(Client.query[:SEARCH_CLIENTS["page"]])
+    assert client_db_page_number == SEARCH_CLIENTS["page"]
+
+    # check if name is searched in db
+    client_db_name = Client.query.filter(Client.first_name == SEARCH_CLIENTS["q"]).first()
+    assert client_db_name.first_name == SEARCH_CLIENTS["q"]
+
 
 def test_registration_client(client: TestClient):
     def get_clients_number() -> int:
